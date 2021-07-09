@@ -2,7 +2,7 @@
 #'
 #' @export
 
-describe <- function(x, subset = NULL, signif = 5) {
+describe <- function(x, subset = NULL, signif = 6) {
   if (!missing(subset)) x <- x[subset]
   x <- na.omit(x)
   print(paste0('Promedio: ', signif(mean(x), signif)))
