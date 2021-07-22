@@ -13,7 +13,8 @@ df2t.curve(
   smoothDer1 = TRUE,
   derScaling = 0.6,
   length = 10000,
-  main = NULL
+  main = NULL,
+  upwards = FALSE
 )
 }
 \description{

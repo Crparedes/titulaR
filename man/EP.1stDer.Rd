@@ -10,6 +10,8 @@ EP.1stDer(
   sub = FALSE,
   subregion = c(0.985, 1.015),
   plot = FALSE,
+  upwards = FALSE,
+  vabline = TRUE,
   ...
 )
 }

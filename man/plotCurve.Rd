@@ -6,7 +6,7 @@
 \usage{
 plotCurve(
   curve,
-  xlab = "Titulante (mL)",
+  xlab = "Titulante (g)",
   ylab = "Potencial (mV)",
   smoothLi = TRUE,
   smoothDer1 = TRUE,
@@ -14,7 +14,9 @@ plotCurve(
   length = 10000,
   main = NULL,
   spar = 0.2,
-  plot = TRUE
+  plot = TRUE,
+  vabline = TRUE,
+  mn = NULL
 )
 }
 \description{
