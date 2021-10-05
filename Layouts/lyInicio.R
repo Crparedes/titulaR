@@ -4,10 +4,8 @@ inicioLy <- fluidRow(
         fluidRow(
           column(9,
             h4("Esta aplicación complementa los protocolos de medicion...")))),
-      box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Certificados de calibracion de balanzas')), 
-          width = 6, status = 'primary', collapsible = TRUE, collapsed = FALSE,
-          ),
+      BalanceCalibCertUI('BalanceCalibCert'),
       box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Configuracion')), 
-          width = 6, status = 'primary', collapsible = TRUE, collapsed = TRUE,
+          width = 3, status = 'primary', collapsible = TRUE, collapsed = TRUE,
       ))
 )

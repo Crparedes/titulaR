@@ -11,3 +11,7 @@ dwldhndlr <- function(name, formatP, dimensP, plt) {
                          }
   ))
 }
+
+balID <- function(x) {
+  return(x$balanceID)
+}
