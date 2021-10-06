@@ -14,7 +14,7 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                      width = 350, withMathJax(),
                      sidebarMenu(id = "tabs",# tags$br(), tags$br(),
                        menuItem("Inicio y configuraciones", tabName = "inicio", icon = icon("info-circle")), #tags$br(),  tags$br(),
-                       menuItem("Disoluciones y MRCs", tabName = "DisMrcTab", icon = icon("fill-drip")), tags$br(), tags$br(),
+                       menuItem("MRCs y disoluciones", tabName = "DisMrcTab", icon = icon("fill-drip")), tags$br(), tags$br(),
                        tags$b(HTML('&ensp;'), 'Complejometrías'),
                        menuItem("Disoluciones calibrantes monoelementales", tabName = "CalibrantesTab", icon = icon("bong")),
                        menuItem("EDTA, sal disódica dihidratada", tabName = "edtaTab", icon = icon("stroopwafel")),
