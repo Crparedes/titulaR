@@ -1,7 +1,8 @@
-BalanceCalibCertUI <- function(id) {
+SolidMRCUI <- function(id, reagent, explan) {
   ns <- NS(id)
-  box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Trazabilidad Metrológica de las Balanzas')), 
-      width = 9, status = 'primary', collapsible = TRUE, collapsed = FALSE,
+  box(title = div(style = 'font-size:18px;valign="bottom"', tags$b('MRC de ', reagent)), 
+      width = 4, status = 'primary', collapsible = TRUE, collapsed = FALSE,
+      h5(explan),
       uiOutput(ns('CalibCertPicker')),
       h6('Para solicitar la inclusión o la actualización de un certificado de calibración digital
           mande un correo a caparedes@inm.gov.co.'), tags$hr(),
@@ -23,17 +24,7 @@ BalanceCalibCertUI <- function(id) {
   )
 }
 
-BalanceCalibCertServer <- function(input, output, session) {
-  #saveRDS(MT.XPE.205, file = paste0('www/calibCert/Mettler Toledo XPE 205 (', MT.XPE.205$date, ').rds'))
-  #saveRDS(MT.XPE.204, file = paste0('www/calibCert/Mettler Toledo XPE 204 (', MT.XPE.204$date, ').rds'))
-  #saveRDS(MT.XPE.504, file = paste0('www/calibCert/Mettler Toledo XPE 504 (', MT.XPE.504$date, ').rds'))
-  #saveRDS(MT.XP.56, file = paste0('www/calibCert/Mettler Toledo XP 56 (', MT.XP.56$date, ').rds'))
-  #saveRDS(MT.XP.2002, file = paste0('www/calibCert/Mettler Toledo XP 2002 (', MT.XP.2002$date, ').rds'))
-  CalibCertArchivos <- gsub('.rds', '', list.files(path = 'www/calibCert'))
-  CalibCertList <- lapply(X = paste0('www/calibCert/', CalibCertArchivos, '.rds'), FUN = readRDS)
-  names(CalibCertList) <- lapply(X = CalibCertList, FUN = balID)
-  CalibCertShow <- as.list(names(CalibCertList)); names(CalibCertShow) <- CalibCertArchivos
-  
+SolidMRCServer <- function(input, output, session) {
   CalibCertPicker <- pickerInput(session$ns("CalibCertElected"), 
                                  label = 'Verifique los certificados de calibración de las balanzas que necesita:',
                                  choices = CalibCertShow, width = '100%',# inline = FALSE,
@@ -61,4 +52,6 @@ BalanceCalibCertServer <- function(input, output, session) {
   output$plotTheCalibCert  <- renderPlot(plotTheCalibCert())
   #output$CalibCertVisualizer <- renderUI(CalibCertVisualizer())
   output$CalibCertPicker <- renderUI(CalibCertPicker)
+  
+  return()
 }

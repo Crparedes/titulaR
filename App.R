@@ -14,7 +14,7 @@ library(masscor)
 
 # Por lo general, los módulos_UI son llamados desde las funciones de layouts
 pack_titRation  <- with(list(pt = 'Package/R/'), paste0(pt, list.files(path = pt)))
-modules         <- with(list(pt = 'Modules/'), paste0(pt, list.files(path = pt)))
+modules         <- with(list(pt = 'Modules/'), paste0(pt, list.files(path = pt))) # El primer m'odulo es el de variables globales  
 layouts         <- with(list(pt = 'Layouts/'), paste0(pt, list.files(path = pt))) # functions in the client side
 sapply(c(pack_titRation, modules, layouts), source)
 
@@ -27,8 +27,10 @@ ui <- function(request) {
 server <- function(input, output, session) {
   formatP  <- reactive(input$Format)
   dimensP  <- reactive(c(input$plotsW, input$plotsH) / 25.4 * 1.6)
-  DataCalibCert <- callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
-
+  
+  callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
+  callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA')
+  callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2')
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")

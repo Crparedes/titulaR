@@ -18,7 +18,9 @@ customBody <- dashboardBody(
   withMathJax(),
   tabItems(
     tabItem(tabName = "inicio", inicioLy),
-    tabItem(tabName = "estDescri", h2("Titulaciòn de disoluciones calibrantes monoelementales")),
-    tabItem(tabName = "bibliogr", h2("Bibliografía"))
+    tabItem(tabName = "MRC_DisTab", MrcDisLy),
+    tabItem(tabName = "CalibrantesTab", CalibrantesLy),
+    tabItem(tabName = "EdtaTab", EdtaLy)#,
+    #tabItem(tabName = "bibliogr", h2("Bibliografía"))
   )
 )
