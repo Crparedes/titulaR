@@ -12,7 +12,7 @@ library(data.table)
 library(masscor)
 # icon("flask")
 
-# Por lo general, los módulos_UI son llamados desde las funciones de layouts
+# Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
 pack_titRation  <- with(list(pt = 'Package/R/'), paste0(pt, list.files(path = pt)))
 modules         <- with(list(pt = 'Modules/'), paste0(pt, list.files(path = pt))) # El primer m'odulo es el de variables globales  
 layouts         <- with(list(pt = 'Layouts/'), paste0(pt, list.files(path = pt))) # functions in the client side
@@ -29,8 +29,10 @@ server <- function(input, output, session) {
   dimensP  <- reactive(c(input$plotsW, input$plotsH) / 25.4 * 1.6)
   
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
-  callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA')
-  callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2')
+  callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA')
+  callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb')
+  callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu')
+  callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn')
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")

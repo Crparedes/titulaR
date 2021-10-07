@@ -11,7 +11,7 @@ convertMenuItem2 <- function(mi, tabName) {
 }
 
 customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding-top: 110px;}"), # font-size: larger
-                     width = 350, withMathJax(),
+                     width = 300, withMathJax(),
                      sidebarMenu(id = "tabs",# tags$br(), tags$br(),
                        menuItem("Inicio y configuraciones", tabName = "inicio", icon = icon("info-circle")), #tags$br(),  tags$br(),
                        menuItem("MRCs y disoluciones", tabName = "MRC_DisTab", icon = icon("fill-drip")), tags$br(), tags$br(),
