@@ -19,32 +19,41 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
         box(title = div(style = 'font-size:14px', 'Preparacion de la disolucion'), 
             width = 12, collapsible = TRUE, collapsed = TRUE, status = 'primary',
             tags$b('Condiciones ambientales'),
-            numericInput(ns('Temp1'), label = div(style = 'font-size:12px', 'Temperatura ambiente [$^o$C]:'), value = 18),
-            numericInput(ns('BarPres1'), label = div(style = 'font-size:12px', 'Presion barometrica [hPa]:'), value = 540),
-            numericInput(ns('relHum1'), label = div(style = 'font-size:12px', 'Humedad relativa [%]:'), value = 45), tags$hr(),
+            tags$div(id = "inline", style = 'font-size:12px',
+                     splitLayout(cellWidths = c("75%", "25%"),
+                                 numericInput(ns('Temp1'), label = 'Temperatura [$^o$C]:', value = 18),
+                                 numericInput(ns('u_Temp1'), label = '\u00B1', value = 1.8)),
+                     splitLayout(cellWidths = c("75%", "25%"),
+                                 numericInput(ns('BarPres1'), label = 'Presion [hPa]:', value = 540),
+                                 numericInput(ns('u_BarPres1'), label = '\u00B1', value = 5)),
+                     splitLayout(cellWidths = c("75%", "25%"),
+                                 numericInput(ns('relHum1'), label = 'Humedad relativa [%]:', value = 45),
+                                 numericInput(ns('u_relHum1'), label = '\u00B1', value = 5))), tags$hr(),
             tags$b('Masa del MRC'),
-            pickerInput(ns("CalibCertMRC"), label = 'Balanza para medir la masa del solido:',
-                        choices = CalibCertShow, width = '100%', selected = 'MT XPE 205', multiple = FALSE),
-            numericInput(ns('MasRec1'), label = div(style = 'font-size:12px', 'Masa del recipiente donde pesara el MRC [g]:'), value = 0),
-            numericInput(ns('MasMRC1'), label = div(style = 'font-size:12px', 'Masa del MRC adicionado [g]:'), value = 0.372),
-            numericInput(ns('MasRecMRC1'), label = div(style = 'font-size:12px', 'Masa conjunta del recipiente y el MRC [g]:'), value = 0),
-            uiOutput(ns('deriMasaMRC')), tags$hr(),
+            tags$div(id = "inline", style = 'font-size:12px', 
+                     pickerInput(ns("CalibCertMRC"), label = 'Balanza utilizada:',
+                                 choices = CalibCertShow, width = '100%', selected = 'MT XPE 205', multiple = FALSE)),
+            tags$div(id = "inline", style = 'font-size:12px',
+                     numericInput(ns('MasRec1'), label = 'Masa del recipiente [g]:', value = 0),
+                     numericInput(ns('MasMRC1'), label = 'Masa del MRC [g]:', value = 0),
+                     numericInput(ns('MasRecMRC1'), label = 'Masa conjunta [g]:', value = 0),
+                     uiOutput(ns('deriMasaMRC'))), tags$hr(),
             tags$b('Masa final de la disolucion'),
             uiOutput(ns('CalibCertDis')),
-            numericInput(ns('MasRec2'), 
-                         label = div(style = 'font-size:12px', 'Masa del recipiente donde llevara la disolucion a masa final [g]:'), value = 0),
-            numericInput(ns('MasDis1'), label = div(style = 'font-size:12px', 'Masa final de la disolucion [g]:'), value = 100),
-            numericInput(ns('MasRecDis1'), label = div(style = 'font-size:12px', 'Masa conjunta del recipiente y la disolucion [g]:'), value = 0),
-            numericInput(ns('DensitDis'), label = div(style = 'font-size:12px', 'Densidad de la disolucion [g cm$^{-3}$]:'), value = 1),
-            numericInput(ns('u_DensitDis'), 
-                         label = div(style = 'font-size:12px', 'Incertidumbre en la densidad de la disolucion [g cm$^{-3}$]:'), value = 0.1),
-            uiOutput(ns('deriMasaDisMRC')))),
+            tags$div(id = "inline", style = 'font-size:12px',
+                     numericInput(ns('MasRec2'), label = 'Masa del recipiente [g]:', value = 0),
+                     numericInput(ns('MasDis1'), label = 'Masa final disolucion [g]:', value = 0),
+                     numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]:', value = 0),
+                     splitLayout(cellWidths = c("75%", "25%"),
+                                 numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]:', value = 1),
+                                 numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.1)),
+                     uiOutput(ns('deriMasaDisMRC'))))),
       conditionalPanel(
         condition = 'input.SourceOption == "archivo"',
-        ns = ns, tags$b('Esto aun esta pendiente de implementacion'),
+        ns = ns,
         fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
       tags$hr(), 
-      uiOutput(ns('buttonCalc')), tags$br(), tags$br(), 
+      uiOutput(ns('buttonCalc')), tags$br(), #tags$br(), 
       uiOutput(ns('InfoDisBox'))#,
       #actionButton(ns('DwnlDisFile'), label = 'Descargar archivo .dis')
   )
@@ -60,7 +69,7 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   
   DensitAir <- reactive(c(airDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1),
                           uncertAirDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1, 
-                                           u_Temp = 0.3, u_p = 0.78, u_h = 1.7, printRelSD = FALSE)))
+                                           u_Temp = input$u_Temp1, u_p = input$u_BarPres1, u_h = input$u_relHum1, printRelSD = FALSE)))
   
   
   derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
@@ -69,8 +78,10 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
   
   
-  CalibCertDis <- reactive(pickerInput(session$ns("CalibCertDis"), label = 'Balanza para medir la masa de la disolucion:',
-                                       choices = CalibCertShow, selected = input$CalibCertMRC, width = '100%', multiple = FALSE))
+  CalibCertDis <- reactive(tags$div(id = "inline", style = 'font-size:12px', 
+                                    pickerInput(session$ns("CalibCertDis"), 
+                                                label = 'Balanza utilizada:',
+                                                choices = CalibCertShow, selected = input$CalibCertMRC, width = '100%', multiple = FALSE)))
   
   convMassMRC <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g'),
                             uncertConvMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g')))
@@ -96,14 +107,24 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   
   infoDisMRC <- eventReactive(input$buttonCalc, {
     if (input$SourceOption == "daCapo") {
-      return(list('MRC empleado' = input$MRCElected,
-                  'Fecha de vencimiento MRC' = dateMRC(),
-                  'Especie ' = reagKey,
-                  'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 6),
-                  'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 3)))
+      if (!is.na(DisConc()$prop[[1]] > 0) && !is.na(DisConc()$prop[[3]] > 0)) {
+        return(list('MRC empleado' = input$MRCElected,
+                    'Fecha de vencimiento MRC' = dateMRC(),
+                    'Especie ' = reagKey,
+                    'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 6),
+                    'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 3)))
+      } else {
+        return('Los datos ingresados no son validos!')
+      }
     } else {
-      dataFile <- input$DisFile
-      return(readRDS(dataFile$datapath))
+      dataFile <- readRDS(input$DisFile$datapath)
+      if (dataFile['Especie '] != reagKey) {
+        return(rbind('ERROR!!! ERROR!!! ERROR!!!', 
+                     'Por favor ingrese una disolucion de la especie apropiada' ))
+      } else {
+        return(dataFile)
+      }
+      
     }})
   #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
   
@@ -116,7 +137,7 @@ SolidMRCServer <- function(input, output, session, reagKey) {
         div(style = 'font-size:12px',
             tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
             tags$b('Fraccion masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
-            tags$b('Masa molar de ', reagKey, ' que aplica para el material:'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol$^{-1}$',tags$br(),
+            tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol$^{-1}$',tags$br(),
             tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm$^{-3}$'))
   })
   
@@ -125,7 +146,7 @@ SolidMRCServer <- function(input, output, session, reagKey) {
     #printedStuff <- ifelse()
     box(title = div(style = 'font-size:14px', 'Informacion de la disolucion:'),
         width = 12, collapsible = TRUE, collapsed = FALSE,
-        status = ifelse(trigger, 'success', 'danger'),
+        status = 'primary',#ifelse(trigger, 'success', 'danger'),
         renderPrint(tryCatch(infoDisMRC(),
                              error = function(cond) {'Los datos ingresados no son validos!'})),
         if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
@@ -140,8 +161,8 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   output$InfoMrcBox <- renderUI(InfoMrcBox())
   output$InfoDisBox <- renderUI(InfoDisBox())
   output$CalibCertDis <- renderUI(CalibCertDis())
-  output$DwnlDisFile <- downloadHandler(filename = function() {paste0("Disolucion_MRC_", reagKey, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".dis")}, 
-                                        content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
-  # output$DwnlDisFile <- renderUI(DwnlDisFile())
-  return()
+  output$DwnlDisFile <- downloadHandler(
+    filename = function() {paste0("Disolucion_MRC_", reagKey, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".dis")}, 
+    content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
+  return(infoDisMRC)
 }

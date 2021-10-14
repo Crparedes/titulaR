@@ -30,8 +30,8 @@ server <- function(input, output, session) {
   dimensP  <- reactive(c(input$plotsW, input$plotsH) / 25.4 * 1.6)
   
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
-  callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA')
-  callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb')
+  DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA')
+  DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb')
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu')
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn')
 }

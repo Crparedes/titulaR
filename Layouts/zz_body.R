@@ -1,11 +1,12 @@
 customBody <- dashboardBody(
-  tags$head(tags$style(
-    HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
-          .shiny-notification {position:fixed; top: calc(50% - 150px); left: calc(50% - 150px); 
-                               height: auto !important; opacity:0.98; margin-right:500px}
-          .btn-box-tool {color: #001848; font-size: 15px}
-')
-  )), 
+  tags$head(
+    tags$style(HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
+                     .shiny-notification {position:fixed; top: calc(50% - 150px); left: calc(50% - 150px); 
+                                         height: auto !important; opacity:0.98; margin-right:500px}
+                     .btn-box-tool {color: #001848; font-size: 15px}')),
+    tags$style(type = "text/css", "#inline label{ display: table-cell; text-align: right; vertical-align: middle; } 
+               #inline .form-group {display: table-row;}")
+  ), 
   #shinyDashboardThemes(theme = "blue_gradient"),
   customTheme,... = # Look for it in Layouts/aa_ ...
   tags$style(tags$style(HTML('
