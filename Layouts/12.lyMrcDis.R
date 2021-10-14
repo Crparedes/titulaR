@@ -22,16 +22,16 @@ MrcDisLy <- fluidRow(
                  #o para realizar aseguramiento de la calidad de los resultados de fraccion masica de EDTA en la sal disodica dihidratada'
                  )),
         column(4,
-               SolidMRCUI('ModuloDisolucionPbNO3.2', reagent = 'Nitrato de plomo', reagKey = 'Pb',
+               SolidMRCUI('ModuloDisolucionPbNO3.2', reagent = 'nitrato de plomo', reagKey = 'Pb',
                  explan = 'Para asignar valor de fraccion masica de EDTA en la sal disodica dihidratada'
                  #o para realizar aseguramiento de la calidad de los resultados de fraccion masica de iones metalicos en disoluciones 
                  #calibrantes monoelementales'
                  )),
         
         column(4,
-               LiquidMRCUI('ModuloDilucionCobre', reagent = 'Disolucion calibrante de cobre', reagKey = 'Cu',
+               LiquidMRCUI('ModuloDilucionCobre', reagent = 'disolucion calibrante de cobre', reagKey = 'Cu',
                            explan = 'Para usar como indicadora en las titulaciones complejometricas por retroceso'),
-               LiquidMRCUI('ModuloDilucionZinc', reagent = 'Disolucion calibrante de zinc', reagKey = 'Zn',
+               LiquidMRCUI('ModuloDilucionZinc', reagent = 'disolucion calibrante de zinc', reagKey = 'Zn',
                            explan = 'Para usar como disolucion titulante en las titulaciones complejometricas por retroceso')
         ))
       ),

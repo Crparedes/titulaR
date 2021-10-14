@@ -17,7 +17,7 @@ MRCs.MassFraction <- list(Pb = list(c(round(207.209 / 331.219, 6), 3e-4/2)), # N
                           EDTA = list(c(0.9986, 3e-4/2)))     # UNIM GSO 2960-84
                           
 MRC.At_MolWeigths <- list(Pb = list(c(207.209, 0.005)), # NIST SRM 928 # Decid'i no dividir por raiz de tres
-                          EDTA = list(c(3.722368e+02, 6.332914e-03))) # UNIM GSO 2960-84
+                          EDTA = list(round(c(3.722368e+02, 6.332914e-03), 4))) # UNIM GSO 2960-84
 
 MRC.densities     <- list(Pb = list(c(4.53, 0.05)), # NIST SRM 928 # Decid'i no dividir por raiz de tres
                           EDTA = list(c(0.860, 0.005))) # UNIM GSO 2960-84

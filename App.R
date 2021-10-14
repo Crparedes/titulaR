@@ -10,6 +10,7 @@ library(ggfortify)
 library(rhandsontable)
 library(data.table)
 library(masscor)
+library(propagate)
 # icon("flask")
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts

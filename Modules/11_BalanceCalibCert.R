@@ -6,7 +6,7 @@ BalanceCalibCertUI <- function(id) {
       pickerInput(ns("CalibCertElected"), 
                   label = 'Verifique la disponibilidad de los certificados de calibración de las balanzas que necesita:',
                   choices = CalibCertShow, width = '100%',# inline = FALSE,
-                  multiple = FALSE, 
+                  multiple = FALSE, selected = 'MT XPE 205',
                   options = list(#`actions-box` = TRUE, size = 10, `deselect-all-text` = "Deseleccionar todos",
                     #`select-all-text` = "Seleccionar todos", 
                     `none-selected-text` = "Revise la vigencia del certificado (fecha)")),
