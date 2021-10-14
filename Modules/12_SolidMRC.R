@@ -44,7 +44,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
         ns = ns, tags$b('Esto aun esta pendiente de implementacion'),
         fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
       tags$hr(), 
-      actionButton(ns('buttonCalc'), label = 'Calcular concentracion'), tags$br(), tags$br(), 
+      uiOutput(ns('buttonCalc')), tags$br(), tags$br(), 
       uiOutput(ns('InfoDisBox'))#,
       #actionButton(ns('DwnlDisFile'), label = 'Descargar archivo .dis')
   )
@@ -86,21 +86,26 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   
   DisConc <- reactive({
     #xx <- 
-    propagate(expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000),
-                    data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC(), BuoyMRC = BuoyMRC(), 
-                                 MolWeiMRC = MolWeiMRC(), convMassDis = convMassDis(), BuoyDis = BuoyDis()),
-                    do.sim = FALSE)
+    propagate(expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
+              data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC(), BuoyMRC = BuoyMRC(), 
+                           MolWeiMRC = MolWeiMRC(), convMassDis = convMassDis(), BuoyDis = BuoyDis()),
+              do.sim = FALSE)
     #return(xx$prop[c(1, 3)])
   })
   
   
   infoDisMRC <- eventReactive(input$buttonCalc, {
-    list('MRC empleado' = input$MRCElected,
-         'Fecha de vencimiento MRC' = dateMRC(),
-         'Especie ' = reagKey,
-         'Concentracion [mmol/kg]' = signif(DisConc()$prop[1], 6),
-         'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[3], 3))})
-         #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
+    if (input$SourceOption == "daCapo") {
+      return(list('MRC empleado' = input$MRCElected,
+                  'Fecha de vencimiento MRC' = dateMRC(),
+                  'Especie ' = reagKey,
+                  'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 6),
+                  'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 3)))
+    } else {
+      dataFile <- input$DisFile
+      return(readRDS(dataFile$datapath))
+    }})
+  #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
   
   
   InfoMrcBox <- reactive({
@@ -123,12 +128,19 @@ SolidMRCServer <- function(input, output, session, reagKey) {
         status = ifelse(trigger, 'success', 'danger'),
         renderPrint(tryCatch(infoDisMRC(),
                              error = function(cond) {'Los datos ingresados no son validos!'})),
-        downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis'))#infoDisMRC()[1], ' \u00B1 ', infoDisMRC()[3])
+        if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
   })
+  
+  buttonCalc <- reactive(actionButton(session$ns('buttonCalc'), 
+                                      label = ifelse(input$SourceOption == "daCapo", 
+                                                     'Calcular concentracion', 
+                                                     'Mostrar disolucion cargada')))
+  output$buttonCalc <- renderUI(buttonCalc())
+  
   output$InfoMrcBox <- renderUI(InfoMrcBox())
   output$InfoDisBox <- renderUI(InfoDisBox())
   output$CalibCertDis <- renderUI(CalibCertDis())
-  output$DwnlDisFile <- downloadHandler(filename = function() {paste0("Disolucion_MRC_", reagKey, "_", Sys.Date(), ".dis")}, 
+  output$DwnlDisFile <- downloadHandler(filename = function() {paste0("Disolucion_MRC_", reagKey, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".dis")}, 
                                         content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
   # output$DwnlDisFile <- renderUI(DwnlDisFile())
   return()
