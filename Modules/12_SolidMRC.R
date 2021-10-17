@@ -8,13 +8,12 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                                   "Subir un archivo '.dis' generado anteriormente" = 'archivo')),
       tags$hr(),
       conditionalPanel(
-        condition = 'input.SourceOption == "daCapo"',
-        ns = ns,
+        condition = 'input.SourceOption == "daCapo"', ns = ns,
         fluidRow(
-          column(8, pickerInput(ns("MRCElected"), label = 'Seleccione el MRC:',
+          column(7, pickerInput(ns("MRCElected"), label = 'Seleccione el MRC:',
                                 choices = MRCs.ArchiveNames[[reagKey]], width = '100%',# inline = FALSE,
                                 multiple = FALSE, selected = NULL)),
-          column(4, tags$br(), uiOutput(ns("MRC_CertiFile")))),
+          column(5, tags$br(), uiOutput(ns("MRC_CertiFile")))),
         uiOutput(ns('InfoMrcBox')),
         box(title = div(style = 'font-size:14px', 'Preparacion de la disolucion'), 
             width = 12, collapsible = TRUE, collapsed = TRUE, status = 'primary',
@@ -49,8 +48,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                                  numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.1)),
                      uiOutput(ns('deriMasaDisMRC'))))),
       conditionalPanel(
-        condition = 'input.SourceOption == "archivo"',
-        ns = ns,
+        condition = 'input.SourceOption == "archivo"', ns = ns,
         fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
       tags$hr(), 
       uiOutput(ns('buttonCalc')), tags$br(), #tags$br(), 
@@ -157,7 +155,7 @@ SolidMRCServer <- function(input, output, session, reagKey) {
                                                      'Calcular concentracion', 
                                                      'Mostrar disolucion cargada')))
   output$buttonCalc <- renderUI(buttonCalc())
-  
+  output$MRC_CertiFile <- renderUI(fileDwnHTML())
   output$InfoMrcBox <- renderUI(InfoMrcBox())
   output$InfoDisBox <- renderUI(InfoDisBox())
   output$CalibCertDis <- renderUI(CalibCertDis())
