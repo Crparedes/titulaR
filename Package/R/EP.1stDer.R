@@ -25,8 +25,11 @@ EP.1stDer <- function(curve, length = 10000, sub = FALSE,
     }
   }
   smoothed <- curveDeriv(curve, length = length)
-  mn <- ifelse(upwards, smoothed$Titrant[which.max(smoothed$firstDeriv)],
-               smoothed$Titrant[which.min(smoothed$firstDeriv)])
+  #mn <- ifelse(upwards, smoothed$Titrant[which.max(smoothed$firstDeriv)],
+  #             smoothed$Titrant[which.min(smoothed$firstDeriv)])
+
+  mn <- smoothed$Titrant[which.max(abs(smoothed$firstDeriv))]
+
   if (plot) {
     plotCurve(curve = curve, length = length, vabline = vabline, mn = mn, ...)
   }

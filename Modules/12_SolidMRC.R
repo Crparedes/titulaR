@@ -23,11 +23,12 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                                  numericInput(ns('Temp1'), label = 'Temperatura [$^o$C]:', value = 18),
                                  numericInput(ns('u_Temp1'), label = '\u00B1', value = 1.8)),
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('BarPres1'), label = 'Presion [hPa]:', value = 540),
-                                 numericInput(ns('u_BarPres1'), label = '\u00B1', value = 5)),
+                                 numericInput(ns('BarPres1'), label = 'Presion [hPa]:', value = 750),
+                                 numericInput(ns('u_BarPres1'), label = '\u00B1', value = 2)),
                      splitLayout(cellWidths = c("75%", "25%"),
                                  numericInput(ns('relHum1'), label = 'Humedad relativa [%]:', value = 45),
-                                 numericInput(ns('u_relHum1'), label = '\u00B1', value = 5))), tags$hr(),
+                                 numericInput(ns('u_relHum1'), label = '\u00B1', value = 3))),
+            uiOutput(ns("NiceDensitAir")), tags$hr(),
             tags$b('Masa del MRC'),
             tags$div(id = "inline", style = 'font-size:12px', 
                      pickerInput(ns("CalibCertMRC"), label = 'Balanza utilizada:',
@@ -69,7 +70,6 @@ SolidMRCServer <- function(input, output, session, reagKey) {
                           uncertAirDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1, 
                                            u_Temp = input$u_Temp1, u_p = input$u_BarPres1, u_h = input$u_relHum1, printRelSD = FALSE)))
   
-  
   derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
   masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))
   derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
@@ -109,8 +109,8 @@ SolidMRCServer <- function(input, output, session, reagKey) {
         return(list('MRC empleado' = input$MRCElected,
                     'Fecha de vencimiento MRC' = dateMRC(),
                     'Especie ' = reagKey,
-                    'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 6),
-                    'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 3)))
+                    'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
+                    'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4)))
       } else {
         return('Los datos ingresados no son validos!')
       }
@@ -162,5 +162,20 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   output$DwnlDisFile <- downloadHandler(
     filename = function() {paste0("Disolucion_MRC_", reagKey, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".dis")}, 
     content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
+  
+  # Messages
+  NiceDensitAir <- eventReactive(input$buttonCalc,
+                                 tags$div(style = 'font-size:11px',
+                                          'La densidad local del aire calculada con la ecuacion CIMP2007 es ', 
+                                          signif(DensitAir()[1], 7), ' \u00B1 ', signif(DensitAir()[2], 3), '[g cm^{-3}]'))
+  deriMasaMRC <- eventReactive(input$MasRecMRC1, 
+                               div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassMRC() * 1000, 2), ' [mg]'))
+  deriMasaDisMRC <- eventReactive(input$MasRecDis1,
+                                  div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' [mg]'))
+  
+  output$NiceDensitAir <- renderUI(NiceDensitAir())
+  output$deriMasaMRC <- renderUI(deriMasaMRC())
+  output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
+  
   return(infoDisMRC)
 }
