@@ -27,3 +27,6 @@ MRC.ExpiricyDates <- list(Pb = list(as.Date('2026-01-01')), # NIST SRM 928 # Pre
                           
 names(MRCs.MassFraction$Pb) <- names(MRC.At_MolWeigths$Pb) <- names(MRC.ExpiricyDates$Pb) <- names(MRC.densities$Pb) <- MRCs.ArchiveNames$Pb
 names(MRCs.MassFraction$EDTA) <- names(MRC.At_MolWeigths$EDTA) <- names(MRC.ExpiricyDates$EDTA) <- names(MRC.densities$EDTA) <- MRCs.ArchiveNames$EDTA
+
+ElementsAtomicMass <- list(Cd = c(112.414, 0.004/sqrt(3)),
+                           Ca = c(40.078, 0.004/sqrt(3)))

@@ -5,7 +5,8 @@ LiquidMRCUI <- function(id, reagent, reagKey, explan) {
       h5(explan),
       radioButtons(ns('SourceOption'), label = '¿Qué desea hacer?', 
                    choices = list('Crear disolución nueva utilizando una disolucion calibrante MRC' = 'daCapo',
-                                  "Subir un archivo '.dis' generado anteriormente" = 'archivo')),
+                                  "Subir un archivo '.dis' generado anteriormente" = 'archivo'), 
+                   selected = 'archivo'),
       tags$hr(),
       conditionalPanel(
         condition = 'input.SourceOption == "daCapo"',

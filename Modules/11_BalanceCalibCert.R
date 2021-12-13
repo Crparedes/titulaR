@@ -10,12 +10,12 @@ BalanceCalibCertUI <- function(id) {
                   options = list(#`actions-box` = TRUE, size = 10, `deselect-all-text` = "Deseleccionar todos",
                     #`select-all-text` = "Seleccionar todos", 
                     `none-selected-text` = "Revise la vigencia del certificado (fecha)")),
-      h6('Para solicitar la inclusión o la actualización de un certificado de calibración digital
-          mande un correo a caparedes@inm.gov.co.'), tags$hr(),
+      h6('Para solicitar la inclusión o la actualización de un certificado de calibración contacte a la persona
+         encargada del mantenimiento de la aplicativo.'), tags$hr(),
       fluidRow(
-        column(4, materialSwitch(ns('ShallprintTheCalibCert'), label = 'Mostrar certificado de calibración digital', 
+        column(4, materialSwitch(ns('ShallprintTheCalibCert'), label = 'Mostrar Información del certificado de calibración', 
                                  value = FALSE, status = "primary")),
-        column(4, materialSwitch(ns('ShallplotTheCalibCert'), label = 'Mostrar gráfico de error de indicación', 
+        column(4, materialSwitch(ns('ShallplotTheCalibCert'), label = 'Incluir gráfico de error de indicación', 
                                  value = FALSE, status = "primary"))),
       #checkboxGroupInput(ns('CalibCertPlotPrint'), label = NULL,
       #                   choices = list('Información completa' = 'Complete',

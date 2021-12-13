@@ -35,7 +35,8 @@ server <- function(input, output, session) {
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu')
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn')
   
-  callModule(module = CalibraMonoServer, id = 'CalibraMono1')
+  callModule(module = CalibraMonoServer, id = 'CalibraMono1', DisEDTA_MRC = DisEDTA_MRC)
+  callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1')
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")

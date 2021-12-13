@@ -5,12 +5,13 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
       h5(explan),
       radioButtons(ns('SourceOption'), label = '¿Qué desea hacer?', 
                    choices = list('Crear disolución nueva utilizando un MRC' = 'daCapo',
-                                  "Subir un archivo '.dis' generado anteriormente" = 'archivo')),
+                                  "Subir un archivo '.dis' generado anteriormente" = 'archivo'), 
+                   selected = 'archivo'),
       tags$hr(),
       conditionalPanel(
         condition = 'input.SourceOption == "daCapo"', ns = ns,
         fluidRow(
-          column(7, pickerInput(ns("MRCElected"), label = 'Seleccione el MRC:',
+          column(7, pickerInput(ns("MRCElected"), label = 'Seleccione el MRC: .',
                                 choices = MRCs.ArchiveNames[[reagKey]], width = '100%',# inline = FALSE,
                                 multiple = FALSE, selected = NULL)),
           column(5, tags$br(), uiOutput(ns("MRC_CertiFile")))),
@@ -20,41 +21,40 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
             tags$b('Condiciones ambientales'),
             tags$div(id = "inline", style = 'font-size:12px',
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('Temp1'), label = 'Temperatura [$^o$C]:', value = 18),
+                                 numericInput(ns('Temp1'), label = 'Temperatura [$^o$C]: .', value = 18),
                                  numericInput(ns('u_Temp1'), label = '\u00B1', value = 1.8)),
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('BarPres1'), label = 'Presion [hPa]:', value = 750),
+                                 numericInput(ns('BarPres1'), label = 'Presion [hPa]: .', value = 750),
                                  numericInput(ns('u_BarPres1'), label = '\u00B1', value = 2)),
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('relHum1'), label = 'Humedad relativa [%]:', value = 45),
+                                 numericInput(ns('relHum1'), label = 'Humedad relativa [%]: .', value = 45),
                                  numericInput(ns('u_relHum1'), label = '\u00B1', value = 3))),
             uiOutput(ns("NiceDensitAir")), tags$hr(),
             tags$b('Masa del MRC'),
             tags$div(id = "inline", style = 'font-size:12px', 
-                     pickerInput(ns("CalibCertMRC"), label = 'Balanza utilizada:',
+                     pickerInput(ns("CalibCertMRC"), label = 'Balanza utilizada: .',
                                  choices = CalibCertShow, width = '100%', selected = 'MT XPE 205', multiple = FALSE)),
             tags$div(id = "inline", style = 'font-size:12px',
-                     numericInput(ns('MasRec1'), label = 'Masa del recipiente [g]:', value = 0),
-                     numericInput(ns('MasMRC1'), label = 'Masa del MRC [g]:', value = 0),
-                     numericInput(ns('MasRecMRC1'), label = 'Masa conjunta [g]:', value = 0),
+                     numericInput(ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = 0),
+                     numericInput(ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = 0),
+                     numericInput(ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = 0),
                      uiOutput(ns('deriMasaMRC'))), tags$hr(),
             tags$b('Masa final de la disolucion'),
             uiOutput(ns('CalibCertDis')),
             tags$div(id = "inline", style = 'font-size:12px',
-                     numericInput(ns('MasRec2'), label = 'Masa del recipiente [g]:', value = 0),
-                     numericInput(ns('MasDis1'), label = 'Masa final disolucion [g]:', value = 0),
-                     numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]:', value = 0),
+                     numericInput(ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
+                     numericInput(ns('MasDis1'), label = 'Masa final disolucion [g]: .', value = 0),
+                     numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]:', value = 1),
+                                 numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]: .', value = 1),
                                  numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.1)),
                      uiOutput(ns('deriMasaDisMRC'))))),
       conditionalPanel(
         condition = 'input.SourceOption == "archivo"', ns = ns,
         fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
       tags$hr(), 
-      uiOutput(ns('buttonCalc')), tags$br(), #tags$br(), 
-      uiOutput(ns('InfoDisBox'))#,
-      #actionButton(ns('DwnlDisFile'), label = 'Descargar archivo .dis')
+      uiOutput(ns('buttonCalc')), tags$br(), #tags$br(),
+      uiOutput(ns('InfoDisBox'))
   )
 }
 
@@ -78,7 +78,7 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   
   CalibCertDis <- reactive(tags$div(id = "inline", style = 'font-size:12px', 
                                     pickerInput(session$ns("CalibCertDis"), 
-                                                label = 'Balanza utilizada:',
+                                                label = 'Balanza utilizada: .',
                                                 choices = CalibCertShow, selected = input$CalibCertMRC, width = '100%', multiple = FALSE)))
   
   convMassMRC <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g'),
@@ -177,5 +177,5 @@ SolidMRCServer <- function(input, output, session, reagKey) {
   output$deriMasaMRC <- renderUI(deriMasaMRC())
   output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
   
-  return(infoDisMRC)
+  return(list('infoDisMRC' = infoDisMRC))
 }
