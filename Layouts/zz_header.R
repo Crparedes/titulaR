@@ -4,7 +4,7 @@ customHeader <- dashboardHeader(tags$li(class = "dropdown",
                     titleWidth = 4000, 
                     title = tags$div(HTML('<table text-align = left cellspacing = -20 cellPadding=0>
     <tr><th rowspan = 2><a id = "logo" href = "http://www.inm.gov.co"
-    title = "titRation - Instituto Nacional de Metrología" data-height="80">
+    title = "titulaR - Instituto Nacional de Metrología" data-height="80">
     </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <img src = "INM.png" height = "90" alt = "INM de Colombia" style = "margin-top: 5px">
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>

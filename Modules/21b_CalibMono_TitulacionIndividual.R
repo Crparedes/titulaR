@@ -83,14 +83,13 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento = input
     if(length(na.omit(TitCurvDat()$Titrant)) < 7) {
       tags$b('No se puede terminar la titulacion con menos de 8 datos!')
     } else {
-      tags$div(
+      tags$div(style = 'font-size:12px',
         infoBox(
           width = 12, title = tags$b('Resultados parciales de titulacion'), icon = icon("vials"), color = 'black', 
           value = DisEDTA_MRC$infoDisMRC()),
           #tags$html(tags$h5(DisEDTA_MRC$infoDisMRC() , 'Fraccion masica de la especie en la disolucion: ', tags$b(round(100, 3), '[mg kg$^{-1}]')), #tags$br(),
           #                  tags$h6('Los calculos de incertidumbre se realizan cuando se combinen los resultados individuales de titulacion'))),
-        downloadButton(session$ns('DwnlResFile'), 'Descargar archivo .res con resultados individuales'), tags$hr(), tags$hr(),
-        actionButton(session$ns('Restarter'), 'Iniciar nueva titulacion', icon = icon("gear"))
+        downloadButton(session$ns('DwnlResFile'), label = paste0('Exportar archivo .tit ccon los resultados individuales')),
       )
     }
   })
@@ -106,7 +105,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento = input
          MasAtoElem = MasAtoElem()))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0(Elemento, "_", input$sampleID, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".res")},
+    filename = function() {paste0(Elemento, "_", input$sampleID, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())

@@ -34,16 +34,20 @@ server <- function(input, output, session) {
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn', IDUsuario = IDUsuario)
   
-  MonoElemTitrations <- reactiveValues(allTabs = list())
   observeEvent(input$MonoElemInitTit, {
     req(input$MonoElemInitTit > 0)
     callModule(module = CalibraMonoIndividualServer, id = input$MonoElemInitTit,
                Elemento = input$Elemento, LeadAM = input$LeadAM, u_LeadAM = input$u_LeadAM,
                sampleID = input$sampleID, dscrMuestraMonoelemTit = input$dscrMuestraMonoelemTit, 
                BalanzaMonoelemTit = input$BalanzaMonoelemTit,
-               DisEDTA_MRC = input$DisEDTA_MRC, IDUsuario = input$IDUsuario)
+               DisEDTA_MRC = DisEDTA_MRC, IDUsuario = input$IDUsuario)
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = input$MonoElemInitTit), select = TRUE)
   })
+  output$PrintDisEDTA <- renderUI(
+    box(width = 12, title = tags$b('Disolucion titulante'),  color = 'black',
+        renderPrint(
+          tryCatch(DisEDTA_MRC$infoDisMRC(), 
+                   error = function(cond) {rbind('Sin informacion de la disolucion titulante.', 'Dirijase al modulo de MRCs y disoluciones.')}))))
   
   #callModule(module = CalibraMonoServer, id = 'CalibraMono1', DisEDTA_MRC = DisEDTA_MRC, IDUsuario)
   callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1', IDUsuario)

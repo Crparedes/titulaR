@@ -34,6 +34,7 @@ CalibraMonoLy <- fluidRow(
                         actionButton('MonoElemInitTit', label = 'Iniciar nueva titulacion'),
                         tags$hr()
                ),
+               column(5, uiOutput('PrintDisEDTA')),
                column(11,
                       column(1, tags$br()),
                       tabBox(id = 'monoElemTabBox', width = 10, side = 'left')
