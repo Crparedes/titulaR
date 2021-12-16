@@ -23,7 +23,7 @@ LiquidMRCUI <- function(id, reagent, reagKey, explan) {
   )
 }
 
-LiquidMRCServer <- function(input, output, session, reagKey) {
+LiquidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   
   fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
                             "Descargar certificado ", download = NA, target = "_blank"))

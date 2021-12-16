@@ -26,6 +26,10 @@ inicioLy <- fluidRow(
                tags$b(a("masscor", href = "https://CRAN.R-project.org/package=masscor"), "."))),
       BalanceCalibCertUI('BalanceCalibCert'),
       box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Configuracion')), 
-          width = 3, status = 'primary', collapsible = TRUE, collapsed = TRUE,
+          width = 3, status = 'primary', collapsible = TRUE, collapsed = FALSE,
+          tags$b("Persona responsable:"),
+          tags$div(id = "inline", 
+                   textInput("nombre", label = "Nombre: .", width = "100%"),
+                   textInput("correo", label = "Correo: .", value = "@inm.gov.co"))
       ))
 )

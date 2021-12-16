@@ -58,7 +58,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
   )
 }
 
-SolidMRCServer <- function(input, output, session, reagKey) {
+SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
                             "Descargar certificado ", download = NA, target = "_blank"))
   dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
@@ -110,7 +110,10 @@ SolidMRCServer <- function(input, output, session, reagKey) {
                     'Fecha de vencimiento MRC' = dateMRC(),
                     'Especie ' = reagKey,
                     'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
-                    'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4)))
+                    'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
+                    'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
+                                                       Correo = IDUsuario()[2]),
+                    'Fecha de preparación' = Sys.time()))
       } else {
         return('Los datos ingresados no son validos!')
       }

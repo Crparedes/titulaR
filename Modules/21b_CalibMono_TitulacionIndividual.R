@@ -1,32 +1,12 @@
-CalibraMonoUI <- function(id) {
+CalibraMonoIndividualUI <- function(id) {
   ns <- NS(id)
-  tags$hr()
-  fluidRow(
-    #verbatimTextOutput(ns('test')),
-    column(1, tags$br()),
+  #uiOutput(ns('pestana'))
+  tabPanel(title = tags$b(paste0('Tit.', id)), 
     column(6, tags$br(), tags$br(), 
-           radioButtons(ns('Elemento'), label = 'Especie en la disolucion calibrante: ', inline = TRUE, 
-                        choices = list('Plomo (II)' = 'Pb', 'Cadmio (II)' = 'Cd', 'Calcio (II)' = 'Ca'), 
-                        selected = character(0)),
-           conditionalPanel(condition = 'input.Elemento == "Pb"', ns = ns, 
-                            tags$div(id = "inline", style = 'font-size:12px',
-                                     splitLayout(cellWidths = c("40%", "12%"),
-                                                 numericInput(ns('LeadAM'), label = 'Masa atomica del plomo [g mol$^{-1}$]: .', value = 207.20),
-                                                 numericInput(ns('u_LeadAM'), label = '\u00B1', value = 0.06)))),
-           tags$hr(),
-           tags$div(
-             id = "inlineTOP", style = 'font-size:12px', 
-             pickerInput(ns("CalibCertMRC"), label = 'Balanza utilizada: .',
-                         choices = CalibCertShow, width = '500px', selected = 'MT XPE 205', multiple = FALSE),
-             numericInput(ns('MasaAlic'), value = 10, label = 'Masa de la alicuota: .'),
-             textInput(ns('sampleID'), label = 'Identificacion muestra: .', value = 'Calibrante'),
-             textAreaInput(ns('dscrMuestra'), label = 'Observaciones:  .', rows = 2, 
-                           placeholder = '(Informacion adicional)', width = '100%')) , # Cambiar a cero de nuevo!
-           tags$hr(),
-           conditionalPanel(
-             condition = 'input.MasaAlic > 0', ns = ns,
-             rHandsontableOutput(ns("TitData"), width = '100%')
-           )),
+           tags$b('Datos de la titulacion:'), tags$br(),
+           numericInput(ns('MasaAlic'), value = 10, label = 'Masa de la alicuota: .'),
+           conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns,
+                            rHandsontableOutput(ns("TitData"), width = '100%'))),
     column(5, tags$br(), tags$br(), tags$br(), tags$br(), 
            tags$b('Curva de titulacion:'), tags$br(), 
            fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '90%'))), tags$hr(), tags$br(),
@@ -35,7 +15,9 @@ CalibraMonoUI <- function(id) {
            ))
 }
 
-CalibraMonoServer <- function(input, output, session, DisEDTA_MRC) {
+CalibraMonoIndividualServer <- function(input, output, session, Elemento = input$Elemento, LeadAM = input$LeadAM, u_LeadAM = input$u_LeadAM,
+                                        sampleID, dscrMuestraMonoelemTit, BalanzaMonoelemTit,
+                                        DisEDTA_MRC, IDUsuario) {
   TableDat_0  <- reactiveValues(hot = data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29))))
   TableData <- reactive({
     DT <- NULL

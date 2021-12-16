@@ -26,17 +26,27 @@ ui <- function(request) {
 }
 
 server <- function(input, output, session) {
-  formatP  <- reactive(input$Format)
-  dimensP  <- reactive(c(input$plotsW, input$plotsH) / 25.4 * 1.6)
+  IDUsuario  <- reactive(c(input$nombre, input$correo))
   
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
-  DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA')
-  DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb')
-  callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu')
-  callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn')
+  DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA', IDUsuario = IDUsuario)
+  DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb', IDUsuario = IDUsuario)
+  callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu', IDUsuario = IDUsuario)
+  callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn', IDUsuario = IDUsuario)
   
-  callModule(module = CalibraMonoServer, id = 'CalibraMono1', DisEDTA_MRC = DisEDTA_MRC)
-  callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1')
+  MonoElemTitrations <- reactiveValues(allTabs = list())
+  observeEvent(input$MonoElemInitTit, {
+    req(input$MonoElemInitTit > 0)
+    callModule(module = CalibraMonoIndividualServer, id = input$MonoElemInitTit,
+               Elemento = input$Elemento, LeadAM = input$LeadAM, u_LeadAM = input$u_LeadAM,
+               sampleID = input$sampleID, dscrMuestraMonoelemTit = input$dscrMuestraMonoelemTit, 
+               BalanzaMonoelemTit = input$BalanzaMonoelemTit,
+               DisEDTA_MRC = input$DisEDTA_MRC, IDUsuario = input$IDUsuario)
+    prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = input$MonoElemInitTit), select = TRUE)
+  })
+  
+  #callModule(module = CalibraMonoServer, id = 'CalibraMono1', DisEDTA_MRC = DisEDTA_MRC, IDUsuario)
+  callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1', IDUsuario)
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")
