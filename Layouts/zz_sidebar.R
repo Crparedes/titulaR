@@ -12,13 +12,13 @@ convertMenuItem2 <- function(mi, tabName) {
 
 customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding-top: 110px;}"), # font-size: larger
                      width = 300, withMathJax(),
-                     sidebarMenu(id = "tabs",# tags$br(), tags$br(),
+                     sidebarMenu(id = "tabs", # tags$br(), tags$br(),
                        menuItem("Inicio y configuraciones", tabName = "inicio", icon = icon("info-circle")), #tags$br(),  tags$br(),
                        menuItem("MRCs y disoluciones", tabName = "MRC_DisTab", icon = icon("fill-drip")), tags$br(), tags$br(),
-                       tags$b(HTML('&ensp;'), 'Complejometricas'),
+                       tags$b(HTML('&ensp;'), 'Complejometrías'),
                        menuItem("Disoluciones calibrantes monoelementales", tabName = "CalibrantesTab", icon = icon("bong")),
                        menuItem("EDTA, sal disódica dihidratada", tabName = "EdtaTab", icon = icon("stroopwafel")), tags$br(), tags$br(),
-                       tags$b(HTML('&ensp;'), 'Acido Base'),
+                       tags$b(HTML('&ensp;'), 'Acido-Base'),
                        menuItem("(Ninguna implementada)", tabName = "Acido1", icon = icon("bong")),
                        tags$hr(),
                        HTML('<h6 style="color: #dddddd; font-size:9px;">

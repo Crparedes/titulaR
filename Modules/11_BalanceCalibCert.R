@@ -1,7 +1,7 @@
 BalanceCalibCertUI <- function(id) {
   ns <- NS(id)
   box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Trazabilidad Metrológica de las Balanzas')), 
-      width = 9, status = 'primary', collapsible = TRUE, collapsed = FALSE,
+      width = 7, status = 'primary', collapsible = TRUE, collapsed = FALSE,
       #uiOutput(ns('CalibCertPicker')),
       pickerInput(ns("CalibCertElected"), 
                   label = 'Verifique la disponibilidad de los certificados de calibración de las balanzas que necesita:',
@@ -40,5 +40,5 @@ BalanceCalibCertServer <- function(input, output, session) {
     }
   })
   output$plotTheCalibCert  <- renderPlot(plotTheCalibCert())
-  #return()
+  
 }

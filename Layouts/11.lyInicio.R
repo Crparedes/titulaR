@@ -25,11 +25,15 @@ inicioLy <- fluidRow(
                se utiliza según se describe en la documentación del paquete de R ", 
                tags$b(a("masscor", href = "https://CRAN.R-project.org/package=masscor"), "."))),
       BalanceCalibCertUI('BalanceCalibCert'),
-      box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Configuracion')), 
-          width = 3, status = 'primary', collapsible = TRUE, collapsed = FALSE,
-          tags$b("Persona responsable:"),
+      box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Inicio')), 
+          width = 5, status = 'primary', collapsible = TRUE, collapsed = FALSE,
+          tags$b("Datos de la persona responsable:"),
           tags$div(id = "inline", 
                    textInput("nombre", label = "Nombre: .", width = "100%"),
-                   textInput("correo", label = "Correo: .", value = "@inm.gov.co"))
+                   textInput("correo", label = "Correo: .", value = "@inm.gov.co")),
+          tags$br(), 
+          checkboxInput('BalanzVerif', label = 'Está disponible el certificado de calibración de la balanza', value = TRUE, width = '100%'), 
+          tags$hr(), 
+          conditionalPanel('input.BalanzVerif', actionButton('Start1', tags$b('Comenzar')))
       ))
 )

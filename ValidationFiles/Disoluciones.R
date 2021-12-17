@@ -60,6 +60,7 @@ barplot(c_Na2EDTA.Prop$rel.contr)
 #[1] 0.00167
 
 PbMW <- 207.209
+signif(0.005/sqrt(3), 2)
 # Pureza Pb(NO3)2 MRC SRM 928 NIST
 W_PbNO3.2 <- c(1, 0.0003/2) # [mg/mg]
 # Fraccion de plomo en el reactivo

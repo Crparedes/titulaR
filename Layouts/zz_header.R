@@ -8,7 +8,7 @@ customHeader <- dashboardHeader(tags$li(class = "dropdown",
     </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <img src = "INM.png" height = "90" alt = "INM de Colombia" style = "margin-top: 5px">
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-    <th><h1 style="LINE-HEIGHT:5px; color: #dddddd; margin-bottom: -5px; font-size:45px;"><b>titRation</b></h1></th></tr>
+    <th><h1 style="LINE-HEIGHT:5px; color: #dddddd; margin-bottom: -5px; font-size:45px;"><b>titulaR</b></h1></th></tr>
     <tr><th><h3 style="LINE-HEIGHT:0px; color: #dddddd; margin-top: 1px;">
     Soporte para las titulaciones gravimétricas de la <b>SMQB</b>
     </h3></th></tr>

@@ -113,7 +113,7 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
                     'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
                     'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
                                                        Correo = IDUsuario()[2]),
-                    'Fecha de preparación' = Sys.time()))
+                    'Fecha de preparacion' = Sys.time()))
       } else {
         return('Los datos ingresados no son validos!')
       }
@@ -154,9 +154,9 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   })
   
   buttonCalc <- reactive(actionButton(session$ns('buttonCalc'), 
-                                      label = ifelse(input$SourceOption == "daCapo", 
-                                                     'Calcular concentracion', 
-                                                     'Mostrar disolucion cargada')))
+                                      label = tags$b(ifelse(input$SourceOption == "daCapo", 
+                                                            'Calcular concentracion', 
+                                                            'Cargar disolucion'))))
   output$buttonCalc <- renderUI(buttonCalc())
   output$MRC_CertiFile <- renderUI(fileDwnHTML())
   output$InfoMrcBox <- renderUI(InfoMrcBox())

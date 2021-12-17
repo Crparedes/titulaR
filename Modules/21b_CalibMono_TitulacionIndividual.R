@@ -2,22 +2,31 @@ CalibraMonoIndividualUI <- function(id) {
   ns <- NS(id)
   #uiOutput(ns('pestana'))
   tabPanel(title = tags$b(paste0('Tit.', id)), 
-    column(6, tags$br(), tags$br(), 
+    column(6, tags$br(),
            tags$b('Datos de la titulacion:'), tags$br(),
-           numericInput(ns('MasaAlic'), value = 10, label = 'Masa de la alicuota: .'),
+           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), tags$br(),
            conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns,
                             rHandsontableOutput(ns("TitData"), width = '100%'))),
-    column(5, tags$br(), tags$br(), tags$br(), tags$br(), 
+    column(6, tags$br(),
            tags$b('Curva de titulacion:'), tags$br(), 
-           fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '90%'))), tags$hr(), tags$br(),
-           actionButton(ns('TermTit'), label = 'Terminar titulacion'), tags$hr(),
+           fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'))), tags$br(),
+           actionButton(ns('TermTit'), label = 'Terminar titulacion'), tags$br(),
            uiOutput(ns('TitulTerminada'))
            ))
 }
 
-CalibraMonoIndividualServer <- function(input, output, session, Elemento = input$Elemento, LeadAM = input$LeadAM, u_LeadAM = input$u_LeadAM,
-                                        sampleID, dscrMuestraMonoelemTit, BalanzaMonoelemTit,
-                                        DisEDTA_MRC, IDUsuario) {
+CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM, u_LeadAM,
+                                        sampleID, dscrMuestraMonoelemTit,
+                                        BalanzaMonoelemTit,
+                                        DisEDTA_MRC, IDUsuario, number) {
+  CondiMasaAlic <- reactive(
+    if(!is.null(DisEDTA_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 10, label = 'Masa de alicuota [g]: .'))
+  )
+  output$MasaAlic <- renderUI(CondiMasaAlic())
+  
+  horaInicio <- eventReactive(input$MasaAlic, Sys.time())
+  horaFinal  <- eventReactive(input$TermTit, Sys.time())
+  
   TableDat_0  <- reactiveValues(hot = data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29))))
   TableData <- reactive({
     DT <- NULL
@@ -83,40 +92,42 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento = input
     if(length(na.omit(TitCurvDat()$Titrant)) < 7) {
       tags$b('No se puede terminar la titulacion con menos de 8 datos!')
     } else {
-      tags$div(style = 'font-size:12px',
-        infoBox(
-          width = 12, title = tags$b('Resultados parciales de titulacion'), icon = icon("vials"), color = 'black', 
-          value = DisEDTA_MRC$infoDisMRC()),
-          #tags$html(tags$h5(DisEDTA_MRC$infoDisMRC() , 'Fraccion masica de la especie en la disolucion: ', tags$b(round(100, 3), '[mg kg$^{-1}]')), #tags$br(),
-          #                  tags$h6('Los calculos de incertidumbre se realizan cuando se combinen los resultados individuales de titulacion'))),
-        downloadButton(session$ns('DwnlResFile'), label = paste0('Exportar archivo .tit ccon los resultados individuales')),
+      tags$div(
+        tags$hr(),
+        tags$b('Resultados de la titulación:'), tags$br(),
+        tags$div(style = 'font-size:12px', 
+                 infoBox(
+                   width = 12, title = tags$b('Fracción másica del elemento en la alícuota: '), icon = icon("vials"), color = 'black', 
+                   value = tags$div(tags$b(round(ResParcial(), 3), ' [mg/kg]')#, renderPrint(summaryTitration())
+                                    ), 
+                   subtitle = 'Exporte y guarde el archivo de resultados individuales.´'), tags$br(), tags$br(),
+                downloadButton(session$ns('DwnlResFile'), label = tags$b('Descargar archivo .tit')), tags$br(), tags$br())
       )
     }
   })
-  
   MasaEquiv <- reactive(try(EP.1stDer(curve = CleanDf())))
-  MasAtoElem <- reactive(ifelse(input$Elemento == 'Pb', c(input$LeadAM, input$u_LeadAM), ElementsAtomicMass[[input$Elemento]]))
-  ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]` / input$MasaAlic * MasAtoElem()[1])
+  MasAtoElem <- reactive(ifelse(Elemento() == 'Pb', LeadAM(), ElementsAtomicMass[[Elemento()]][1]))
+  u_MasAtoElem <- reactive(ifelse(Elemento() == 'Pb', u_LeadAM(), ElementsAtomicMass[[Elemento()]][2]))
+  ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]` / input$MasaAlic * MasAtoElem())
   
   summaryTitration <- reactive(
-    list(date = Sys.time(), Elemento = input$Elemento, DisEDTA = DisEDTA_MRC$infoDisMRC(), 
-         MasaMuestra = input$MasaAlic, TitCurvDat = TitCurvDat(),
-         dscrMuestra = input$dscrMuestra, 
-         MasAtoElem = MasAtoElem()))
+    list(Muestra = sampleID(), Elemento = Elemento(), MasaAlicuota = input$MasaAlic, 
+         MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 
+         'Disolucion titulante' = DisEDTA_MRC$infoDisMRC(),
+         'Certificado calibracion balanza' = CalibCertList[[BalanzaMonoelemTit()]],
+         Analista = IDUsuario(),#[1], correoAnalista = IDUsuario()[2],
+         TitCurvDat = TitCurvDat()[complete.cases(TitCurvDat()), ],
+         dscripMuestra = dscrMuestraMonoelemTit(), 
+         MasAtoElem = c(MasAtoElem(), u_MasAtoElem()),
+         Inicio = horaInicio(),
+         Final = horaFinal()
+         ))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0(Elemento, "_", input$sampleID, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".tit")},
+    filename = function() {paste0(Elemento(), "_", sampleID(), ".", number(), "_", format(horaInicio(), '%Y-%m-%d_%H-%M'), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())
   output$TitulTerminada <- renderUI(TitulTerminada())
   output$DescaResu <- renderUI(DescaResu())
-  
-  observeEvent(input$Restarter, {
-    # NADA DE LO QUE SIGUE FUNCIONA.,, COMO SE PODRIA GENERAR UNA PESTA:A NUEVA_ ESO SER"IA HASTA MEJOR PARA QUE NA=O SE BORREN DATOS SIN DESCARGAR...
-    #TitulTerminada <- reactive(tags$b('Nueva titulacion en proceso'))
-    #input$TermTit <- 0
-    #TableDat_0[["hot"]]  <- data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29)))
-  }
-  )
 }

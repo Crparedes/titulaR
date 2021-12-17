@@ -26,30 +26,45 @@ ui <- function(request) {
 }
 
 server <- function(input, output, session) {
+  # Inicializaci'on
   IDUsuario  <- reactive(c(input$nombre, input$correo))
-  
+  observeEvent(input$Start1, updateTabItems(inputId = 'tabs', selected = 'MRC_DisTab'))
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
+  
+  # Disoluciones de MRCs
   DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA', IDUsuario = IDUsuario)
   DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn', IDUsuario = IDUsuario)
   
+  # Titulaciones disoluciones calibrantes monoelementales
   observeEvent(input$MonoElemInitTit, {
     req(input$MonoElemInitTit > 0)
+    Elemento <- reactive(input$Elemento)
+    LeadAM <- reactive(input$LeadAM)
+    u_LeadAM <- reactive(input$u_LeadAM) 
+    sampleID <- reactive(input$sampleID)
+    dscrMuestraMonoelemTit <- reactive(input$dscrMuestraMonoelemTit) 
+    BalanzaMonoelemTit <- reactive(input$BalanzaMonoelemTit)
+    MonoElemNumber <- reactive(input$MonoElemInitTit)
+    
     callModule(module = CalibraMonoIndividualServer, id = input$MonoElemInitTit,
-               Elemento = input$Elemento, LeadAM = input$LeadAM, u_LeadAM = input$u_LeadAM,
-               sampleID = input$sampleID, dscrMuestraMonoelemTit = input$dscrMuestraMonoelemTit, 
-               BalanzaMonoelemTit = input$BalanzaMonoelemTit,
-               DisEDTA_MRC = DisEDTA_MRC, IDUsuario = input$IDUsuario)
+               Elemento = Elemento, LeadAM = LeadAM, u_LeadAM = u_LeadAM,
+               sampleID = sampleID, dscrMuestraMonoelemTit = dscrMuestraMonoelemTit, 
+               BalanzaMonoelemTit = BalanzaMonoelemTit,
+               DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = isolate(MonoElemNumber))
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = input$MonoElemInitTit), select = TRUE)
   })
   output$PrintDisEDTA <- renderUI(
-    box(width = 12, title = tags$b('Disolucion titulante'),  color = 'black',
+    box(width = 12, title = tags$b('Disolucion titulante de EDTA'),  color = 'black',
         renderPrint(
-          tryCatch(DisEDTA_MRC$infoDisMRC(), 
-                   error = function(cond) {rbind('Sin informacion de la disolucion titulante.', 'Dirijase al modulo de MRCs y disoluciones.')}))))
+          tryCatch(rbind(
+            paste0('MRC: ', DisEDTA_MRC$infoDisMRC()$`MRC empleado`, ': '),
+            paste0(' Concentración: ', signif(DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]`, 6), ' \u00B1 ',
+                   signif(DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`, 2), ' [mmol/kg]'),
+            paste0(' Preparación: ', DisEDTA_MRC$infoDisMRC()$`Fecha de preparacion`, '.')),
+            error = function(cond) {rbind('Sin informacion de la disolucion titulante.', 'Dirijase al modulo de MRCs y disoluciones.')}))))
   
-  #callModule(module = CalibraMonoServer, id = 'CalibraMono1', DisEDTA_MRC = DisEDTA_MRC, IDUsuario)
   callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1', IDUsuario)
 }
 
