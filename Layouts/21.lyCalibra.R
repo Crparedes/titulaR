@@ -4,7 +4,7 @@ CalibraMonoLy <- fluidRow(
       tabBox(title = div(style = 'font-size:21px', tags$b('Fracción masica de iones metalicos en disoluciónes calibrantes monoelementales')), 
              width = 12, side = 'right', #status = 'primary', 
              tabPanel(
-               title = tags$b('Titulaciónes'),
+               title = tags$b('Titular'),
                fluidRow(
                  #verbatimTextOutput(ns('test')),
                  column(1, tags$br()),
@@ -40,7 +40,7 @@ CalibraMonoLy <- fluidRow(
                       tabBox(id = 'monoElemTabBox', width = 10, side = 'left', height = '1300px')
                )
              )),       
-             tabPanel(title = tags$b('Combinación de resultados'),
+             tabPanel(title = tags$b('Visualizar y combinar resultados'),
                       CalibraMonoCombUI('CalibraMonoComb1'))
       )
       )

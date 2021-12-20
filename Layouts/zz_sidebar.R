@@ -22,7 +22,8 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                        menuItem("(Ninguna implementada)", tabName = "Acido1", icon = icon("bong")),
                        tags$hr(),
                        HTML('<h6 style="color: #dddddd; font-size:9px;">
-                            &ensp;&ensp;&ensp;Aplicativo desarrollado por <b>Cristhian Paredes</b></h6>')
+                            &ensp;&ensp;&ensp;Aplicativo desarrollado por <b>Cristhian Paredes</b></h6>')#,
+                       #actionButton(inputId = 'brwz', label = tags$b('browser()'))
                        #convertMenuItem(menuItem("Configuración general", tabName = "config", icon = icon("cog"),
                         #                        tags$b('Archivos descargables:'),
                         #                        radioButtons("Format", label = "Formato",

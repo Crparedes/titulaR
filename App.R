@@ -21,11 +21,13 @@ sapply(c(pack_titRation, modules, layouts), source)
 
 ui <- function(request) {
   withMathJax()
+  useShinyjs()
   dashboardPage(header = customHeader, sidebar = customSidebar, body = customBody,
                 title = "titRation - Instituto Nacional de Metrología de Colombia") #customStuff in ./Layouts
 }
 
 server <- function(input, output, session) {
+  #observeEvent(input$brwz, browser())
   # Inicializaci'on
   IDUsuario  <- reactive(c(input$nombre, input$correo))
   observeEvent(input$Start1, updateTabItems(inputId = 'tabs', selected = 'MRC_DisTab'))
@@ -37,6 +39,7 @@ server <- function(input, output, session) {
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn', IDUsuario = IDUsuario)
   
+  CalibMonoDelDia <- reactiveValues()
   # Titulaciones disoluciones calibrantes monoelementales
   observeEvent(input$MonoElemInitTit, {
     req(input$MonoElemInitTit > 0)
@@ -47,14 +50,18 @@ server <- function(input, output, session) {
     dscrMuestraMonoelemTit <- reactive(input$dscrMuestraMonoelemTit) 
     BalanzaMonoelemTit <- reactive(input$BalanzaMonoelemTit)
     MonoElemNumber <- reactive(input$MonoElemInitTit)
+    # browser()
+    CalibMonoDelDia[[paste0(Elemento(), "_", sampleID(), ".", as.character(isolate(MonoElemNumber())), "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".tit")]] <- 
+      callModule(module = CalibraMonoIndividualServer, id = paste0('monoElemTit', input$MonoElemInitTit),
+                 Elemento = Elemento, LeadAM = LeadAM, u_LeadAM = u_LeadAM,
+                 sampleID = sampleID, dscrMuestraMonoelemTit = dscrMuestraMonoelemTit, 
+                 BalanzaMonoelemTit = BalanzaMonoelemTit,
+                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = isolate(MonoElemNumber))
+    prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = paste0('monoElemTit', input$MonoElemInitTit)), select = TRUE)
     
-    callModule(module = CalibraMonoIndividualServer, id = input$MonoElemInitTit,
-               Elemento = Elemento, LeadAM = LeadAM, u_LeadAM = u_LeadAM,
-               sampleID = sampleID, dscrMuestraMonoelemTit = dscrMuestraMonoelemTit, 
-               BalanzaMonoelemTit = BalanzaMonoelemTit,
-               DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = isolate(MonoElemNumber))
-    prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = input$MonoElemInitTit), select = TRUE)
   })
+  
+  
   output$PrintDisEDTA <- renderUI(
     box(width = 12, title = tags$b('Disolucion titulante de EDTA'),  color = 'black',
         renderPrint(
@@ -65,7 +72,7 @@ server <- function(input, output, session) {
             paste0(' Preparación: ', DisEDTA_MRC$infoDisMRC()$`Fecha de preparacion`, '.')),
             error = function(cond) {rbind('Sin informacion de la disolucion titulante.', 'Dirijase al modulo de MRCs y disoluciones.')}))))
   
-  callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1', IDUsuario)
+  callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario) 
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")

@@ -1,7 +1,7 @@
 CalibraMonoIndividualUI <- function(id) {
   ns <- NS(id)
   #uiOutput(ns('pestana'))
-  tabPanel(title = tags$b(paste0('Tit.', id)), 
+  tabPanel(title = tags$b(paste0('Tit.', sub("monoElemTit", "", id, fixed = TRUE))), 
     column(6, tags$br(),
            tags$b('Datos de la titulacion:'), tags$br(),
            tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), tags$br(),
@@ -67,6 +67,12 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
     }
   })
   
+  observeEvent(input$TermTit, { # https://stackoverflow.com/questions/54652364/r-shiny-automatically-start-download
+    if (is.numeric(ResParcial())) {
+      runjs(paste0("$('#", number(), "-DwnlResFile')[0].click();"))
+    }
+  })
+  
   TitCurvePlot <- reactive(
     tryCatch(
       expr = {
@@ -109,10 +115,19 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   MasAtoElem <- reactive(ifelse(Elemento() == 'Pb', LeadAM(), ElementsAtomicMass[[Elemento()]][1]))
   u_MasAtoElem <- reactive(ifelse(Elemento() == 'Pb', u_LeadAM(), ElementsAtomicMass[[Elemento()]][2]))
   ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]` / input$MasaAlic * MasAtoElem())
+  ResParcUnc <- reactive(propagate(expr = expression(Meq * Cedta / Mali * Mato),
+                                   data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit()]], reading = MasaEquiv()),
+                                                        uncertConvMass(CalibCertList[[BalanzaMonoelemTit()]], reading = MasaEquiv())),
+                                                Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]`,
+                                                          DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
+                                                Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit()]], reading = input$MasaAlic),
+                                                         uncertConvMass(CalibCertList[[BalanzaMonoelemTit()]], reading = input$MasaAlic)),
+                                                Mato = c(MasAtoElem(), u_MasAtoElem())),second.order = FALSE, do.sim = FALSE
+                                   ))
   
   summaryTitration <- reactive(
     list(Muestra = sampleID(), Elemento = Elemento(), MasaAlicuota = input$MasaAlic, 
-         MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 
+         MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 'Incertidumbre estandar' = ResParcUnc(), 
          'Disolucion titulante' = DisEDTA_MRC$infoDisMRC(),
          'Certificado calibracion balanza' = CalibCertList[[BalanzaMonoelemTit()]],
          Analista = IDUsuario(),#[1], correoAnalista = IDUsuario()[2],
@@ -130,4 +145,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   output$TitCurvePlot <- renderPlot(TitCurvePlot())
   output$TitulTerminada <- renderUI(TitulTerminada())
   output$DescaResu <- renderUI(DescaResu())
+  return(list('Titulacion' = summaryTitration#, 
+              #'Exito' = !is.null(is.numeric(ResParcial()))
+              ))
 }
