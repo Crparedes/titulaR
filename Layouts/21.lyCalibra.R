@@ -30,7 +30,7 @@ CalibraMonoLy <- fluidRow(
                                       choices = CalibCertShow, width = '500px', selected = 'MT XPE 205', multiple = FALSE),
                         ), 
                         tags$br(),  
-                        actionButton('MonoElemInitTit', label = tags$b('Iniciar una titulación')),
+                        uiOutput('MonoElemInitTit'),
                         tags$hr()
                ),
                column(4, tags$br(), tags$div(style = 'font-size:12px', uiOutput('PrintDisEDTA'))),

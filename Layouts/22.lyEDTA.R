@@ -10,18 +10,15 @@ EdtaLy <- fluidRow(
                  column(1, tags$br()),
                  column(6, tags$br(),
                         tags$div(
-                          id = "inlineTOP", style = 'font-size:12px', 
-                          textInput('sampleIDTitEDTA', label = 'Identificación muestra: .', value = 'SalDisodica de EDTA'),
-                          textAreaInput('dscrMuestraTitEDTA', label = 'Observaciones:  .', rows = 2, 
-                                        placeholder = '(Información adiciónal)', width = '100%'),
-                          pickerInput("BalanzaTitEDTA", label = 'Balanza utilizada: .',
+                          id = "inline", style = 'font-size:12px', 
+                          pickerInput("BalanzaTitEDTA", label = 'Balanza para las titulaciones: .',
                                       choices = CalibCertShow, width = '500px', selected = 'MT XPE 205', multiple = FALSE),
                         ),
                         tags$br(),  
-                        actionButton('EDTA.InitTit', label = tags$b('Iniciar una titulación')),
+                        uiOutput('EDTA.InitTit'),
                         tags$hr()
                  ),
-                 column(4, tags$br(), tags$div(style = 'font-size:12px', uiOutput('PrintDisPb'))),
+                 column(4, tags$br(), tags$div(style = 'font-size:12px', uiOutput('PrintDisPb'), uiOutput('PrintDisEDTA.Sample'))),
                  column(12,
                         column(1, tags$br()),
                         tabBox(id = 'EDTA.TabBox', width = 10, side = 'left', height = '1300px')
