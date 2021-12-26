@@ -139,7 +139,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
          ))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0(Elemento(), "_", sampleID(), ".", number(), "_", format(horaInicio(), '%Y-%m-%d_%H-%M'), ".tit")},
+    filename = function() {paste0(Elemento(), "_", sampleID(), ".", number(), "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())

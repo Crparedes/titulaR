@@ -48,7 +48,7 @@ CalibraMonoCombServer <- function(input, output, session, IDUsuario) {
   
   Calcular <- reactive(
     ifelse(length(unique(substr(FileNames(), start = 1, stop = 3))) == 1,
-           return(actionButton(session$ns('Calcular'), label = tags$b('Mostrar resultados'))),
+           return(actionButton(session$ns('Calcular'), label = tags$b('Mostrar/recalcular resultados'))),
            return(NULL)))
   output$Calcular <- renderUI(Calcular())
   
@@ -60,28 +60,44 @@ CalibraMonoCombServer <- function(input, output, session, IDUsuario) {
     #browser()
   })
   
-  DataComplList <- eventReactive(input$Calcular, {
-    x <- reactiveValuesToList(DataCompl)
-    x <- x[names(x) %in% FileNames()] # To clean old files
-    return(x)})
+  # DataComplList <- reactive({
+  #   x <- reactiveValuesToList(DataCompl)
+  #   x <- x[names(x) %in% FileNames()] # To clean old files
+  #   return(x)})
   
-  titFilesSelectComb <- reactive(checkboxGroupInput(session$ns('titFilesSelectComb'), label = tags$b("Archivos a considerar:"), 
-                                                    choices = FileNames(), selected = FileNames()))
+  titFilesSelectComb <- reactive({
+    x <- reactiveValuesToList(DataCompl)
+    x <- x[names(x) %in% FileNames()]
+    Fechas <- as.factor(unlist(sapply(x, 
+                                      function(x) {substr(as.character(x[[13]]), 
+                                                          start = nchar(as.character(x[[13]])) - 18, 
+                                                          stop = nchar(as.character(x[[13]])) - 3)})))
+    choices <- names(x)[order(Fechas)]
+    #browser()
+    return(checkboxGroupInput(session$ns('titFilesSelectComb'), label = tags$b("Archivos a considerar:"), 
+                              choices = choices, selected = choices))
+  })
   output$titFilesSelectComb <- renderUI(titFilesSelectComb())
   
   DataCleanDF <- eventReactive(input$Calcular, {
-    DataTrimmedList <- DataComplList()[names(DataComplList()) %in% input$titFilesSelectComb] # To consider only selected files
-    VecElement <- unlist(sapply(DataTrimmedList, function(x) {x[[2]]}))
-    VecMuestra <- unlist(sapply(DataTrimmedList, function(x) {x[[1]]}))
-    VecDescrip <- unlist(sapply(DataTrimmedList, function(x) {x[[11]]}))
-    VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[3]]})))
-    VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[4]]})))
-    VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[5]]})))
-    VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[6]]$prop[[3]]})))
-    VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[13]]), start = 1, stop = 10)})))
+    x <- reactiveValuesToList(DataCompl)
+    x <- x[names(x) %in% FileNames()]
+    DataTrimmedList <- x[names(x) %in% input$titFilesSelectComb] # To consider only selected files
+    VecMomento <- as.factor(unlist(sapply(DataTrimmedList, function(x) {x[[13]]})))
     
-    data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
-               index = 1:length(VecFracUnc))
+    VecElement <- unlist(sapply(DataTrimmedList, function(x) {x[[2]]}))[order(VecMomento)]
+    VecMuestra <- unlist(sapply(DataTrimmedList, function(x) {x[[1]]}))[order(VecMomento)]
+    VecDescrip <- unlist(sapply(DataTrimmedList, function(x) {x[[11]]}))[order(VecMomento)]
+    VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[3]]})))[order(VecMomento)]
+    VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[4]]})))[order(VecMomento)]
+    VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[5]]})))[order(VecMomento)]
+    VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[6]]$prop[[3]]})))[order(VecMomento)]
+    VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[13]]), start = 1, stop = 10)})))[order(VecMomento)]
+    #browser()
+    x <- data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
+                    index = 1:length(VecFracUnc))
+    #browser()
+    return(x)
   })
   
   resultadosCombi <- eventReactive(DataCleanDF(), {

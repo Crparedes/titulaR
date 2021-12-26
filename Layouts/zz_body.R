@@ -1,4 +1,5 @@
 customBody <- dashboardBody(
+  tags$script(HTML("$('body').addClass('fixed');")),
   tags$head(
     tags$style(HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
                      .shiny-notification {position:fixed; top: calc(50% - 150px); left: calc(50% - 150px); 
@@ -22,10 +23,10 @@ customBody <- dashboardBody(
   ),
   withMathJax(),
   tabItems(
-    tabItem(tabName = "inicio", inicioLy),
-    tabItem(tabName = "MRC_DisTab", MrcDisLy),
-    tabItem(tabName = "CalibrantesTab", CalibraMonoLy),
-    tabItem(tabName = "EdtaTab", EdtaLy)#,
+    tabItem(tabName = "inicio", tags$hr(), tags$hr(),inicioLy),
+    tabItem(tabName = "MRC_DisTab", tags$hr(), tags$hr(), MrcDisLy),
+    tabItem(tabName = "CalibrantesTab", tags$hr(), tags$hr(), CalibraMonoLy),
+    tabItem(tabName = "EdtaTab", tags$hr(), tags$hr(), EdtaLy)#,
     #tabItem(tabName = "bibliogr", h2("Bibliografía"))
   )
 )
