@@ -1,8 +1,34 @@
 EdtaLy <- fluidRow(
     column(12, 
-      box(title = div(style = 'font-size:23px', tags$b('Fraccion masica de EDTA en la sal disodica dihidratada del ácido 
+      tabBox(title = div(style = 'font-size:21px', tags$b('Fraccion masica de EDTA en la sal disodica dihidratada del ácido 
                                 etilendiamonitetracético')), 
-          width = 12, status = 'primary', collapsible = TRUE, collapsed = FALSE,
+             width = 12, side = 'right', #status = 'primary', 
+             tabPanel(
+               title = tags$b('Titular'),
+               fluidRow(
+                 #verbatimTextOutput(ns('test')),
+                 column(1, tags$br()),
+                 column(6, tags$br(),
+                        tags$div(
+                          id = "inlineTOP", style = 'font-size:12px', 
+                          textInput('sampleIDTitEDTA', label = 'Identificación muestra: .', value = 'SalDisodica de EDTA'),
+                          textAreaInput('dscrMuestraTitEDTA', label = 'Observaciones:  .', rows = 2, 
+                                        placeholder = '(Información adiciónal)', width = '100%'),
+                          pickerInput("BalanzaTitEDTA", label = 'Balanza utilizada: .',
+                                      choices = CalibCertShow, width = '500px', selected = 'MT XPE 205', multiple = FALSE),
+                        ),
+                        tags$br(),  
+                        actionButton('EDTA.InitTit', label = tags$b('Iniciar una titulación')),
+                        tags$hr()
+                 ),
+                 column(4, tags$br(), tags$div(style = 'font-size:12px', uiOutput('PrintDisPb'))),
+                 column(12,
+                        column(1, tags$br()),
+                        tabBox(id = 'EDTA.TabBox', width = 10, side = 'left', height = '1300px')
+                 )
+               )),       
+             tabPanel(title = tags$b('Visualizar y combinar resultados'),
+                      CalibraMonoCombUI('EDTAComb1'))
       )
-      )
+    )
 )

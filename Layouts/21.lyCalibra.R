@@ -1,5 +1,4 @@
 CalibraMonoLy <- fluidRow(
-  #tags$br(), tags$br(),
     column(12, 
       tabBox(title = div(style = 'font-size:21px', tags$b('Fracción masica de iones metalicos en disoluciónes calibrantes monoelementales')), 
              width = 12, side = 'right', #status = 'primary', 

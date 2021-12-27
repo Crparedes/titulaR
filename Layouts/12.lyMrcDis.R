@@ -6,16 +6,21 @@ MrcDisLy <- fluidRow(
       fluidRow(
         column(4,
                SolidMRCUI('ModuloDisolucionEDTA', reagent = 'EDTA - sal disodica dihidratada', reagKey = 'EDTA',
-                 explan = 'Para asignar valor de fraccion masica de iones metalicos en disoluciones calibrantes monoelementales'
-                 #o para realizar aseguramiento de la calidad de los resultados de fraccion masica de EDTA en la sal disodica dihidratada'
+                 explan = 'Para asignar valor de fraccion masica de iones metalicos en disoluciones calibrantes monoelementales 
+                 y para realizar aseguramiento de la calidad de los resultados de fraccion masica de EDTA en la sal disodica dihidratada'
                  )),
         column(4,
                SolidMRCUI('ModuloDisolucionPbNO3.2', reagent = 'nitrato de plomo', reagKey = 'Pb',
-                 explan = 'Para asignar valor de fraccion masica de EDTA en la sal disodica dihidratada'
-                 #o para realizar aseguramiento de la calidad de los resultados de fraccion masica de iones metalicos en disoluciones 
-                 #calibrantes monoelementales'
+                 explan = 'Para asignar valor de fraccion masica de EDTA en la sal disodica dihidratada y
+                 para realizar aseguramiento de la calidad de los resultados de fraccion masica de iones metalicos en disoluciones 
+                 calibrantes monoelementales'
                  )),
-        
+        column(4,
+               SolidSampleUI('ModuloDisolucionMuestraEDTA', reagent = 'EDTA - sal disodica dihidratada', reagKey = 'EDTA',
+                          explan = 'Para asignar valor de fraccion masica de EDTA en la sal disodica dihidratada'
+                          #o para realizar aseguramiento de la calidad de los resultados de fraccion masica de iones metalicos en disoluciones 
+                          #calibrantes monoelementales'
+               )),
         column(4,
                LiquidMRCUI('ModuloDilucionCobre', reagent = 'disolucion calibrante de cobre', reagKey = 'Cu',
                            explan = 'Para usar como indicadora en las titulaciones complejometricas por retroceso'),

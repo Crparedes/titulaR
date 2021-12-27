@@ -67,11 +67,11 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
     }
   })
   
-  observeEvent(input$TermTit, { # https://stackoverflow.com/questions/54652364/r-shiny-automatically-start-download
-    if (is.numeric(ResParcial())) {
-      runjs(paste0("$('#", number(), "-DwnlResFile')[0].click();"))
-    }
-  })
+  # observeEvent(input$TermTit, { # https://stackoverflow.com/questions/54652364/r-shiny-automatically-start-download
+  #   if (is.numeric(ResParcial())) {
+  #     runjs(paste0("$('#", number(), "-DwnlResFile')[0].click();"))
+  #   }
+  # })
   
   TitCurvePlot <- reactive(
     tryCatch(
@@ -112,34 +112,34 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
     }
   })
   MasaEquiv <- reactive(try(EP.1stDer(curve = CleanDf())))
-  MasAtoElem <- reactive(ifelse(Elemento() == 'Pb', LeadAM(), ElementsAtomicMass[[Elemento()]][1]))
-  u_MasAtoElem <- reactive(ifelse(Elemento() == 'Pb', u_LeadAM(), ElementsAtomicMass[[Elemento()]][2]))
+  MasAtoElem <- reactive(ifelse(Elemento == 'Pb', LeadAM, ElementsAtomicMass[[Elemento]][1]))
+  u_MasAtoElem <- reactive(ifelse(Elemento == 'Pb', u_LeadAM, ElementsAtomicMass[[Elemento]][2]))
   ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]` / input$MasaAlic * MasAtoElem())
   ResParcUnc <- reactive(propagate(expr = expression(Meq * Cedta / Mali * Mato),
-                                   data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit()]], reading = MasaEquiv()),
-                                                        uncertConvMass(CalibCertList[[BalanzaMonoelemTit()]], reading = MasaEquiv())),
+                                   data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv()),
+                                                        uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv())),
                                                 Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]`,
                                                           DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
-                                                Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit()]], reading = input$MasaAlic),
-                                                         uncertConvMass(CalibCertList[[BalanzaMonoelemTit()]], reading = input$MasaAlic)),
+                                                Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic),
+                                                         uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic)),
                                                 Mato = c(MasAtoElem(), u_MasAtoElem())),second.order = FALSE, do.sim = FALSE
                                    ))
   
   summaryTitration <- reactive(
-    list(Muestra = sampleID(), Elemento = Elemento(), MasaAlicuota = input$MasaAlic, 
+    list(Muestra = sampleID, Elemento = Elemento, MasaAlicuota = input$MasaAlic, 
          MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 'Incertidumbre estandar' = ResParcUnc(), 
          'Disolucion titulante' = DisEDTA_MRC$infoDisMRC(),
-         'Certificado calibracion balanza' = CalibCertList[[BalanzaMonoelemTit()]],
+         'Certificado calibracion balanza' = CalibCertList[[BalanzaMonoelemTit]],
          Analista = IDUsuario(),#[1], correoAnalista = IDUsuario()[2],
          TitCurvDat = TitCurvDat()[complete.cases(TitCurvDat()), ],
-         dscripMuestra = dscrMuestraMonoelemTit(), 
+         dscripMuestra = dscrMuestraMonoelemTit, 
          MasAtoElem = c(MasAtoElem(), u_MasAtoElem()),
          Inicio = horaInicio(),
          Final = horaFinal()
          ))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0(Elemento(), "_", sampleID(), ".", number(), "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
+    filename = function() {paste0(Elemento, "_", sampleID, ".", number, "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())

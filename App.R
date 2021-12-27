@@ -28,35 +28,37 @@ ui <- function(request) {
 
 server <- function(input, output, session) {
   #observeEvent(input$brwz, browser())
-  # Inicializaci'on
+  ## Inicializaci'on
   IDUsuario  <- reactive(c(input$nombre, input$correo))
   observeEvent(input$Start1, updateTabItems(inputId = 'tabs', selected = 'MRC_DisTab'))
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
   
-  # Disoluciones de MRCs
+  ## Disoluciones de MRCs
   DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA', IDUsuario = IDUsuario)
   DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn', IDUsuario = IDUsuario)
   
-  CalibMonoDelDia <- reactiveValues()
-  # Titulaciones disoluciones calibrantes monoelementales
+  
+  ## Titulaciones disoluciones calibrantes monoelementales
+  #CalibMonoDelDia <- reactiveValues()
   observeEvent(input$MonoElemInitTit, {
     req(input$MonoElemInitTit > 0)
-    Elemento <- reactive(input$Elemento)
-    LeadAM <- reactive(input$LeadAM)
-    u_LeadAM <- reactive(input$u_LeadAM) 
-    sampleID <- reactive(input$sampleID)
-    dscrMuestraMonoelemTit <- reactive(input$dscrMuestraMonoelemTit) 
-    BalanzaMonoelemTit <- reactive(input$BalanzaMonoelemTit)
-    MonoElemNumber <- reactive(input$MonoElemInitTit)
+    Elemento <- input$Elemento
+    LeadAM <- input$LeadAM
+    u_LeadAM <- input$u_LeadAM
+    sampleID <- input$sampleID
+    dscrMuestraMonoelemTit <- input$dscrMuestraMonoelemTit 
+    BalanzaMonoelemTit <- input$BalanzaMonoelemTit
+    MonoElemNumber <- input$MonoElemInitTit
     # browser()
-    CalibMonoDelDia[[paste0(Elemento(), "_", sampleID(), ".", as.character(isolate(MonoElemNumber())), "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".tit")]] <- 
-      callModule(module = CalibraMonoIndividualServer, id = paste0('monoElemTit', input$MonoElemInitTit),
+    #NameFile <- paste0(Elemento(), "_", sampleID(), ".", as.character(isolate(MonoElemNumber())), "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".tit")
+    #CalibMonoDelDia[[NameFile]] <- 
+      isolate(callModule(module = CalibraMonoIndividualServer, id = isolate(paste0('monoElemTit', input$MonoElemInitTit)),
                  Elemento = Elemento, LeadAM = LeadAM, u_LeadAM = u_LeadAM,
                  sampleID = sampleID, dscrMuestraMonoelemTit = dscrMuestraMonoelemTit, 
                  BalanzaMonoelemTit = BalanzaMonoelemTit,
-                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = isolate(MonoElemNumber))
+                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = MonoElemNumber))
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = paste0('monoElemTit', input$MonoElemInitTit)), select = TRUE)
     
   })
