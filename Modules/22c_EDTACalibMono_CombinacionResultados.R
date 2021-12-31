@@ -1,4 +1,4 @@
-CalibraMonoCombUI <- function(id) {
+EDTACombUI <- function(id) {
   ns <- NS(id)
   fluidRow(
     #verbatimTextOutput(ns('test')),
@@ -32,13 +32,15 @@ CalibraMonoCombUI <- function(id) {
     ))
 }
 
-CalibraMonoCombServer <- function(input, output, session, IDUsuario) {
+EDTACombServer <- function(input, output, session, IDUsuario, brwzMDL) {
+  # observeEvent(brwzMDL, browser())
+  
   FileNames <- reactive(input$TitFiles$name)
   
   buttonUpload <- eventReactive(input$TitFiles,
-    ifelse(length(unique(substr(FileNames(), start = 1, stop = 3))) == 1,
+    ifelse(all(substr(FileNames(), start = 1, stop = 5) == 'EDTA.'),
            return(actionButton(session$ns('buttonUpload'), label = tags$b('Subir archivos'))),
-           return(box(status = 'danger', width = 12, tags$b('Todos los archivos deben corresponder al mismo elemento. Intente nuevamente')))))
+           return(box(status = 'danger', width = 12, tags$b('Todos los archivos deben ser de muestras de EDTA. Intente nuevamente')))))
   output$buttonUpload <- renderUI(buttonUpload())
   
   visualizacion <- eventReactive(input$buttonUpload, {
@@ -69,10 +71,10 @@ CalibraMonoCombServer <- function(input, output, session, IDUsuario) {
     x <- reactiveValuesToList(DataCompl)
     x <- x[names(x) %in% FileNames()]
     Fechas <- as.factor(unlist(sapply(x, 
-                                      function(x) {substr(as.character(x[[13]]), 
-                                                          start = nchar(as.character(x[[13]])) - 18, 
-                                                          stop = nchar(as.character(x[[13]])) - 3)})))
-    VecMomento <- as.factor(unlist(sapply(x, function(x) {x[[13]]})))
+                                      function(x) {substr(as.character(x[[12]]), 
+                                                          start = nchar(as.character(x[[12]])) - 18, 
+                                                          stop = nchar(as.character(x[[12]])) - 3)})))
+    VecMomento <- as.factor(unlist(sapply(x, function(x) {x[[11]]})))
     choices <- names(x)[order(VecMomento)]
     #browser()
     return(checkboxGroupInput(session$ns('titFilesSelectComb'), label = tags$b("Archivos a considerar:"), 
@@ -81,21 +83,21 @@ CalibraMonoCombServer <- function(input, output, session, IDUsuario) {
   output$titFilesSelectComb <- renderUI(titFilesSelectComb())
   
   DataCleanDF <- eventReactive(input$Calcular, {
+    #browser()
     x <- reactiveValuesToList(DataCompl)
     x <- x[names(x) %in% FileNames()]
     DataTrimmedList <- x[names(x) %in% input$titFilesSelectComb] # To consider only selected files
-    VecMomento <- as.factor(unlist(sapply(DataTrimmedList, function(x) {x[[13]]})))
+    VecMomento <- as.factor(unlist(sapply(DataTrimmedList, function(x) {x[[11]]})))
     
-    VecElement <- unlist(sapply(DataTrimmedList, function(x) {x[[2]]}))[order(VecMomento)]
     VecMuestra <- unlist(sapply(DataTrimmedList, function(x) {x[[1]]}))[order(VecMomento)]
-    VecDescrip <- unlist(sapply(DataTrimmedList, function(x) {x[[11]]}))[order(VecMomento)]
-    VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[3]]})))[order(VecMomento)]
-    VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[4]]})))[order(VecMomento)]
-    VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[5]]})))[order(VecMomento)]
-    VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[6]]$prop[[3]]})))[order(VecMomento)]
-    VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[13]]), start = 1, stop = 10)})))[order(VecMomento)]
+    VecDescrip <- unlist(sapply(DataTrimmedList, function(x) {ifelse(!is.null(x[[6]][[3]]), x[[6]][[3]], x[[6]][[2]])}))[order(VecMomento)]
+    VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[2]]})))[order(VecMomento)]
+    VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[3]]})))[order(VecMomento)]
+    VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[4]]})))[order(VecMomento)]
+    VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[5]]$prop[[3]]})))[order(VecMomento)]
+    VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[12]]), start = 1, stop = 10)})))[order(VecMomento)]
     #browser()
-    x <- data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
+    x <- data.frame(VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
                     index = 1:length(VecFracUnc))
     #browser()
     return(x)
@@ -114,21 +116,21 @@ CalibraMonoCombServer <- function(input, output, session, IDUsuario) {
                       'Valor' = as.character(c(round(c(AverageValue, IncertTipoB, StandarDev), 2), 
                                                round(c(length((DataCleanDF()$VecFechas0)), n_ind)),
                                                round(c(IncertTipoA, IncertComb, IncertComb * 2), 2))),
-                      'Unidades' = c(rep('mg / kg', 3), rep('', 2), rep('mg / kg', 3))))
+                      'Unidades' = c(rep('%', 3), rep('', 2), rep('%', 3))))
   })
   
   plotCombinados <- reactive({
     p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() + 
-      labs(y = expression(paste('Fraccion masica de EDTA / %')), x = NULL) +
+      labs(y = expression(paste('Fraccion masica del elemento / ', 'mg k', g^{-1})), x = NULL) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
             axis.text.y = element_text(color = "black"),
             #axis.ticks.x = element_blank(), 
             axis.text.x = element_blank(), legend.title = element_blank()) +
       scale_y_continuous(expand = c(0, 0.4), n.breaks = 8) +
       #geom_hline(aes(yintercept = 0.999 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
-      geom_hline(aes(yintercept = 0.9995 * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
+      geom_hline(aes(yintercept = 0.999 * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
       geom_hline(aes(yintercept = mean(VecFraccMa)), linetype = 1, lwd = 0.5, col = 'gray60') +
-      geom_hline(aes(yintercept = 1.0005 * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
+      geom_hline(aes(yintercept = 1.001 * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
       #geom_hline(aes(yintercept = 1.001 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
       geom_point(aes(y = VecFraccMa, color = VecFechas0)) + 
       geom_errorbar(aes(ymin = VecFraccMa - VecFracUnc, ymax = VecFraccMa + VecFracUnc, color = VecFechas0), width = 0.4)

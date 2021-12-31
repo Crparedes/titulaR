@@ -28,8 +28,12 @@ ui <- function(request) {
 
 server <- function(input, output, session) {
   observeEvent(input$brwz, browser())
+  brwzMDL <- reactive(input$brwzMDL)
+  
   ## Inicializaci'on
   IDUsuario  <- reactive(c(input$nombre, input$correo))
+  
+  
   observeEvent(input$Start1, updateTabItems(inputId = 'tabs', selected = 'MRC_DisTab'))
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
   
@@ -127,6 +131,9 @@ server <- function(input, output, session) {
                        IDUsuario = IDUsuario, number = EDTA.Number))
     prependTab(inputId = 'EDTA.TabBox', EDTA.IndividualUI(id = paste0('EDTA.', input$EDTA.InitTit)), select = TRUE)
   })
+  
+  callModule(module = EDTACombServer, id = 'EDTAComb1', IDUsuario = IDUsuario, brwzMDL = brwzMDL) 
+  
   
 }
 

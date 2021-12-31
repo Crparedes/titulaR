@@ -3,7 +3,7 @@ EDTA.IndividualUI <- function(id) {
   #uiOutput(ns('pestana'))
   tabPanel(title = tags$b(paste0('Tit.', sub("EDTA.", "", id, fixed = TRUE))), 
     column(6, tags$br(), 
-           actionButton(ns('PausarModular'), label = 'Pausar titulaR'),
+           #actionButton(ns('PausarModular'), label = 'Pausar titulaR'),
            tags$b('Datos de la titulacion:'), tags$br(),
            tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), tags$br(),
            conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns,
@@ -128,7 +128,7 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
          ))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0(sampleID, ".", number, "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
+    filename = function() {paste0("EDTA.", sampleID, ".", number, "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())
