@@ -25,7 +25,7 @@ EdtaLy <- fluidRow(
                  )
                )),       
              tabPanel(title = tags$b('Visualizar y combinar resultados'),
-                      EDTACombUI('EDTAComb1'))
+                      CombinaUI('EDTAComb1'))
       )
     )
 )

@@ -11,6 +11,7 @@ library(rhandsontable)
 library(data.table)
 library(masscor)
 library(propagate)
+library(dplyr) # 
 # icon("flask")
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
@@ -84,7 +85,7 @@ server <- function(input, output, session) {
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = paste0('monoElemTit', input$MonoElemInitTit)), select = TRUE)
     
   })
-  callModule(module = CalibraMonoCombServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario) 
+  callModule(module = CombinaServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario, especie = 'Elem', tol = 0.0005) 
   
   
   
@@ -131,8 +132,9 @@ server <- function(input, output, session) {
                        IDUsuario = IDUsuario, number = EDTA.Number))
     prependTab(inputId = 'EDTA.TabBox', EDTA.IndividualUI(id = paste0('EDTA.', input$EDTA.InitTit)), select = TRUE)
   })
+  callModule(module = CombinaServer, id = 'EDTAComb1', IDUsuario = IDUsuario, especie = 'EDTA', tol = 0.001) 
   
-  callModule(module = EDTACombServer, id = 'EDTAComb1', IDUsuario = IDUsuario, brwzMDL = brwzMDL) 
+  #callModule(module = EDTACombServer, id = 'EDTAComb1', IDUsuario = IDUsuario, brwzMDL = brwzMDL) 
   
   
 }

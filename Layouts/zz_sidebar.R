@@ -27,8 +27,8 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                        tags$br(), tags$br(), tags$br(), tags$br(),
                        tags$br(), tags$br(), tags$br(), tags$br(),
                        tags$br(), tags$br(), tags$br(), tags$br(),
-                       actionButton(inputId = 'brwz', label = tags$b('Detener titulaR (No oprimir!)'), width = '90%'),
-                       actionButton(inputId = 'brwzMDL', label = tags$b('Detener modulo (No oprimir!)'), width = '90%')
+                       actionButton(inputId = 'brwz', label = tags$b('Detener titulaR (No oprimir!)'), width = '90%')#,
+                       #actionButton(inputId = 'brwzMDL', label = tags$b('Detener modulo (No oprimir!)'), width = '90%')
                        #convertMenuItem(menuItem("Configuración general", tabName = "config", icon = icon("cog"),
                         #                        tags$b('Archivos descargables:'),
                         #                        radioButtons("Format", label = "Formato",

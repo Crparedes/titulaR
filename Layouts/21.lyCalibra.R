@@ -40,7 +40,7 @@ CalibraMonoLy <- fluidRow(
                )
              )),       
              tabPanel(title = tags$b('Visualizar y combinar resultados'),
-                      CalibraMonoCombUI('CalibraMonoComb1'))
+                      CombinaUI('CalibraMonoComb1'))
       )
       )
 )
