@@ -27,9 +27,10 @@ ui <- function(request) {
                 title = "titRation - Instituto Nacional de Metrología de Colombia") #customStuff in ./Layouts
 }
 
-server <- function(input, output, session) {
+server <- function(input, output, session, devMode = TRUE) {
+  output$brwz <- renderUI(
+    if(devMode) return(actionButton(inputId = 'brwz', label = tags$b('Detener titulaR'), width = '90%')))
   observeEvent(input$brwz, browser())
-  brwzMDL <- reactive(input$brwzMDL)
   
   ## Inicializaci'on
   IDUsuario  <- reactive(c(input$nombre, input$correo))
@@ -85,7 +86,7 @@ server <- function(input, output, session) {
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = paste0('monoElemTit', input$MonoElemInitTit)), select = TRUE)
     
   })
-  callModule(module = CombinaServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario, especie = 'Elem', tol = 0.0005) 
+  callModule(module = CombinaServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario, especie = 'Elem', tol = 0.0005, devMode = devMode) 
   
   
   
@@ -132,7 +133,7 @@ server <- function(input, output, session) {
                        IDUsuario = IDUsuario, number = EDTA.Number))
     prependTab(inputId = 'EDTA.TabBox', EDTA.IndividualUI(id = paste0('EDTA.', input$EDTA.InitTit)), select = TRUE)
   })
-  callModule(module = CombinaServer, id = 'EDTAComb1', IDUsuario = IDUsuario, especie = 'EDTA', tol = 0.001) 
+  callModule(module = CombinaServer, id = 'EDTAComb1', IDUsuario = IDUsuario, especie = 'EDTA', tol = 0.001, devMode = devMode) 
   
   #callModule(module = EDTACombServer, id = 'EDTAComb1', IDUsuario = IDUsuario, brwzMDL = brwzMDL) 
   

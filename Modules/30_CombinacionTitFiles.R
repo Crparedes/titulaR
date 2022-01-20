@@ -6,7 +6,7 @@ CombinaUI <- function(id) {
            tags$b('Importar archivos .tit de resultados individuales'),
            fileInput(ns('TitFiles'), width = '100%', 
                      label = NULL, multiple = TRUE, accept = '.tit'),
-           uiOutput(ns('buttonUpload')), tags$hr(),
+           splitLayout(uiOutput(ns('buttonUpload')), uiOutput(ns('brwz'))), tags$hr(),
            uiOutput(ns('visualizacion')),
            conditionalPanel(condition = 'input.visualizacion == "Comb"', ns = ns, uiOutput(ns('titFilesSelectComb'))),
            conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, uiOutput(ns('titFilesSelectIndi'))), 
@@ -32,7 +32,11 @@ CombinaUI <- function(id) {
     ))
 }
 
-CombinaServer <- function(input, output, session, IDUsuario, especie, tol) {
+CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMode) {
+  output$brwz <- renderUI(
+    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Detener módulo'))))
+  observeEvent(input$brwz, browser())
+  
   FileNames <- reactive(input$TitFiles$name)
   
   ifelsebuttonUpload <- reactive(
@@ -161,15 +165,18 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol) {
   titFilesSelectIndi <- reactive({
     x <- reactiveValuesToList(DataCompl)
     x <- x[names(x) %in% FileNames()]
+    pos <- case_when(especie == 'EDTA' ~ c(12, 11),
+                     especie == 'Elem' ~ c(13, 13))
     Fechas <- as.factor(unlist(sapply(x, 
-                                      function(x) {substr(as.character(x[[13]]), 
-                                                          start = nchar(as.character(x[[13]])) - 18, 
-                                                          stop = nchar(as.character(x[[13]])) - 3)})))
-    VecMomento <- as.factor(unlist(sapply(x, function(x) {x[[13]]})))
+                                      function(x) {substr(as.character(x[[pos[1]]]), 
+                                                          start = nchar(as.character(x[[pos[1]]])) - 18, 
+                                                          stop = nchar(as.character(x[[pos[1]]])) - 3)})))
+    VecMomento <- as.factor(unlist(sapply(x, function(x) {x[[pos[2]]]})))
     choices <- names(x)[order(VecMomento)]
     #browser()
     return(radioButtons(session$ns('titFilesSelectIndi'), label = tags$b("Archivo:"), 
-                              choices = choices, selected = character(0), width = '100%'))
+                        choices = choices, #selected = character(0), 
+                        width = '100%'))
   })
   output$titFilesSelectIndi <- renderUI(titFilesSelectIndi())
   

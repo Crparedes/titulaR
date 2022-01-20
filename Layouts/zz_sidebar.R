@@ -18,7 +18,7 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                        tags$b(HTML('&ensp;'), 'Complejometrías'),
                        menuItem("Disoluciones calibrantes monoelementales", tabName = "CalibrantesTab", icon = icon("bong")),
                        menuItem("EDTA, sal disódica dihidratada", tabName = "EdtaTab", icon = icon("stroopwafel")), tags$br(), tags$br(),
-                       tags$b(HTML('&ensp;'), 'Acido-Base'),
+                       tags$b(HTML('&ensp;'), 'Ácido-Base'),
                        menuItem("(Ninguna implementada)", tabName = "Acido1", icon = icon("bong")),
                        tags$hr(),
                        HTML('<h6 style="color: #dddddd; font-size:9px;">
@@ -27,7 +27,7 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                        tags$br(), tags$br(), tags$br(), tags$br(),
                        tags$br(), tags$br(), tags$br(), tags$br(),
                        tags$br(), tags$br(), tags$br(), tags$br(),
-                       actionButton(inputId = 'brwz', label = tags$b('Detener titulaR (No oprimir!)'), width = '90%')#,
+                       uiOutput('brwz')##,
                        #actionButton(inputId = 'brwzMDL', label = tags$b('Detener modulo (No oprimir!)'), width = '90%')
                        #convertMenuItem(menuItem("Configuración general", tabName = "config", icon = icon("cog"),
                         #                        tags$b('Archivos descargables:'),
