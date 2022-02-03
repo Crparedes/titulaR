@@ -29,7 +29,7 @@ ui <- function(request) {
 
 server <- function(input, output, session, devMode = TRUE) {
   output$brwz <- renderUI(
-    if(devMode) return(actionButton(inputId = 'brwz', label = tags$b('Detener titulaR'), width = '90%')))
+    if(devMode) return(actionButton(inputId = 'brwz', label = tags$b('Pausar titulaR'), width = '90%')))
   observeEvent(input$brwz, browser())
   
   ## Inicializaci'on

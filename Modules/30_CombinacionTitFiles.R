@@ -34,7 +34,7 @@ CombinaUI <- function(id) {
 
 CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMode) {
   output$brwz <- renderUI(
-    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Detener módulo'))))
+    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
   observeEvent(input$brwz, browser())
   
   FileNames <- reactive(input$TitFiles$name)

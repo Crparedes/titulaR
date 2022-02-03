@@ -16,12 +16,12 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                                 multiple = FALSE, selected = NULL)),
           column(5, tags$br(), uiOutput(ns("MRC_CertiFile")))),
         uiOutput(ns('InfoMrcBox')),
-        box(title = div(style = 'font-size:14px', 'Preparacion de la disolucion'), 
+        box(title = div(style = 'font-size:14px', 'Preparación de la disolución'), 
             width = 12, collapsible = TRUE, collapsed = TRUE, status = 'primary',
             tags$b('Condiciones ambientales'),
             tags$div(id = "inline", style = 'font-size:12px',
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('Temp1'), label = 'Temperatura [$^o$C]: .', value = 18),
+                                 numericInput(ns('Temp1'), label = 'Temperatura [°C]: .', value = 18),
                                  numericInput(ns('u_Temp1'), label = '\u00B1', value = 1.8)),
                      splitLayout(cellWidths = c("75%", "25%"),
                                  numericInput(ns('BarPres1'), label = 'Presion [hPa]: .', value = 750),
@@ -39,14 +39,14 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                      numericInput(ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = 0),
                      numericInput(ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = 0),
                      uiOutput(ns('deriMasaMRC'))), tags$hr(),
-            tags$b('Masa final de la disolucion'),
+            tags$b('Masa final de la disolución'),
             uiOutput(ns('CalibCertDis')),
             tags$div(id = "inline", style = 'font-size:12px',
                      numericInput(ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
-                     numericInput(ns('MasDis1'), label = 'Masa final disolucion [g]: .', value = 0),
+                     numericInput(ns('MasDis1'), label = 'Masa final disolución [g]: .', value = 0),
                      numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]: .', value = 1),
+                                 numericInput(ns('DensitDis'), label = 'Densidad disolución [g cm$^{-3}$]: .', value = 1),
                                  numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.1)),
                      uiOutput(ns('deriMasaDisMRC'))))),
       conditionalPanel(
@@ -109,11 +109,11 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
         return(list('MRC empleado' = input$MRCElected,
                     'Fecha de vencimiento MRC' = dateMRC(),
                     'Especie ' = reagKey,
-                    'Concentracion [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
+                    'Concentración [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
                     'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
                     'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
                                                        Correo = IDUsuario()[2]),
-                    'Fecha de preparacion' = Sys.time()))
+                    'Fecha de preparación' = Sys.time()))
       } else {
         return('Los datos ingresados no son validos!')
       }
@@ -121,7 +121,7 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
       dataFile <- readRDS(input$DisFile$datapath)
       if (dataFile['Especie '] != reagKey) {
         return(rbind('ERROR!!! ERROR!!! ERROR!!!', 
-                     'Por favor ingrese una disolucion de la especie apropiada' ))
+                     'Por favor ingrese una disolución de la especie apropiada' ))
       } else {
         return(dataFile)
       }
@@ -132,20 +132,20 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   
   InfoMrcBox <- reactive({
     box(title = div(style = 'font-size:14px', 
-                    ifelse(dateMRC() > Sys.Date(), 'Resumen de informacion del MRC (vigente):', 'Resumen de informacion del MRC (VENCIDO):')), 
+                    ifelse(dateMRC() > Sys.Date(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
         width = 12, collapsible = TRUE, collapsed = TRUE,
         status = ifelse(dateMRC() > Sys.Date(), 'success', 'danger'),
         div(style = 'font-size:12px',
             tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
-            tags$b('Fraccion masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
-            tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol$^{-1}$',tags$br(),
-            tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm$^{-3}$'))
+            tags$b('Fracción masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
+            tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol', tags$sup('-1'),tags$br(),
+            tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm', tags$sup('-3')))
   })
   
   InfoDisBox <- eventReactive(input$buttonCalc, {
     trigger <- TRUE
     #printedStuff <- ifelse()
-    box(title = div(style = 'font-size:14px', 'Informacion de la disolucion:'),
+    box(title = div(style = 'font-size:14px', 'Información de la disolución:'),
         width = 12, collapsible = TRUE, collapsed = FALSE,
         status = 'primary',#ifelse(trigger, 'success', 'danger'),
         renderPrint(tryCatch(infoDisMRC(),
@@ -155,8 +155,8 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   
   buttonCalc <- reactive(actionButton(session$ns('buttonCalc'), 
                                       label = tags$b(ifelse(input$SourceOption == "daCapo", 
-                                                            'Calcular concentracion', 
-                                                            'Cargar disolucion'))))
+                                                            'Calcular concentración', 
+                                                            'Cargar disolución'))))
   output$buttonCalc <- renderUI(buttonCalc())
   output$MRC_CertiFile <- renderUI(fileDwnHTML())
   output$InfoMrcBox <- renderUI(InfoMrcBox())
@@ -167,10 +167,9 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
     content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
   
   # Messages
-  NiceDensitAir <- eventReactive(input$buttonCalc,
-                                 tags$div(style = 'font-size:11px',
-                                          'La densidad local del aire calculada con la ecuacion CIMP2007 es ', 
-                                          signif(DensitAir()[1], 7), ' \u00B1 ', signif(DensitAir()[2], 3), '[g cm^{-3}]'))
+  NiceDensitAir <- reactive(tags$div(style = 'font-size:11px',
+                                     'Densidad local del aire (CIMP2007): ', 
+                                     signif(DensitAir()[1], 7), ' \u00B1 ', signif(DensitAir()[2], 3), '[g cm', tags$sup('-3'), ']'))
   deriMasaMRC <- eventReactive(input$MasRecMRC1, 
                                div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassMRC() * 1000, 2), ' [mg]'))
   deriMasaDisMRC <- eventReactive(input$MasRecDis1,
