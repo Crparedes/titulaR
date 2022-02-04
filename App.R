@@ -24,7 +24,7 @@ ui <- function(request) {
   withMathJax()
   useShinyjs()
   dashboardPage(header = customHeader, sidebar = customSidebar, body = customBody,
-                title = "titRation - Instituto Nacional de Metrología de Colombia") #customStuff in ./Layouts
+                title = "titulaR - Instituto Nacional de Metrología de Colombia") #customStuff in ./Layouts
 }
 
 server <- function(input, output, session, devMode = TRUE) {
@@ -56,9 +56,9 @@ server <- function(input, output, session, devMode = TRUE) {
         renderPrint(
           tryCatch(rbind(
             paste0('MRC: ', DisEDTA_MRC$infoDisMRC()$`MRC empleado`, ': '),
-            paste0(' Concentración: ', signif(DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]`, 6), ' \u00B1 ',
+            paste0(' Concentración: ', signif(DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]`, 6), ' \u00B1 ',
                    signif(DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`, 2), ' [mmol/kg]'),
-            paste0(' Preparación: ', DisEDTA_MRC$infoDisMRC()$`Fecha de preparacion`, '.')),
+            paste0(' Preparación: ', DisEDTA_MRC$infoDisMRC()$`Fecha de preparación`, '.')),
             error = function(cond) {rbind('Sin informacion de la disolucion titulante.', 'Dirijase al modulo de MRCs y disoluciones.')}))))
   
   output$MonoElemInitTit <- renderUI(ifelse(Logical_DisEDTA_MRC(), 
@@ -82,7 +82,7 @@ server <- function(input, output, session, devMode = TRUE) {
                  Elemento = Elemento, LeadAM = LeadAM, u_LeadAM = u_LeadAM,
                  sampleID = sampleID, dscrMuestraMonoelemTit = dscrMuestraMonoelemTit, 
                  BalanzaMonoelemTit = BalanzaMonoelemTit,
-                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = MonoElemNumber))
+                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = MonoElemNumber, devMode = devMode))
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = paste0('monoElemTit', input$MonoElemInitTit)), select = TRUE)
     
   })
@@ -100,9 +100,9 @@ server <- function(input, output, session, devMode = TRUE) {
         renderPrint(
           tryCatch(rbind(
             paste0('MRC: ', DisPb_MRC$infoDisMRC()$`MRC empleado`, ': '),
-            paste0(' Concentración: ', signif(DisPb_MRC$infoDisMRC()$`Concentracion [mmol/kg]`, 6), ' \u00B1 ',
+            paste0(' Concentración: ', signif(DisPb_MRC$infoDisMRC()$`Concentración [mmol/kg]`, 6), ' \u00B1 ',
                    signif(DisPb_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`, 2), ' [mmol/kg]'),
-            paste0(' Preparación: ', DisPb_MRC$infoDisMRC()$`Fecha de preparacion`, '.')),
+            paste0(' Preparación: ', DisPb_MRC$infoDisMRC()$`Fecha de preparación`, '.')),
             error = function(cond) {rbind('Sin informacion de la disolucion titulante.', 'Dirijase al modulo de MRCs y disoluciones.')}))))
   
   output$PrintDisEDTA.Sample <- renderUI(
@@ -130,7 +130,7 @@ server <- function(input, output, session, devMode = TRUE) {
     #CalibMonoDelDia[[NameFile]] <- 
     isolate(callModule(module = EDTA.IndividualServer, id = isolate(paste0('EDTA.', input$EDTA.InitTit)),
                        BalanzaTitEDTA = BalanzaTitEDTA, DisPb_MRC = DisPb_MRC, DisMuestraEDTA = DisMuestraEDTA,
-                       IDUsuario = IDUsuario, number = EDTA.Number))
+                       IDUsuario = IDUsuario, number = EDTA.Number, devMode = devMode))
     prependTab(inputId = 'EDTA.TabBox', EDTA.IndividualUI(id = paste0('EDTA.', input$EDTA.InitTit)), select = TRUE)
   })
   callModule(module = CombinaServer, id = 'EDTAComb1', IDUsuario = IDUsuario, especie = 'EDTA', tol = 0.001, devMode = devMode) 

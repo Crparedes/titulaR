@@ -5,7 +5,7 @@ EDTA.IndividualUI <- function(id) {
     column(6, tags$br(), 
            #actionButton(ns('PausarModular'), label = 'Pausar titulaR'),
            tags$b('Datos de la titulacion:'), tags$br(),
-           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), tags$br(),
+           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), uiOutput(ns('brwz')), tags$br(),
            conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns,
                             rHandsontableOutput(ns("TitData"), width = '100%'))),
     column(6, tags$br(),
@@ -16,8 +16,11 @@ EDTA.IndividualUI <- function(id) {
            ))
 }
 
-EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_MRC, DisMuestraEDTA, IDUsuario, number) {
-  observeEvent(input$PausarModular, browser())
+EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_MRC, DisMuestraEDTA, IDUsuario, number, devMode) {
+  output$brwz <- renderUI(
+    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+  observeEvent(input$brwz, browser())
+  
   sampleID <- DisMuestraEDTA$infoDisSAMPLE()$`ID_Disolucion`
   CondiMasaAlic <- reactive(
     if(!is.null(DisPb_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 10, 
@@ -99,7 +102,7 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
     }
   })
   MasaEquiv <- reactive(try(EP.1stDer(curve = CleanDf())))
-  ResParcial <- reactive(input$MasaAlic * DisPb_MRC$infoDisMRC()$`Concentracion [mmol/kg]` / MasaEquiv() *
+  ResParcial <- reactive(input$MasaAlic * DisPb_MRC$infoDisMRC()$`Concentración [mmol/kg]` / MasaEquiv() *
                            DisMuestraEDTA$infoDisSAMPLE()$`Peso molar`[1] * DisMuestraEDTA$infoDisSAMPLE()$`Factor de dilucion 1:` /
                           10^6 * 100)
   ResParcUnc <- reactive(propagate(expr = expression(Mali * C_Pb * FD / Meq * MW / 10^6 * 100),

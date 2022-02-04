@@ -3,14 +3,16 @@ CalibraMonoIndividualUI <- function(id) {
   #uiOutput(ns('pestana'))
   tabPanel(title = tags$b(paste0('Tit.', sub("monoElemTit", "", id, fixed = TRUE))), 
     column(6, tags$br(),
-           tags$b('Datos de la titulacion:'), tags$br(),
-           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), tags$br(),
+           tags$b('Datos de la titulación:'), tags$br(),
+           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), 
+           uiOutput(ns('brwz')),
+           tags$br(),
            conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns,
                             rHandsontableOutput(ns("TitData"), width = '100%'))),
     column(6, tags$br(),
-           tags$b('Curva de titulacion:'), tags$br(), 
+           tags$b('Curva de titulación:'), tags$br(), 
            fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'))), tags$br(),
-           actionButton(ns('TermTit'), label = 'Terminar titulacion'), tags$br(),
+           actionButton(ns('TermTit'), label = 'Terminar titulación'), tags$br(),
            uiOutput(ns('TitulTerminada'))
            ))
 }
@@ -18,7 +20,11 @@ CalibraMonoIndividualUI <- function(id) {
 CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM, u_LeadAM,
                                         sampleID, dscrMuestraMonoelemTit,
                                         BalanzaMonoelemTit,
-                                        DisEDTA_MRC, IDUsuario, number) {
+                                        DisEDTA_MRC, IDUsuario, number, devMode) {
+  output$brwz <- renderUI(
+    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+  observeEvent(input$brwz, browser())
+  
   CondiMasaAlic <- reactive(
     if(!is.null(DisEDTA_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 10, label = 'Masa de alicuota [g]: .'))
   )
@@ -96,7 +102,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   
   TitulTerminada <- eventReactive(input$TermTit, {
     if(length(na.omit(TitCurvDat()$Titrant)) < 7) {
-      tags$b('No se puede terminar la titulacion con menos de 8 datos!')
+      tags$b('No se puede terminar la titulación con menos de 8 datos!')
     } else {
       tags$div(
         tags$hr(),
@@ -114,11 +120,11 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   MasaEquiv <- reactive(try(EP.1stDer(curve = CleanDf())))
   MasAtoElem <- reactive(ifelse(Elemento == 'Pb', LeadAM, ElementsAtomicMass[[Elemento]][1]))
   u_MasAtoElem <- reactive(ifelse(Elemento == 'Pb', u_LeadAM, ElementsAtomicMass[[Elemento]][2]))
-  ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]` / input$MasaAlic * MasAtoElem())
+  ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]` / input$MasaAlic * MasAtoElem())
   ResParcUnc <- reactive(propagate(expr = expression(Meq * Cedta / Mali * Mato),
                                    data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv()),
                                                         uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv())),
-                                                Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentracion [mmol/kg]`,
+                                                Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
                                                           DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
                                                 Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic),
                                                          uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic)),
@@ -128,8 +134,8 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   summaryTitration <- reactive(
     list(Muestra = sampleID, Elemento = Elemento, MasaAlicuota = input$MasaAlic, 
          MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 'Incertidumbre estandar' = ResParcUnc(), 
-         'Disolucion titulante' = DisEDTA_MRC$infoDisMRC(),
-         'Certificado calibracion balanza' = CalibCertList[[BalanzaMonoelemTit]],
+         'Disolución titulante' = DisEDTA_MRC$infoDisMRC(),
+         'Certificado calibración balanza' = CalibCertList[[BalanzaMonoelemTit]],
          Analista = IDUsuario(),#[1], correoAnalista = IDUsuario()[2],
          TitCurvDat = TitCurvDat()[complete.cases(TitCurvDat()), ],
          dscripMuestra = dscrMuestraMonoelemTit, 
@@ -145,7 +151,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   output$TitCurvePlot <- renderPlot(TitCurvePlot())
   output$TitulTerminada <- renderUI(TitulTerminada())
   output$DescaResu <- renderUI(DescaResu())
-  return(list('Titulacion' = summaryTitration#, 
+  return(list('Titulación' = summaryTitration#, 
               #'Exito' = !is.null(is.numeric(ResParcial()))
               ))
 }
