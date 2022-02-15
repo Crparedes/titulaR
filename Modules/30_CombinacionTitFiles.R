@@ -20,10 +20,12 @@ CombinaUI <- function(id) {
            ),
     column(9, 
            conditionalPanel(condition = 'input.visualizacion == "Comb"', ns = ns, 
-                            tags$b('Combinación de resultados'), tags$hr(),
+                            tags$b('Combinación de resultados'), tags$br(),
                             column(7, plotOutput(ns('plotCombinados'), width = '100%')),
                             column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
-                                          tableOutput(ns('resultadosCombi'))))),
+                                          tableOutput(ns('resultadosCombi')))), tags$hr(), tags$hr(), 
+                            fluidRow(tags$b('Resumen de resultados por día'), uiOutput(ns('TablasPorDia'))),
+                            tags$hr()),
            conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, 
                             tags$b('Visualizacion de resultado individual'), tags$hr(),
                             column(7, plotOutput(ns('plotIndiv'), width = '100%')),
@@ -155,11 +157,37 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
       #geom_hline(aes(yintercept = 1.001 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
       geom_point(aes(y = VecFraccMa, color = VecFechas0)) + 
       geom_errorbar(aes(ymin = VecFraccMa - VecFracUnc, ymax = VecFraccMa + VecFracUnc, color = VecFechas0), width = 0.4)
-    print(p)
     #browser()
+    print(p)
     })
   output$plotCombinados <- renderPlot(plotCombinados())
   output$resultadosCombi <- renderTable(resultadosCombi())
+  
+  TablasPorDia <- eventReactive(DataCleanDF(), {
+    unidad <- case_when(especie == 'EDTA' ~ '%', especie == 'Elem' ~ 'mg / kg')
+
+    x <- list()
+    for (i in unique((DataCleanDF()$VecFechas0))) {
+      j <- i
+      DayRes <- which(DataCleanDF()$VecFechas0 == j)
+      datFram <- data.frame(Archivo = row.names(DataCleanDF())[DayRes],
+                            Resultado = DataCleanDF()$VecFraccMa[DayRes], 
+                            '.' = rep(unidad, length(DayRes)))
+      temp <- box(title = tags$b(paste0('Resultados ', j)), status = 'primary', collapsible = TRUE, collapsed = TRUE,
+                  column(5, #renderTable(isolate(datFram), digits = 3),
+                         tags$h4('Promedio del día:', tags$b(round(mean(datFram$Resultado), 3), unidad), tags$br(),
+                                 'Desviación estándar relativa del día:', tags$b(round(sd(datFram$Resultado)/mean(datFram$Resultado)*100, 3), '%'))),
+                  column(7, tags$h4('Valor p prueba de normalidad de Shapiro-Wilk:', 
+                                    tags$b(signif(shapiro.test(datFram$Resultado)$p.value, 3)), tags$br(),
+                                    'Valor p prueba de dato anómalo de Grubbs:', 
+                                    tags$b(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3), 
+                                           'para el valor más', 
+                                           ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto.', 'bajo.')))))
+      x <- c(x, temp)
+    }
+    return(x)
+  })
+  output$TablasPorDia <- renderUI(TablasPorDia())
   
   
   titFilesSelectIndi <- reactive({

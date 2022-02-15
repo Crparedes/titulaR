@@ -9,9 +9,11 @@ library(ggplot2) #Grammar of graphics
 library(ggfortify)
 library(rhandsontable)
 library(data.table)
+library(stringr)
 library(masscor)
 library(propagate)
 library(dplyr) # 
+library(outliers)
 # icon("flask")
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
