@@ -4,7 +4,7 @@ CalibraMonoIndividualUI <- function(id) {
   tabPanel(title = tags$b(paste0('Tit.', sub("monoElemTit", "", id, fixed = TRUE))), 
     column(6, tags$br(),
            tags$b('Datos de la titulación:'), tags$br(),
-           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic'))), tags$br(), 
+           tags$div(id = "inline", style = 'font-size:12px', uiOutput(ns('MasaAlic')), uiOutput(ns('MasaEDTA0'))), tags$br(), 
            uiOutput(ns('brwz')),
            tags$br(),
            conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns,
@@ -26,9 +26,14 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   observeEvent(input$brwz, browser())
   
   CondiMasaAlic <- reactive(
-    if(!is.null(DisEDTA_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 10, label = 'Masa de alicuota [g]: .'))
+    if(!is.null(DisEDTA_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 0, label = 'Masa de alicuota [g]: .'))
   )
   output$MasaAlic <- renderUI(CondiMasaAlic())
+  
+  CondiMasaEDTA0 <- reactive(
+    if(!is.null(DisEDTA_MRC$infoDisMRC())) return(numericInput(session$ns('MasaEDTA0'), value = 0, label = 'Masa inicial de la disolución de EDTA [g]: .'))
+  )
+  output$MasaEDTA0 <- renderUI(CondiMasaEDTA0())
   
   horaInicio <- eventReactive(input$MasaAlic, Sys.time())
   horaFinal  <- eventReactive(input$TermTit, Sys.time())
@@ -66,6 +71,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   CleanDf <- eventReactive(input$TermTit, {
     dff <- as.data.frame(TitCurvDat()[(as.numeric(!is.na(TitCurvDat()$Titrant)) + as.numeric(!is.na(TitCurvDat()$Signal))) > 1, ])
     dff <- dff[dff[, 1] > 0, ]
+    dff[, 1] <- dff[, 1] + input$MasaEDTA0
     if(nrow(dff) > 3) {
       return(df2t.curve(df = dff, plot = FALSE))
     } else {
@@ -117,7 +123,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
       )
     }
   })
-  MasaEquiv <- reactive(try(EP.1stDer(curve = CleanDf())))
+  MasaEquiv <- eventReactive(input$TermTit, {try(EP.1stDer(curve = CleanDf()))})
   MasAtoElem <- reactive(ifelse(Elemento == 'Pb', LeadAM, ElementsAtomicMass[[Elemento]][1]))
   u_MasAtoElem <- reactive(ifelse(Elemento == 'Pb', u_LeadAM, ElementsAtomicMass[[Elemento]][2]))
   ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]` / input$MasaAlic * MasAtoElem())

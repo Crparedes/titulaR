@@ -23,8 +23,8 @@ CombinaUI <- function(id) {
                             tags$b('Combinación de resultados'), tags$br(),
                             column(7, plotOutput(ns('plotCombinados'), width = '100%')),
                             column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
-                                          tableOutput(ns('resultadosCombi')))), tags$hr(), tags$hr(), 
-                            fluidRow(tags$b('Resumen de resultados por día'), uiOutput(ns('TablasPorDia'))),
+                                          tableOutput(ns('resultadosCombi')))), tags$hr(), tags$br(), tags$hr(), 
+                            column(12, uiOutput(ns('TablasPorDia'))),
                             tags$hr()),
            conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, 
                             tags$b('Visualizacion de resultado individual'), tags$hr(),
@@ -131,13 +131,15 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
     n_ind <- length(unique((DataCleanDF()$VecFechas0)))
     IncertTipoA <- StandarDev/sqrt(n_ind)
     IncertComb <- sqrt(IncertTipoB^2 + IncertTipoA^2)
+    LevTest <- leveneTest(VecFraccMa ~ VecFechas0, data = DataCleanDF())
     return(data.frame('.' = c('Promedio de las mediciones', 'Incertidumbre tipo B', 'Desviacion estandar de las mediciones', 
                               'Numero de datos', 'Numero de datos independientes (dia)', 'Incertidumbre tipo A', 'Incertidumbre combinada',
-                              'Incertidumbre expandida (k=2)'),
+                              'Incertidumbre expandida (k=2)', 'Valor p homogeneidad de varianzas (Levene)'),
                       'Valor' = as.character(c(round(c(AverageValue, IncertTipoB, StandarDev), 2), 
                                                round(c(length((DataCleanDF()$VecFechas0)), n_ind)),
-                                               round(c(IncertTipoA, IncertComb, IncertComb * 2), 2))),
-                      'Unidades' = c(rep(unidad, 3), rep('', 2), rep(unidad, 3))))
+                                               round(c(IncertTipoA, IncertComb, IncertComb * 2), 2),
+                                               round(LevTest$`Pr(>F)`[1], 4))),
+                      'Unidades' = c(rep(unidad, 3), rep('', 2), rep(unidad, 3), '')))
   })
   
   plotCombinados <- reactive({
@@ -173,16 +175,21 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
       datFram <- data.frame(Archivo = row.names(DataCleanDF())[DayRes],
                             Resultado = DataCleanDF()$VecFraccMa[DayRes], 
                             '.' = rep(unidad, length(DayRes)))
-      temp <- box(title = tags$b(paste0('Resultados ', j)), status = 'primary', collapsible = TRUE, collapsed = TRUE,
+      temp <- box(title = tags$b(paste0('Resumen de resultados del ', j)), status = 'primary', collapsible = TRUE, collapsed = TRUE,
                   column(5, #renderTable(isolate(datFram), digits = 3),
                          tags$h4('Promedio del día:', tags$b(round(mean(datFram$Resultado), 3), unidad), tags$br(),
                                  'Desviación estándar relativa del día:', tags$b(round(sd(datFram$Resultado)/mean(datFram$Resultado)*100, 3), '%'))),
                   column(7, tags$h4('Valor p prueba de normalidad de Shapiro-Wilk:', 
                                     tags$b(signif(shapiro.test(datFram$Resultado)$p.value, 3)), tags$br(),
-                                    'Valor p prueba de dato anómalo de Grubbs:', 
-                                    tags$b(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3), 
-                                           'para el valor más', 
-                                           ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto.', 'bajo.')))))
+                                    'Valores p de las pruebas de datos anómalos de Grubbs:', tags$br(),
+                                    '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3)), 
+                                    'para el valor más', 
+                                    ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto.', 'bajo.'), tags$br(),
+                                    '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 11)$p.value, 3)), 
+                                    'para un valor a cada extremo.', tags$br(),
+                                    '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 20)$p.value, 3)), 
+                                    'para los dos valores más', 
+                                    ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'altos.', 'bajos.'))))
       x <- c(x, temp)
     }
     return(x)
