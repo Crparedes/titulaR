@@ -131,14 +131,14 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
     n_ind <- length(unique((DataCleanDF()$VecFechas0)))
     IncertTipoA <- StandarDev/sqrt(n_ind)
     IncertComb <- sqrt(IncertTipoB^2 + IncertTipoA^2)
-    LevTest <- leveneTest(VecFraccMa ~ VecFechas0, data = DataCleanDF())
+    LevTest <- tryCatch(leveneTest(VecFraccMa ~ VecFechas0, data = DataCleanDF()), error = function(e) 'no aplica')
     return(data.frame('.' = c('Promedio de las mediciones', 'Incertidumbre tipo B', 'Desviacion estandar de las mediciones', 
                               'Numero de datos', 'Numero de datos independientes (dia)', 'Incertidumbre tipo A', 'Incertidumbre combinada',
                               'Incertidumbre expandida (k=2)', 'Valor p homogeneidad de varianzas (Levene)'),
                       'Valor' = as.character(c(round(c(AverageValue, IncertTipoB, StandarDev), 2), 
                                                round(c(length((DataCleanDF()$VecFechas0)), n_ind)),
                                                round(c(IncertTipoA, IncertComb, IncertComb * 2), 2),
-                                               round(LevTest$`Pr(>F)`[1], 4))),
+                                               ifelse(n_ind > 1, round(LevTest$`Pr(>F)`[1], 4), LevTest))),
                       'Unidades' = c(rep(unidad, 3), rep('', 2), rep(unidad, 3), '')))
   })
   
