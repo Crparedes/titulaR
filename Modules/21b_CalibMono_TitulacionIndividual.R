@@ -20,9 +20,9 @@ CalibraMonoIndividualUI <- function(id) {
 CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM, u_LeadAM,
                                         sampleID, dscrMuestraMonoelemTit,
                                         BalanzaMonoelemTit,
-                                        DisEDTA_MRC, IDUsuario, number, devMode) {
+                                        DisEDTA_MRC, IDUsuario, number, devMode, fecha) {
   output$brwz <- renderUI(
-    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
   observeEvent(input$brwz, browser())
   
   CondiMasaAlic <- reactive(
@@ -35,8 +35,8 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   )
   output$MasaEDTA0 <- renderUI(CondiMasaEDTA0())
   
-  horaInicio <- eventReactive(input$MasaAlic, Sys.time())
-  horaFinal  <- eventReactive(input$TermTit, Sys.time())
+  horaInicio <- eventReactive(input$MasaAlic, paste0(fecha(), format(Sys.time(), '_%H-%M')))
+  horaFinal  <- eventReactive(input$TermTit, paste0(fecha(), format(Sys.time(), '_%H-%M')))
   
   TableDat_0  <- reactiveValues(hot = data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29))))
   TableData <- reactive({
@@ -107,8 +107,8 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   )
   
   TitulTerminada <- eventReactive(input$TermTit, {
-    if(length(na.omit(TitCurvDat()$Titrant)) < 7) {
-      tags$b('No se puede terminar la titulación con menos de 8 datos!')
+    if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
+      tags$b('No se puede terminar la titulación con menos de 7 datos!')
     } else {
       tags$div(
         tags$hr(),
@@ -127,14 +127,16 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   MasAtoElem <- reactive(ifelse(Elemento == 'Pb', LeadAM, ElementsAtomicMass[[Elemento]][1]))
   u_MasAtoElem <- reactive(ifelse(Elemento == 'Pb', u_LeadAM, ElementsAtomicMass[[Elemento]][2]))
   ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]` / input$MasaAlic * MasAtoElem())
-  ResParcUnc <- reactive(propagate(expr = expression(Meq * Cedta / Mali * Mato),
+  ResParcUnc <- reactive(propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
                                    data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv()),
                                                         uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv())),
+                                                Mbln = c(0, 0.0028/sqrt(3)),
                                                 Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
                                                           DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
                                                 Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic),
                                                          uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic)),
-                                                Mato = c(MasAtoElem(), u_MasAtoElem())),second.order = FALSE, do.sim = FALSE
+                                                Mato = c(MasAtoElem(), u_MasAtoElem())),
+                                   second.order = FALSE, do.sim = FALSE
                                    ))
   
   summaryTitration <- reactive(
@@ -151,7 +153,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
          ))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0(Elemento, "_", sampleID, ".", number, "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
+    filename = function() {paste0(Elemento, "_", sampleID, ".", number, "_", isolate(horaInicio()), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())

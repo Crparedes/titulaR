@@ -45,19 +45,23 @@ SolidSampleUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                        numericInput(ns('MasDis1'), label = 'Masa final disolucion [g]: .', value = 0),
                        numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
                        splitLayout(cellWidths = c("75%", "25%"),
-                                   numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]: .', value = 1),
-                                   numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.1)),
+                                   numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]: .', value = 1.000),
+                                   numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.004)),
                        uiOutput(ns('deriMasaDisSAMPLE'))))),
       conditionalPanel(
         condition = 'input.SourceOption == "archivo"', ns = ns,
         fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
       tags$hr(), tags$hr(), 
-      uiOutput(ns('buttonCalc')), tags$br(), #tags$br(),
+      uiOutput(ns('buttonCalc')), uiOutput(ns('brwz')), tags$br(), #tags$br(),
       uiOutput(ns('InfoDisBox'))
   )
 }
 
-SolidSampleServer <- function(input, output, session, reagKey, IDUsuario, DensitSAMPLE, molarWeight) {
+SolidSampleServer <- function(input, output, session, reagKey, IDUsuario, DensitSAMPLE, molarWeight, devMode, fecha) {
+  output$brwz <- renderUI(
+    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+  observeEvent(input$brwz, browser())
+  
   DensitAir <- reactive(c(airDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1),
                           uncertAirDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1, 
                                            u_Temp = input$u_Temp1, u_p = input$u_BarPres1, u_h = input$u_relHum1, printRelSD = FALSE)))
@@ -104,7 +108,7 @@ SolidSampleServer <- function(input, output, session, reagKey, IDUsuario, Densit
                     'Peso molar' = molarWeight,
                     'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
                                                        Correo = IDUsuario()[2]),
-                    'Fecha de preparacion' = Sys.time()))
+                    'Fecha de preparacion' = fecha()))
       } else {
         return('Los datos ingresados no son validos!')
       }
@@ -141,7 +145,7 @@ SolidSampleServer <- function(input, output, session, reagKey, IDUsuario, Densit
   output$InfoDisBox <- renderUI(InfoDisBox())
   output$CalibCertDis <- renderUI(CalibCertDis())
   output$DwnlDisFile <- downloadHandler(
-    filename = function() {paste0("Dis_MUESTRA_", reagKey, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".dis")}, 
+    filename = function() {paste0("Dis_MUESTRA_", reagKey, "_", input$IDMuestra, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
     content = function(file) {saveRDS(infoDisSAMPLE(), file = file)}, contentType = NULL)
   
   # Messages

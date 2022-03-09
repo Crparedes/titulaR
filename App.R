@@ -31,8 +31,10 @@ ui <- function(request) {
 }
 
 server <- function(input, output, session, devMode = TRUE) {
+  devMode <- reactive(input$Desarrollador)
+  fecha <- reactive(input$Fecha)
   output$brwz <- renderUI(
-    if(devMode) return(actionButton(inputId = 'brwz', label = tags$b('Pausar titulaR'), width = '90%')))
+    if(devMode()) return(actionButton(inputId = 'brwz', label = tags$b('Pausar titulaR'), width = '90%')))
   observeEvent(input$brwz, browser())
   
   ## Inicializaci'on
@@ -43,10 +45,10 @@ server <- function(input, output, session, devMode = TRUE) {
   callModule(module = BalanceCalibCertServer, id = 'BalanceCalibCert')
   
   ## Disoluciones de MRCs o de candidatos a MRC
-  DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA', IDUsuario = IDUsuario)
-  DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb', IDUsuario = IDUsuario)
+  DisEDTA_MRC <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionEDTA', reagKey = 'EDTA', IDUsuario = IDUsuario, devMode = devMode, fecha = fecha)
+  DisPb_MRC   <- callModule(module = SolidMRCServer, id = 'ModuloDisolucionPbNO3.2', reagKey = 'Pb', IDUsuario = IDUsuario, devMode = devMode, fecha = fecha)
   DisMuestraEDTA <- callModule(module = SolidSampleServer, id = 'ModuloDisolucionMuestraEDTA', reagKey = 'EDTA', IDUsuario = IDUsuario, 
-                               DensitSAMPLE = c(0.860, 0.005), molarWeight = c(3.722368e+02, 6.332914e-03))
+                               DensitSAMPLE = c(0.860, 0.005), molarWeight = c(3.722368e+02, 6.332914e-03), devMode = devMode, fecha = fecha)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionCobre', reagKey = 'Cu', IDUsuario = IDUsuario)
   callModule(module = LiquidMRCServer, id = 'ModuloDilucionZinc', reagKey = 'Zn', IDUsuario = IDUsuario)
   
@@ -85,11 +87,11 @@ server <- function(input, output, session, devMode = TRUE) {
                  Elemento = Elemento, LeadAM = LeadAM, u_LeadAM = u_LeadAM,
                  sampleID = sampleID, dscrMuestraMonoelemTit = dscrMuestraMonoelemTit, 
                  BalanzaMonoelemTit = BalanzaMonoelemTit,
-                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = MonoElemNumber, devMode = devMode))
+                 DisEDTA_MRC = DisEDTA_MRC, IDUsuario = IDUsuario, number = MonoElemNumber, devMode = devMode, fecha = fecha))
     prependTab(inputId = 'monoElemTabBox', CalibraMonoIndividualUI(id = paste0('monoElemTit', input$MonoElemInitTit)), select = TRUE)
     
   })
-  callModule(module = CombinaServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario, especie = 'Elem', tol = 0.0005, devMode = devMode) 
+  callModule(module = CombinaServer, id = 'CalibraMonoComb1', IDUsuario = IDUsuario, especie = 'Elem', tol = 0.0005, devMode = devMode, fecha = fecha) 
   
   
   
@@ -133,10 +135,10 @@ server <- function(input, output, session, devMode = TRUE) {
     #CalibMonoDelDia[[NameFile]] <- 
     isolate(callModule(module = EDTA.IndividualServer, id = isolate(paste0('EDTA.', input$EDTA.InitTit)),
                        BalanzaTitEDTA = BalanzaTitEDTA, DisPb_MRC = DisPb_MRC, DisMuestraEDTA = DisMuestraEDTA,
-                       IDUsuario = IDUsuario, number = EDTA.Number, devMode = devMode))
+                       IDUsuario = IDUsuario, number = EDTA.Number, devMode = devMode, fecha = fecha))
     prependTab(inputId = 'EDTA.TabBox', EDTA.IndividualUI(id = paste0('EDTA.', input$EDTA.InitTit)), select = TRUE)
   })
-  callModule(module = CombinaServer, id = 'EDTAComb1', IDUsuario = IDUsuario, especie = 'EDTA', tol = 0.001, devMode = devMode) 
+  callModule(module = CombinaServer, id = 'EDTAComb1', IDUsuario = IDUsuario, especie = 'EDTA', tol = 0.001, devMode = devMode, fecha = fecha) 
   
   #callModule(module = EDTACombServer, id = 'EDTAComb1', IDUsuario = IDUsuario, brwzMDL = brwzMDL) 
   

@@ -26,7 +26,8 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                        tags$br(), tags$br(), tags$br(), tags$br(),
                        tags$br(), tags$br(), tags$br(), tags$br(),
                        tags$br(), tags$br(), tags$br(), tags$br(),
-                       tags$br(), tags$br(), tags$br(), tags$br(),
+                       #tags$br(), tags$br(), tags$br(), tags$br(),
+                       materialSwitch('Desarrollador', 'Modo de desarrollador', status = 'primary'),
                        uiOutput('brwz')##,
                        #actionButton(inputId = 'brwzMDL', label = tags$b('Detener modulo (No oprimir!)'), width = '90%')
                        #convertMenuItem(menuItem("Configuración general", tabName = "config", icon = icon("cog"),

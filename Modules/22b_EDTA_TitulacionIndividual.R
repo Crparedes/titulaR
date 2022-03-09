@@ -16,20 +16,20 @@ EDTA.IndividualUI <- function(id) {
            ))
 }
 
-EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_MRC, DisMuestraEDTA, IDUsuario, number, devMode) {
+EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_MRC, DisMuestraEDTA, IDUsuario, number, devMode, fecha) {
   output$brwz <- renderUI(
-    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
   observeEvent(input$brwz, browser())
   
   sampleID <- DisMuestraEDTA$infoDisSAMPLE()$`ID_Disolucion`
   CondiMasaAlic <- reactive(
-    if(!is.null(DisPb_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 10, 
+    if(!is.null(DisPb_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 0, 
                                                              label = 'Masa de la alicuota del MRC de ion plomo [g]: .'))
   )
   output$MasaAlic <- renderUI(CondiMasaAlic())
   
-  horaInicio <- eventReactive(input$MasaAlic, Sys.time())
-  horaFinal  <- eventReactive(input$TermTit, Sys.time())
+  horaInicio <- eventReactive(input$MasaAlic, paste0(fecha(), format(Sys.time(), '_%H-%M')))
+  horaFinal  <- eventReactive(input$TermTit, paste0(fecha(), format(Sys.time(), '_%H-%M')))
   
   TableDat_0  <- reactiveValues(hot = data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29))))
   TableData <- reactive({
@@ -85,8 +85,8 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
   )
   
   TitulTerminada <- eventReactive(input$TermTit, {
-    if(length(na.omit(TitCurvDat()$Titrant)) < 7) {
-      tags$b('No se puede terminar la titulacion con menos de 8 datos!')
+    if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
+      tags$b('No se puede terminar la titulacion con menos de 7 datos!')
     } else {
       tags$div(
         tags$hr(),
@@ -105,10 +105,11 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
   ResParcial <- reactive(input$MasaAlic * DisPb_MRC$infoDisMRC()$`Concentración [mmol/kg]` / MasaEquiv() *
                            DisMuestraEDTA$infoDisSAMPLE()$`Peso molar`[1] * DisMuestraEDTA$infoDisSAMPLE()$`Factor de dilucion 1:` /
                           10^6 * 100)
-  ResParcUnc <- reactive(propagate(expr = expression(Mali * C_Pb * FD / Meq * MW / 10^6 * 100),
+  ResParcUnc <- reactive(propagate(expr = expression(Mali * C_Pb * FD / (Meq - Mbln) * MW / 10^6 * 100),
                                    data = cbind(Meq = c(convMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv()),
                                                         uncertConvMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv())),
-                                                C_Pb = c(DisPb_MRC$infoDisMRC()$`Concentracion [mmol/kg]`,
+                                                Mbln = c(0, 0.0028/sqrt(3)),
+                                                C_Pb = c(DisPb_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
                                                           DisPb_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
                                                 FD = c(DisMuestraEDTA$infoDisSAMPLE()$`Factor de dilucion 1:`,
                                                        DisMuestraEDTA$infoDisSAMPLE()$`Incertidumbre FD`),
@@ -131,7 +132,7 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
          ))
   
   output$DwnlResFile <- downloadHandler(
-    filename = function() {paste0("EDTA.", sampleID, ".", number, "_", format(isolate(horaInicio()), '%Y-%m-%d_%H-%M'), ".tit")},
+    filename = function() {paste0("EDTA.", sampleID, ".", number, "_", isolate(horaInicio()), ".tit")},
     content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
   
   output$TitCurvePlot <- renderPlot(TitCurvePlot())

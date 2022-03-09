@@ -23,7 +23,8 @@ CombinaUI <- function(id) {
                             tags$b('Combinación de resultados'), tags$br(),
                             column(7, plotOutput(ns('plotCombinados'), width = '100%')),
                             column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
-                                          tableOutput(ns('resultadosCombi')))), tags$hr(), tags$br(), tags$hr(), 
+                                          tableOutput(ns('resultadosCombi'))), tags$br(),
+                                   uiOutput(ns('DescMatDarBttn'))), tags$hr(), tags$br(), tags$hr(), 
                             column(12, uiOutput(ns('TablasPorDia'))),
                             tags$hr()),
            conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, 
@@ -34,9 +35,9 @@ CombinaUI <- function(id) {
     ))
 }
 
-CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMode) {
+CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMode, fecha) {
   output$brwz <- renderUI(
-    if(devMode) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
   observeEvent(input$brwz, browser())
   
   FileNames <- reactive(input$TitFiles$name)
@@ -123,6 +124,14 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
     return(x)
   })
   
+  DescMatDarBttn <- eventReactive(DataCleanDF(), {
+    downloadButton(session$ns('DescMatDar'), label = tags$b('Descargar matriz de datos'))})
+  output$DescMatDarBttn <- renderUI(DescMatDarBttn())
+  output$DescMatDar <- downloadHandler(
+    filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
+    content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
+  
+      
   resultadosCombi <- eventReactive(DataCleanDF(), {
     unidad <- case_when(especie == 'EDTA' ~ '%', especie == 'Elem' ~ 'mg / kg')
     AverageValue <- mean(DataCleanDF()$VecFraccMa)

@@ -46,19 +46,25 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
                      numericInput(ns('MasDis1'), label = 'Masa final disolución [g]: .', value = 0),
                      numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
                      splitLayout(cellWidths = c("75%", "25%"),
-                                 numericInput(ns('DensitDis'), label = 'Densidad disolución [g cm$^{-3}$]: .', value = 1),
-                                 numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.1)),
+                                 numericInput(ns('DensitDis'), label = 'Densidad disolución [g cm$^{-3}$]: .', 
+                                              value = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0))),
+                                 numericInput(ns('u_DensitDis'), label = '\u00B1', 
+                                              value = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)))),
                      uiOutput(ns('deriMasaDisMRC'))))),
       conditionalPanel(
         condition = 'input.SourceOption == "archivo"', ns = ns,
         fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
       tags$hr(), 
-      uiOutput(ns('buttonCalc')), tags$br(), #tags$br(),
+      uiOutput(ns('buttonCalc')), uiOutput(ns('brwz')), tags$br(), #tags$br(),
       uiOutput(ns('InfoDisBox'))
   )
 }
 
-SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
+SolidMRCServer <- function(input, output, session, reagKey, IDUsuario, devMode, fecha) {
+  output$brwz <- renderUI(
+    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+  observeEvent(input$brwz, browser())
+  
   fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
                             "Descargar certificado ", download = NA, target = "_blank"))
   dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
@@ -113,7 +119,7 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
                     'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
                     'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
                                                        Correo = IDUsuario()[2]),
-                    'Fecha de preparación' = Sys.time()))
+                    'Fecha de preparación' = fecha()))
       } else {
         return('Los datos ingresados no son validos!')
       }
@@ -132,9 +138,9 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   
   InfoMrcBox <- reactive({
     box(title = div(style = 'font-size:14px', 
-                    ifelse(dateMRC() > Sys.Date(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
+                    ifelse(dateMRC() > fecha(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
         width = 12, collapsible = TRUE, collapsed = TRUE,
-        status = ifelse(dateMRC() > Sys.Date(), 'success', 'danger'),
+        status = ifelse(dateMRC() > fecha(), 'success', 'danger'),
         div(style = 'font-size:12px',
             tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
             tags$b('Fracción masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
@@ -163,7 +169,7 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario) {
   output$InfoDisBox <- renderUI(InfoDisBox())
   output$CalibCertDis <- renderUI(CalibCertDis())
   output$DwnlDisFile <- downloadHandler(
-    filename = function() {paste0("Disolucion_MRC_", reagKey, "_", format(Sys.time(), '%Y-%m-%d_%H-%M'), ".dis")}, 
+    filename = function() {paste0("Disolucion_MRC_", reagKey, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
     content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
   
   # Messages
