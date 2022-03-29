@@ -108,7 +108,6 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
     VecElement <- ifelse(especie == 'EDTA', rep(NA, length(VecMomento)),
                          ifelse(especie == 'Elem', unlist(sapply(DataTrimmedList, function(x) {x[[2]]}))[order(VecMomento)], NULL))
     VecMuestra <- unlist(sapply(DataTrimmedList, function(x) {x[[1]]}))[order(VecMomento)]
-    ## AQU'I VOY JEJE
     VecDescrip <- ifelse(especie == 'EDTA', 
                          unlist(sapply(DataTrimmedList, function(x) {ifelse(!is.null(x[[6]][[3]]), x[[6]][[3]], x[[6]][[2]])}))[order(VecMomento)],
                          ifelse(especie == 'Elem', unlist(sapply(DataTrimmedList, function(x) {x[[11]]}))[order(VecMomento)], NULL))

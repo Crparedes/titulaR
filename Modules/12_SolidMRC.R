@@ -119,7 +119,8 @@ SolidMRCServer <- function(input, output, session, reagKey, IDUsuario, devMode, 
                     'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
                     'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
                                                        Correo = IDUsuario()[2]),
-                    'Fecha de preparación' = fecha()))
+                    'Fecha de preparación' = fecha(),
+                    'PropagateCompleto' = DisConc()))
       } else {
         return('Los datos ingresados no son validos!')
       }

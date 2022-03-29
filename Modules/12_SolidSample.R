@@ -108,7 +108,8 @@ SolidSampleServer <- function(input, output, session, reagKey, IDUsuario, Densit
                     'Peso molar' = molarWeight,
                     'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
                                                        Correo = IDUsuario()[2]),
-                    'Fecha de preparacion' = fecha()))
+                    'Fecha de preparacion' = fecha(),
+                    'PropagateCompleto' = factorDilucion()))
       } else {
         return('Los datos ingresados no son validos!')
       }
