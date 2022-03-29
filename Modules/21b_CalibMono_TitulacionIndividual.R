@@ -130,7 +130,7 @@ CalibraMonoIndividualServer <- function(input, output, session, Elemento, LeadAM
   ResParcUnc <- reactive(propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
                                    data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv()),
                                                         uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv())),
-                                                Mbln = c(0, 0.0028/sqrt(3)),
+                                                Mbln = c(0, 0.0028/(2*sqrt(3))),
                                                 Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
                                                           DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
                                                 Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic),

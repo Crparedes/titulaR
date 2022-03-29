@@ -184,21 +184,29 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
       datFram <- data.frame(Archivo = row.names(DataCleanDF())[DayRes],
                             Resultado = DataCleanDF()$VecFraccMa[DayRes], 
                             '.' = rep(unidad, length(DayRes)))
-      temp <- box(title = tags$b(paste0('Resumen de resultados del ', j)), status = 'primary', collapsible = TRUE, collapsed = TRUE,
+      nDat <- nrow(datFram)
+      temp <- box(title = tags$b(paste0('Resumen de resultados del ', j)), status = 'primary', collapsible = TRUE, collapsed = FALSE,
                   column(5, #renderTable(isolate(datFram), digits = 3),
                          tags$h4('Promedio del día:', tags$b(round(mean(datFram$Resultado), 3), unidad), tags$br(),
                                  'Desviación estándar relativa del día:', tags$b(round(sd(datFram$Resultado)/mean(datFram$Resultado)*100, 3), '%'))),
                   column(7, tags$h4('Valor p prueba de normalidad de Shapiro-Wilk:', 
-                                    tags$b(signif(shapiro.test(datFram$Resultado)$p.value, 3)), tags$br(),
+                                    tags$b(tryCatch(signif(shapiro.test(datFram$Resultado)$p.value, 3), 
+                                                    error = function(e) 'No se puede calcular para menos de tres datos')), 
+                                    tags$br(),
                                     'Valores p de las pruebas de datos anómalos de Grubbs:', tags$br(),
-                                    '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3)), 
-                                    'para el valor más', 
-                                    ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto.', 'bajo.'), tags$br(),
-                                    '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 11)$p.value, 3)), 
-                                    'para un valor a cada extremo.', tags$br(),
-                                    '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 20)$p.value, 3)), 
-                                    'para los dos valores más', 
-                                    ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'altos.', 'bajos.'))))
+                                    tryCatch(
+                                      tags$h4('  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3)),
+                                              ' para el valor más ', 
+                                              ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto.', 'bajo.')),
+                                      error = function(e) 'No se puede calcular para menos de tres datos'),
+                                    tryCatch(
+                                      tags$h4('  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 11)$p.value, 3)),
+                                              ' para un valor a cada extremo.', tags$br(),
+                                              '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 20)$p.value, 3)), 
+                                              ' para los dos valores más ', 
+                                              ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'altos.', 'bajos.')),
+                                      error = function(e) ''))
+                                    ))
       x <- c(x, temp)
     }
     return(x)

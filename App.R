@@ -18,7 +18,7 @@ library(outliers)
 # icon("flask")
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
-pack_titRation  <- with(list(pt = 'Package/R/'), paste0(pt, list.files(path = pt)))
+pack_titRation  <- with(list(pt = 'RPackage/'), paste0(pt, list.files(path = pt)))
 modules         <- with(list(pt = 'Modules/'), paste0(pt, list.files(path = pt))) # El primer m'odulo es el de variables globales  
 layouts         <- with(list(pt = 'Layouts/'), paste0(pt, list.files(path = pt))) # functions in the client side
 sapply(c(pack_titRation, modules, layouts), source)

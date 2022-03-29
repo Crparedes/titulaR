@@ -108,7 +108,7 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
   ResParcUnc <- reactive(propagate(expr = expression(Mali * C_Pb * FD / (Meq - Mbln) * MW / 10^6 * 100),
                                    data = cbind(Meq = c(convMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv()),
                                                         uncertConvMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv())),
-                                                Mbln = c(0, 0.0028/sqrt(3)),
+                                                Mbln = c(0, 0.0028/(2 * sqrt(3))),
                                                 C_Pb = c(DisPb_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
                                                           DisPb_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
                                                 FD = c(DisMuestraEDTA$infoDisSAMPLE()$`Factor de dilucion 1:`,
