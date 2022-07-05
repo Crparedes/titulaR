@@ -17,7 +17,7 @@ MRCs.ArchiveNames <- list(Pb = gsub('.pdf', '', list.files(path = 'www/CertMRC/P
                           EDTA = gsub('.pdf', '', list.files(path = 'www/CertMRC/EDTA')))
 
 MRCs.MassFraction <- list(Pb = list(c(round(207.209 / 331.219, 6), 3e-4/2)), # NIST SRM 928
-                          EDTA = list(c(0.9987, 10e-4/2)))     # UNIM GSO 2960-84
+                          EDTA = list(c(0.99874, 0.00038)))     # UNIM GSO 2960-84
                           
 MRC.At_MolWeigths <- list(Pb = list(c(207.209, 0.005)), # NIST SRM 928 # Decid'i no dividir por raiz de tres
                           EDTA = list(round(c(3.722368e+02, 6.332914e-03), 4))) # UNIM GSO 2960-84

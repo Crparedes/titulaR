@@ -1,4 +1,9 @@
 rm(list=ls())
+gc()            # Garbage collector
+
+# titulaR
+
+
 library(shiny)
 library(car)
 library(shinydashboard)

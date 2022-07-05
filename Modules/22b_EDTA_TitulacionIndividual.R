@@ -107,14 +107,16 @@ EDTA.IndividualServer <- function(input, output, session, BalanzaTitEDTA, DisPb_
                           10^6 * 100)
   ResParcUnc <- reactive(propagate(expr = expression(Mali * C_Pb * FD / (Meq - Mbln) * MW / 10^6 * 100),
                                    data = cbind(Meq = c(convMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv()),
-                                                        uncertConvMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv())),
+                                                        sqrt(2) * uncertConvMass(CalibCertList[[BalanzaTitEDTA]], reading = MasaEquiv(), 
+                                                                                 d = 0.1, d.units = 'mg')),
                                                 Mbln = c(0, 0.0028/(2 * sqrt(3))),
                                                 C_Pb = c(DisPb_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
                                                           DisPb_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
                                                 FD = c(DisMuestraEDTA$infoDisSAMPLE()$`Factor de dilucion 1:`,
                                                        DisMuestraEDTA$infoDisSAMPLE()$`Incertidumbre FD`),
                                                 Mali = c(convMass(CalibCertList[[BalanzaTitEDTA]], reading = input$MasaAlic),
-                                                         uncertConvMass(CalibCertList[[BalanzaTitEDTA]], reading = input$MasaAlic)),
+                                                         uncertConvMass(CalibCertList[[BalanzaTitEDTA]], reading = input$MasaAlic, 
+                                                                        d = 0.1, d.units = 'mg')),
                                                 MW = DisMuestraEDTA$infoDisSAMPLE()$`Peso molar`),
                                    second.order = FALSE, do.sim = FALSE
                                    ))
