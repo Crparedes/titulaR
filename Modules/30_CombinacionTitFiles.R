@@ -24,7 +24,7 @@ CombinaUI <- function(id) {
                             column(7, plotOutput(ns('plotCombinados'), width = '100%')),
                             column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
                                           tableOutput(ns('resultadosCombi'))), tags$br(),
-                                   uiOutput(ns('DescMatDarBttn'))), tags$hr(), tags$br(), tags$hr(), 
+                                   uiOutput(ns('DescMatDarBttn')), uiOutput(ns('DescMatExcelBttn'))), tags$hr(), tags$br(), tags$hr(), 
                             column(12, uiOutput(ns('TablasPorDia'))),
                             tags$hr()),
            conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, 
@@ -124,11 +124,19 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   })
   
   DescMatDarBttn <- eventReactive(DataCleanDF(), {
-    downloadButton(session$ns('DescMatDar'), label = tags$b('Descargar matriz de datos'))})
+    downloadButton(session$ns('DescMatDar'), label = tags$b('Descargar matriz de resultados en RDS'))})
   output$DescMatDarBttn <- renderUI(DescMatDarBttn())
   output$DescMatDar <- downloadHandler(
     filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
     content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
+  
+  DescMatExcelBttn <- eventReactive(DataCleanDF(), {
+    downloadButton(session$ns('DescMatExcel'), label = tags$b('Descargar matriz de resultados en Excel'))})
+  output$DescMatExcelBttn <- renderUI(DescMatExcelBttn())
+  output$DescMatExcel <- downloadHandler(
+    filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
+    content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
+  
   
       
   resultadosCombi <- eventReactive(DataCleanDF(), {
