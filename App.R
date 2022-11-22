@@ -21,6 +21,7 @@ library(propagate)
 library(dplyr) # 
 library(outliers)
 library(writexl)
+library(deming)
 # icon("flask")
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
