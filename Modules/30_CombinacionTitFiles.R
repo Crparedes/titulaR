@@ -160,8 +160,9 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   
   plotCombinados <- reactive({
     p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() + 
-      labs(y = case_when(especie == 'EDTA' ~ expression(paste('Fraccion masica de EDTA / %')), 
-                         especie == 'Elem' ~ expression(paste('Fraccion masica del elemento / ', 'mg k', g^{-1}))), 
+      labs(y = 
+        case_when(especie == 'EDTA' ~ expression(paste('Fracción masica de EDTA / (%) g ', ' ', g^{-1})), 
+                  especie == 'Elem' ~ expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1}))),
            x = NULL) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
             axis.text.y = element_text(color = "black"),
@@ -182,7 +183,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   output$resultadosCombi <- renderTable(resultadosCombi())
   
   TablasPorDia <- eventReactive(DataCleanDF(), {
-    unidad <- case_when(especie == 'EDTA' ~ '%', especie == 'Elem' ~ 'mg / kg')
+    unidad <- case_when(especie == 'EDTA' ~ 'g / g (%)', especie == 'Elem' ~ 'mg / kg')
 
     x <- list()
     for (i in unique((DataCleanDF()$VecFechas0))) {
