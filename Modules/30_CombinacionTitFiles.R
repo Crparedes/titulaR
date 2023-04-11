@@ -159,11 +159,11 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   })
   
   plotCombinados <- reactive({
+    
+    ylab <- case_when(especie == 'EDTA' ~ expression(paste('Fracción masica de EDTA / (%) g ', ' ', g^{-1})), 
+                      especie == 'Elem' ~ expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1})))
     p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() + 
-      labs(y = 
-        case_when(especie == 'EDTA' ~ expression(paste('Fracción masica de EDTA / (%) g ', ' ', g^{-1})), 
-                  especie == 'Elem' ~ expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1}))),
-           x = NULL) +
+      labs(y = ylab, x = NULL) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
             axis.text.y = element_text(color = "black"),
             #axis.ticks.x = element_blank(), 
