@@ -43,7 +43,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   FileNames <- reactive(input$TitFiles$name)
   
   ifelsebuttonUpload <- reactive(
-    case_when(especie == 'EDTA' ~ all(substr(FileNames(), start = 1, stop = 5) == 'EDTA.'),
+    dplyr::case_when(especie == 'EDTA' ~ all(substr(FileNames(), start = 1, stop = 5) == 'EDTA.'),
               especie == 'Elem' ~ length(unique(substr(FileNames(), start = 1, stop = 3))) == 1))
   
   
@@ -51,7 +51,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
     ifelse(ifelsebuttonUpload(),
            return(actionButton(session$ns('buttonUpload'), label = tags$b('Subir archivos'))),
            return(box(status = 'danger', width = 12, 
-                      case_when(especie == 'EDTA' ~ list(tags$b('Todos los archivos deben ser de muestras de EDTA. Intente nuevamente')),
+                      dplyr::case_when(especie == 'EDTA' ~ list(tags$b('Todos los archivos deben ser de muestras de EDTA. Intente nuevamente')),
                                 especie == 'Elem' ~ list(tags$b('Todos los archivos deben corresponder al mismo elemento. Intente nuevamente'))))))})
   output$buttonUpload <- renderUI(buttonUpload())
   
@@ -82,7 +82,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   titFilesSelectComb <- reactive({
     x <- reactiveValuesToList(DataCompl)
     x <- x[names(x) %in% FileNames()]
-    pos <- case_when(especie == 'EDTA' ~ c(12, 11),
+    pos <- dplyr::case_when(especie == 'EDTA' ~ c(12, 11),
                      especie == 'Elem' ~ c(13, 13))
     Fechas <- as.factor(unlist(sapply(x, 
                                       function(x) {substr(as.character(x[[pos[1]]]), 
@@ -97,7 +97,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   output$titFilesSelectComb <- renderUI(titFilesSelectComb())
   
   DataCleanDF <- eventReactive(input$Calcular, {#browser()
-    pos <- case_when(especie == 'EDTA' ~ c(11, 2, 3, 4, 5, 12),
+    pos <- dplyr::case_when(especie == 'EDTA' ~ c(11, 2, 3, 4, 5, 12),
                      especie == 'Elem' ~ c(13, 3, 4, 5, 6, 13))
     
     x <- reactiveValuesToList(DataCompl)
@@ -159,7 +159,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   
   plotCombinados <- reactive({
     
-    ylab <- case_when(especie == 'EDTA' ~ expression(paste('Fracción masica de EDTA / g ', ' ', g^{-1}, ' (%)')), 
+    ylab <- dplyr::case_when(especie == 'EDTA' ~ expression(paste('Fracción masica de EDTA / g ', ' ', g^{-1}, ' (%)')), 
                       especie == 'Elem' ~ expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1})))
     p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() + 
       labs(y = ylab, x = NULL) +
@@ -181,7 +181,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   output$plotCombinados <- renderPlot(plotCombinados())
   output$resultadosCombi <- renderTable(resultadosCombi())
   
-  unidad <- case_when(especie == 'EDTA' ~ 'g / g (%)', especie == 'Elem' ~ 'mg / kg')
+  unidad <- dplyr::case_when(especie == 'EDTA' ~ 'g / g (%)', especie == 'Elem' ~ 'mg / kg')
   
   TablasPorDia <- eventReactive(DataCleanDF(), {
     x <- list()
@@ -224,7 +224,7 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   titFilesSelectIndi <- reactive({
     x <- reactiveValuesToList(DataCompl)
     x <- x[names(x) %in% FileNames()]
-    pos <- case_when(especie == 'EDTA' ~ c(12, 11),
+    pos <- dplyr::case_when(especie == 'EDTA' ~ c(12, 11),
                      especie == 'Elem' ~ c(13, 13))
     Fechas <- as.factor(unlist(sapply(x, 
                                       function(x) {substr(as.character(x[[pos[1]]]), 
