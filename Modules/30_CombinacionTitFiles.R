@@ -6,7 +6,7 @@ CombinaUI <- function(id) {
            tags$b('Importar archivos .tit de resultados individuales'),
            fileInput(ns('TitFiles'), width = '100%', 
                      label = NULL, multiple = TRUE, accept = '.tit'),
-           splitLayout(uiOutput(ns('buttonUpload')), uiOutput(ns('brwz'))), tags$hr(),
+           uiOutput(ns('buttonUpload')), uiOutput(ns('brwz')), tags$hr(),
            uiOutput(ns('visualizacion')),
            conditionalPanel(condition = 'input.visualizacion == "Comb"', ns = ns, uiOutput(ns('titFilesSelectComb'))),
            conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, uiOutput(ns('titFilesSelectIndi'))), 
@@ -42,9 +42,9 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   
   FileNames <- reactive(input$TitFiles$name)
   
-  ifelsebuttonUpload <- reactive(
+  ifelsebuttonUpload <- reactive({
     dplyr::case_when(especie == 'EDTA' ~ all(substr(FileNames(), start = 1, stop = 5) == 'EDTA.'),
-              especie == 'Elem' ~ length(unique(substr(FileNames(), start = 1, stop = 3))) == 1))
+              especie == 'Elem' ~ length(unique(substr(FileNames(), start = 1, stop = 3))) == 1)})
   
   
   buttonUpload <- eventReactive(input$TitFiles, {
@@ -158,9 +158,14 @@ CombinaServer <- function(input, output, session, IDUsuario, especie, tol, devMo
   })
   
   plotCombinados <- reactive({
+    if (especie == 'EDTA') {
+      ylab <- expression(paste('Fracción masica de EDTA / g ', ' ', g^{-1}, ' (%)'))
+    } else {
+      if (especie == 'Elem') {
+        ylab <- expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1}))
+      }
+    }
     
-    ylab <- dplyr::case_when(especie == 'EDTA' ~ expression(paste('Fracción masica de EDTA / g ', ' ', g^{-1}, ' (%)')), 
-                      especie == 'Elem' ~ expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1})))
     p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() + 
       labs(y = ylab, x = NULL) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
