@@ -28,7 +28,7 @@ MRC.densities     <- list(Pb = list(c(4.53, 0.05)), # NIST SRM 928 # Decid'i no 
                           EDTA = list(c(0.860, 0.005), c(0.860, 0.005))) # UNIM GSO 2960-84
 
 MRC.ExpiricyDates <- list(Pb = list(as.Date('2026-01-01')), # NIST SRM 928 # Preguntar cuando abrieron el frasco
-                          EDTA = list(as.Date('2020-08-30'), as.Date('2022-08-30'))) # UNIM GSO 2960-84
+                          EDTA = list(as.Date('2020-08-30'), as.Date('2023-12-31'))) # UNIM GSO 2960-84
                           
 names(MRCs.MassFraction$Pb) <- names(MRC.At_MolWeigths$Pb) <- names(MRC.ExpiricyDates$Pb) <- names(MRC.densities$Pb) <- MRCs.ArchiveNames$Pb
 names(MRCs.MassFraction$EDTA) <- names(MRC.At_MolWeigths$EDTA) <- names(MRC.ExpiricyDates$EDTA) <- names(MRC.densities$EDTA) <- MRCs.ArchiveNames$EDTA
