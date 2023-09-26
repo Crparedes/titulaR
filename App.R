@@ -39,6 +39,7 @@ ui <- function(request) {
 
 server <- function(input, output, session, devMode = TRUE) {
   devMode <- reactive(input$Desarrollador)
+  showNotification("Se recomienda el uso de una pantalla de resolución 1900 x 1080 pixeles.", type = 'warning')
   fecha <- reactive(input$Fecha)
   output$brwz <- renderUI(
     if(devMode()) return(actionButton(inputId = 'brwz', label = tags$b('Pausar titulaR'), width = '90%')))

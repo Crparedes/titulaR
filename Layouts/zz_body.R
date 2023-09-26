@@ -1,5 +1,12 @@
 customBody <- dashboardBody(
   tags$script(HTML("$('body').addClass('fixed');")),
+  tags$head(tags$script('
+                        var width = 1;
+                        $(document).on("shiny:connected", function(e) {
+                          width = window.innerWidth/1900;
+                          document.body.style.zoom = width;
+                        });
+                        ')),
   tags$head(
     tags$style(HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
                      .shiny-notification {position:fixed; top: calc(50% - 150px); left: calc(50% - 150px); 
