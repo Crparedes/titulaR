@@ -21,6 +21,8 @@ customSidebar <- dashboardSidebar(tags$style(".left-side, .main-sidebar {padding
                        tags$b(HTML('&ensp;'), 'Ácido-Base'),
                        menuItem("(Ninguna implementada)", tabName = "Acido1", icon = icon("bong")),
                        tags$hr(),
+                       menuItem("Curva de titulación genérica", tabName = "Generica", icon = icon("bong")),
+                       tags$hr(),
                        HTML('<h6 style="color: #dddddd; font-size:9px;">
                             &ensp;&ensp;&ensp;Aplicativo desarrollado por <b>Cristhian Paredes</b></h6>'),
                        tags$br(), tags$br(), tags$br(), tags$br(),

@@ -150,6 +150,7 @@ server <- function(input, output, session, devMode = TRUE) {
   
   #callModule(module = EDTACombServer, id = 'EDTAComb1', IDUsuario = IDUsuario, brwzMDL = brwzMDL) 
   
+  callModule(module = GenericCurveServer, id = 'Generic', devMode = devMode)
   
 }
 
