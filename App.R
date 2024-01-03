@@ -23,6 +23,8 @@ library(outliers)
 library(writexl)
 library(deming)
 # icon("flask")
+library(xml2)
+library(dplyr)
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
 pack_titRation  <- with(list(pt = 'RPackage/'), paste0(pt, list.files(path = pt)))

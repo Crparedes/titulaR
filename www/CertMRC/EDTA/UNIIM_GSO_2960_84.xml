@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MRC xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/">
+  <administrativeData>
+    <name>UNIIM GSO 2960-84</name>
+    <batch>12</batch>
+    <producer>
+      <name lang="EN" country="RU">Ural Scientific Research Institute for Metrology</name>
+      <shortName>UNIIM</shortName>
+      <alternativeName lang="RU">Уральский научно-исследовательский институт метрологии</alternativeName>
+      <url>https://uniim.ru/</url>
+    </producer>
+    <validUntil>2020/08/30</validUntil>
+  </administrativeData>
+  <certifiedValues>
+    <property id="Prop1">
+      <qudt:quantitykind>MassFraction</qudt:quantitykind>
+      <substance name="EDTA disodium salt dihydrate">
+        <InChI version="1.0.6">1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2</InChI>
+        <InChiKey version="1.0.6">FXKZPKBFTQUJBA-UHFFFAOYSA-N</InChiKey>
+      </substance>
+      <matrix>High purity reagent</matrix>
+      <si:real>
+        <si:label>MassFraction</si:label>
+        <si:value>0.9986</si:value>
+        <si:unit>\gram\gram\tothe{-1}</si:unit>
+        <si:expandedUnc>
+          <si:uncertainty>3e-04</si:uncertainty>
+          <si:coverageFactor>2</si:coverageFactor>
+          <si:coverageProbability>0.95</si:coverageProbability>
+        </si:expandedUnc>
+      </si:real>
+    </property>
+  </certifiedValues>
+  <additionalValues>
+    <property id="MolarMass">
+      <qudt:quantitykind>MolarMass</qudt:quantitykind>
+      <substance name="EDTA disodium salt dihydrate">
+        <InChI version="1.0.6">1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2</InChI>
+        <InChiKey version="1.0.6">FXKZPKBFTQUJBA-UHFFFAOYSA-N</InChiKey>
+      </substance>
+      <si:real>
+        <si:label>MolarMass</si:label>
+        <si:value>372.2368</si:value>
+        <si:unit>\gram\mole\tothe{-1}</si:unit>
+        <si:expandedUnc>
+          <si:uncertainty>0.0109689288079642</si:uncertainty>
+          <si:coverageFactor>1.73205080756888</si:coverageFactor>
+          <si:coverageProbability>0.95</si:coverageProbability>
+        </si:expandedUnc>
+      </si:real>
+    </property>
+    <property id="saltDensity">
+      <qudt:quantitykind>Density</qudt:quantitykind>
+      <si:real>
+        <si:label>Density</si:label>
+        <si:value>0.86</si:value>
+        <si:unit>\gram\centi\meter\tothe{-3}</si:unit>
+        <si:expandedUnc>
+          <si:uncertainty>0.00866025403784439</si:uncertainty>
+          <si:coverageFactor>1.73205080756888</si:coverageFactor>
+          <si:coverageProbability>0.95</si:coverageProbability>
+        </si:expandedUnc>
+      </si:real>
+    </property>
+  </additionalValues>
+</MRC>

@@ -10,7 +10,8 @@ CalibCertArchivos <- gsub('.rds', '', list.files(path = calibCertPATH))
 CalibCertList <- lapply(X = paste0(calibCertPATH, CalibCertArchivos, '.rds'), FUN = readRDS)
 
 names(CalibCertList) <- lapply(X = CalibCertList, FUN = function(x) return(x$balanceID))
-CalibCertShow <- as.list(names(CalibCertList)); names(CalibCertShow) <- CalibCertArchivos
+CalibCertShow <- as.list(c('NuevoNAWIDCC', names(CalibCertList)))
+names(CalibCertShow) <- c('Subir un certificado nuevo', CalibCertArchivos)
 
 ## MRCs
 MRCs.ArchiveNames <- list(Pb = gsub('.pdf', '', list.files(path = 'www/CertMRC/Pb')),
