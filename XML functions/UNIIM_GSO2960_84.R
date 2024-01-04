@@ -2,8 +2,10 @@
 library(dplyr)
 library(xml2)
 
-UNIIM_GSO_2960_84 <- read_xml('<?xml version="1.0" encoding="UTF-8"?>
-<MRC xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/"/>')
+
+
+message(UNIIM_GSO_2960_84 <- read_xml('<?xml version="1.0" encoding="UTF-8"?>
+<MRC xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/"/>'))
 
 UNIIM_GSO_2960_84 %>% {
   xml_add_child(., 'administrativeData')

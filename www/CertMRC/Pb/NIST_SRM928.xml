@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MRC xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/">
-  <administrativeData>
-    <name>NIST SRM 928</name>
-    <batch/>
-    <producer>
-      <name lang="EN" country="US">National Institute of Standards and Technology</name>
-      <shortName>NIST</shortName>
-      <alternativeName/>
-      <url>https://www.nist.gov/</url>
-    </producer>
-    <validUntil>2023/XX/XX</validUntil>
-  </administrativeData>
-  <certifiedValues>
-    <property id="Prop1">
-      <qudt:quantitykind>MassFraction</qudt:quantitykind>
-      <substance name="Lead nitrate">
-        <InChI version="1.0.6">1S/2NO3.Pb/c2*2-1(3)4;/q2*-1;+2</InChI>
-        <InChiKey version="1.0.6">RLJMLMKIBZAXJO-UHFFFAOYSA-N</InChiKey>
-      </substance>
-      <matrix>High purity reagent</matrix>
+<mr:NIST_SRM928 xmlns:mr="https://inm.gov.co/mr" xmlns:inst="https://inm.gov.co/inst" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+  <mr:administrativeData>
+    <mr:name>NIST SRM 928</mr:name>
+    <mr:type>certified</mr:type>
+    <mr:producer>
+      <inst:name lang="EN" meta="2">National Institute of Standards and Technology</inst:name>
+      <inst:shortName>NIST</inst:shortName>
+      <inst:country>US</inst:country>
+      <inst:ror>https://ror.org/05xpvk416</inst:ror>
+      <inst:url>https://www.nist.gov/</inst:url>
+    </mr:producer>
+    <mr:validUntil>2023/XX/XX</mr:validUntil>
+  </mr:administrativeData>
+  <mr:certifiedValues>
+    <mr:property id="certProp1">
+      <mr:substance>
+        <mr:name>Lead nitrate</mr:name>
+        <mr:InChI version="1.0.6">1S/2NO3.Pb/c2*2-1(3)4;/q2*-1;+2</mr:InChI>
+        <mr:InChiKey version="1.0.6">RLJMLMKIBZAXJO-UHFFFAOYSA-N</mr:InChiKey>
+      </mr:substance>
+      <mr:matrix>High purity reagent</mr:matrix>
       <si:real>
-        <si:label>MassFraction</si:label>
+        <si:quantityTypeQUDT>MassFraction</si:quantityTypeQUDT>
         <si:value>1</si:value>
         <si:unit>\gram\gram\tothe{-1}</si:unit>
         <si:expandedUnc>
@@ -29,17 +30,17 @@
           <si:coverageProbability>0.95</si:coverageProbability>
         </si:expandedUnc>
       </si:real>
-    </property>
-  </certifiedValues>
-  <additionalValues>
-    <property id="ionMassFraction">
-      <qudt:quantitykind>MassFraction</qudt:quantitykind>
-      <substance name="lead(2+)">
-        <InChI version="1.0.6">1S/Pb/q+2</InChI>
-        <InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</InChiKey>
-      </substance>
+    </mr:property>
+  </mr:certifiedValues>
+  <mr:additionalValues>
+    <mr:property id="ionMassFraction">
+      <mr:substance>
+        <mr:name>lead(2+)</mr:name>
+        <mr:InChI version="1.0.6">1S/Pb/q+2</mr:InChI>
+        <mr:InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</mr:InChiKey>
+      </mr:substance>
       <si:real>
-        <si:label>MassFraction</si:label>
+        <si:quantityTypeQUDT>MassFraction</si:quantityTypeQUDT>
         <si:value>0.625595150036683</si:value>
         <si:unit>\gram\gram\tothe{-1}</si:unit>
         <si:expandedUnc>
@@ -48,15 +49,15 @@
           <si:coverageProbability>0.95</si:coverageProbability>
         </si:expandedUnc>
       </si:real>
-    </property>
-    <property id="ionMolarMass">
-      <qudt:quantitykind>MolarMass</qudt:quantitykind>
-      <substance name="lead(2+)">
-        <InChI version="1.0.6">1S/Pb/q+2</InChI>
-        <InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</InChiKey>
+    </mr:property>
+    <mr:property id="ionMolarMass">
+      <substance>
+        <mr:name>lead(2+)</mr:name>
+        <mr:InChI version="1.0.6">1S/Pb/q+2</mr:InChI>
+        <mr:InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</mr:InChiKey>
       </substance>
       <si:real>
-        <si:label>MolarMass</si:label>
+        <si:quantityTypeQUDT>MolarMass</si:quantityTypeQUDT>
         <si:value>207.209</si:value>
         <si:unit>\gram\mole\tothe{-1}</si:unit>
         <si:expandedUnc>
@@ -65,11 +66,10 @@
           <si:coverageProbability>0.95</si:coverageProbability>
         </si:expandedUnc>
       </si:real>
-    </property>
-    <property id="saltDensity">
-      <qudt:quantitykind>Density</qudt:quantitykind>
+    </mr:property>
+    <mr:property id="saltDensity">
       <si:real>
-        <si:label>Density</si:label>
+        <si:quantityTypeQUDT>Density</si:quantityTypeQUDT>
         <si:value>4.53</si:value>
         <si:unit>\gram\centi\meter\tothe{-3}</si:unit>
         <si:expandedUnc>
@@ -78,6 +78,6 @@
           <si:coverageProbability>0.95</si:coverageProbability>
         </si:expandedUnc>
       </si:real>
-    </property>
-  </additionalValues>
-</MRC>
+    </mr:property>
+  </mr:additionalValues>
+</mr:NIST_SRM928>
