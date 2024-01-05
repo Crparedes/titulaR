@@ -51,7 +51,7 @@ addPropToMRXML <- function(xmlObject, fields, node) {
   return(xmlObject)
 }
 
-sapply(list('XML functions/mrRawData/NIST_SRM_928.R',
-            'XML functions/mrRawData/UNIIM_GSO_2960_84.R',
-            'XML functions/mrRawData/InHouse_GSO_2960_84.R'),
+sapply(list('D_SI_xml/mrRawData/NIST_SRM_928.R',
+            'D_SI_xml/mrRawData/UNIIM_GSO_2960_84.R',
+            'D_SI_xml/mrRawData/InHouse_GSO_2960_84.R'),
        source)
