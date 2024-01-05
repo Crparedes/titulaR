@@ -1,17 +1,15 @@
-source('./XML functions/0_createMRXML.R')
-
-adminData_NIST_SRM928 <- list(
+adminData_NIST_SRM_928 <- list(
   'mr:name' = 'NIST SRM 928',
   'mr:type' = 'certified',
   'mr:producer' = list(
-    'inst:name' = c('National Institute of Standards and Technology', lang = 'EN', meta = '2'),
+    'inst:name' = c('National Institute of Standards and Technology', lang = 'EN'),
     'inst:shortName' = 'NIST',
     'inst:country' = 'US',
     'inst:ror' = 'https://ror.org/05xpvk416',
     'inst:url' = 'https://www.nist.gov/'),
-  'mr:validUntil' = '2023/XX/XX')
+  'mr:validUntil' = '2025/12/02')
 
-certiData_NIST_SRM928 <- list(
+certiData_NIST_SRM_928 <- list(
   certProp1 = list(
     'mr:substance' = list(
       'mr:name' = 'Lead nitrate',
@@ -27,7 +25,7 @@ certiData_NIST_SRM928 <- list(
         'si:coverageFactor' = 2,
         'si:coverageProbability' = 0.95))))
 
-additData_NIST_SRM928 <- list(
+additData_NIST_SRM_928 <- list(
   ionMassFraction = list(
     'mr:substance' = list(
       'mr:name' = 'lead(2+)',
@@ -42,7 +40,7 @@ additData_NIST_SRM928 <- list(
         'si:coverageFactor' = 2,
         'si:coverageProbability' = 0.95))),
     ionMolarMass = list(
-      'substance' = list(
+      'mr:substance' = list(
         'mr:name' = 'lead(2+)',
         'mr:InChI' = c('1S/Pb/q+2', version = '1.0.6'),
         'mr:InChiKey' = c('RVPVRDXYQKGNMQ-UHFFFAOYSA-N', version = '1.0.6')),
@@ -64,13 +62,13 @@ additData_NIST_SRM928 <- list(
         'si:coverageFactor' = sqrt(3),
         'si:coverageProbability' = 0.95))))
 
-NIST_SRM928 <- initiateMRXML('NIST_SRM928')
-addDataToMRXML(NIST_SRM928, fields = adminData_NIST_SRM928, node = 'mr:administrativeData')
-addPropToMRXML(xmlObject = NIST_SRM928, fields = certiData_NIST_SRM928, node = 'mr:certifiedValues')
-addPropToMRXML(xmlObject = NIST_SRM928, fields = additData_NIST_SRM928, node = 'mr:additionalValues')
-message(xmlObject <- NIST_SRM928)
+NIST_SRM_928 <- initiateMRXML('NIST_SRM_928')
+addDataToMRXML(NIST_SRM_928, fields = adminData_NIST_SRM_928, node = 'mr:administrativeData')
+addPropToMRXML(xmlObject = NIST_SRM_928, fields = certiData_NIST_SRM_928, node = 'mr:certifiedValues')
+addPropToMRXML(xmlObject = NIST_SRM_928, fields = additData_NIST_SRM_928, node = 'mr:additionalValues')
+message(xmlObject <- NIST_SRM_928)
 
-write_xml(NIST_SRM928, 'www/CertMRC/Pb/NIST_SRM928.xml')
+write_xml(NIST_SRM_928, 'www/CertMRC/XML/NIST_SRM_928.xml')
 
-str(listNIST_SRM928 <- as_list(read_xml('www/CertMRC/Pb/NIST_SRM928.xml'))[[1]])
-listNIST_SRM928$administrativeData$producer$ror[[1]]
+# str(listNIST_SRM_928 <- as_list(read_xml('www/CertMRC/XML/NIST_SRM_928.xml'))[[1]])
+# listNIST_SRM_928$administrativeData$producer$ror[[1]]

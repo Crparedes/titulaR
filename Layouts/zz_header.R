@@ -10,7 +10,7 @@ customHeader <- dashboardHeader(tags$li(class = "dropdown",
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
     <th  height = "80"><h1 style="LINE-HEIGHT:5px; color: #dddddd; margin-bottom: -5px; font-size:45px;">
           <b>Aplicativo titulaR</b>
-          <b style="LINE-HEIGHT:5px; color: #dddddd; font-size:14px;">v.0.7.1</b>
+          <b style="LINE-HEIGHT:5px; color: #dddddd; font-size:14px;">v.0.8.1</b>
     </h1></th></tr>
     <tr><th><h3 style="LINE-HEIGHT:0px; color: #dddddd; margin-top: 1px;">
     Soporte para las titulaciones gravimétricas de la <b>SMQB - INM</b>

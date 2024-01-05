@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mr:NIST_SRM928 xmlns:mr="https://inm.gov.co/mr" xmlns:inst="https://inm.gov.co/inst" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+<mr:NIST_SRM_928 xmlns:mr="https://inm.gov.co/mr" xmlns:inst="https://inm.gov.co/inst" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
   <mr:administrativeData>
     <mr:name>NIST SRM 928</mr:name>
     <mr:type>certified</mr:type>
     <mr:producer>
-      <inst:name lang="EN" meta="2">National Institute of Standards and Technology</inst:name>
+      <inst:name lang="EN">National Institute of Standards and Technology</inst:name>
       <inst:shortName>NIST</inst:shortName>
       <inst:country>US</inst:country>
       <inst:ror>https://ror.org/05xpvk416</inst:ror>
       <inst:url>https://www.nist.gov/</inst:url>
     </mr:producer>
-    <mr:validUntil>2023/XX/XX</mr:validUntil>
+    <mr:validUntil>2025/12/02</mr:validUntil>
   </mr:administrativeData>
   <mr:certifiedValues>
     <mr:property id="certProp1">
@@ -51,11 +51,11 @@
       </si:real>
     </mr:property>
     <mr:property id="ionMolarMass">
-      <substance>
+      <mr:substance>
         <mr:name>lead(2+)</mr:name>
         <mr:InChI version="1.0.6">1S/Pb/q+2</mr:InChI>
         <mr:InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</mr:InChiKey>
-      </substance>
+      </mr:substance>
       <si:real>
         <si:quantityTypeQUDT>MolarMass</si:quantityTypeQUDT>
         <si:value>207.209</si:value>
@@ -80,4 +80,4 @@
       </si:real>
     </mr:property>
   </mr:additionalValues>
-</mr:NIST_SRM928>
+</mr:NIST_SRM_928>

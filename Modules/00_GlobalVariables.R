@@ -11,7 +11,7 @@ CalibCertList <- lapply(X = paste0(calibCertPATH, CalibCertArchivos, '.rds'), FU
 
 names(CalibCertList) <- lapply(X = CalibCertList, FUN = function(x) return(x$balanceID))
 CalibCertShow <- as.list(c('NuevoNAWIDCC', names(CalibCertList)))
-names(CalibCertShow) <- c('Subir un certificado nuevo', CalibCertArchivos)
+names(CalibCertShow) <- c('Cargar nuevo archivo', CalibCertArchivos)
 
 ## MRCs
 MRCs.ArchiveNames <- list(Pb = gsub('.pdf', '', list.files(path = 'www/CertMRC/Pb')),
@@ -25,7 +25,7 @@ MRC.At_MolWeigths <- list(Pb = list(c(207.209, 0.005)), # NIST SRM 928
                           EDTA = list(round(c(3.722368e+02, 6.332914e-03), 4),
                                       round(c(3.722368e+02, 6.332914e-03), 4))) # UNIM GSO 2960-84
 
-MRC.densities     <- list(Pb = list(c(4.53, 0.05)), # NIST SRM 928 # Decid'i no dividir por raiz de tres
+MRC.densities     <- list(Pb = list(c(4.53, 0.05)), # NIST SRM 928 
                           EDTA = list(c(0.860, 0.005), c(0.860, 0.005))) # UNIM GSO 2960-84
 
 MRC.ExpiricyDates <- list(Pb = list(as.Date('2026-01-01')), # NIST SRM 928 # Preguntar cuando abrieron el frasco

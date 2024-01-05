@@ -2,8 +2,6 @@ rm(list=ls())
 gc()            # Garbage collector
 
 # titulaR
-
-
 library(shiny)
 library(car)
 library(shinydashboard)
@@ -25,6 +23,8 @@ library(deming)
 # icon("flask")
 library(xml2)
 library(dplyr)
+library(stringr)
+
 
 # Por lo general, los módulos_UI son llamados desde las funciones de`` layouts
 pack_titRation  <- with(list(pt = 'RPackage/'), paste0(pt, list.files(path = pt)))
@@ -155,6 +155,5 @@ server <- function(input, output, session, devMode = TRUE) {
   callModule(module = GenericCurveServer, id = 'Generic', devMode = devMode)
   
 }
-
 runApp(list(ui=ui, server=server), host="0.0.0.0", port=1234)
 # shinyApp(ui = ui, server = server, enableBookmarking = "url")
