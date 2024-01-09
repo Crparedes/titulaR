@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<person:Analista2 xmlns:person="https://inm.gov.co/personal" xmlns:inst="https://inm.gov.co/inst">
+  <person:data>
+    <person:name>Analista2</person:name>
+    <person:email>contacto@inm.gov.co</person:email>
+    <person:orcid>https://orcid.org/</person:orcid>
+  </person:data>
+  <person:inst>
+    <inst:name lang="ES">Instituto Nacional de Metrología de Colombia</inst:name>
+    <inst:shortName>INM</inst:shortName>
+    <inst:country>CO</inst:country>
+    <inst:alternativeName lang="EN">National Metrology Institute of Colombia</inst:alternativeName>
+    <inst:ror>https://ror.org/028s91538</inst:ror>
+    <inst:url>https://inm.gov.co</inst:url>
+  </person:inst>
+</person:Analista2>

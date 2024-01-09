@@ -1,6 +1,7 @@
-# INSPIRED IN poor_mans_flatly from https://github.com/nik01010/dashboardthemes/blob/master/R/Theme_PoorMansFlatly.R
+BackHeaderButtons <- rgb(0, 0, 0, maxColorValue = 255)
+BackSidebar <- rgb(70, 70, 70, maxColorValue = 255)
+BackBody <- rgb(238, 238, 238, maxColorValue = 255) #eeeeee
 
-# Theme: Poor Man's Flatly ------------------------------------------------------------------------------
 customTheme <- shinyDashboardThemeDIY(
   ### general
   appFontFamily = "Arial"
@@ -10,22 +11,22 @@ customTheme <- shinyDashboardThemeDIY(
   ,successFontColor = "rgb(0,0,0)"
   ,warningFontColor = "rgb(0,0,0)"
   ,dangerFontColor = "rgb(0,0,0)"
-  ,bodyBackColor = "rgb(221,221,221)"
+  ,bodyBackColor = BackBody#"#F9F9FB"
   
   ### header
-  ,logoBackColor = "rgb(0, 0, 0)"
+  ,logoBackColor = BackHeaderButtons#"#1a1a33"
   
-  ,headerButtonBackColor = "rgb(221,221,221)"
-  ,headerButtonIconColor = "rgb(75,75,75)"
+  ,headerButtonBackColor = "#eaffff"
+    ,headerButtonIconColor = "rgb(75,75,75)"
   ,headerButtonBackColorHover = "rgb(21,21,21)"
   ,headerButtonIconColorHover = "rgb(0,0,0)"
   
   ,headerBackColor = "rgb(23,28,28)"
   ,headerBoxShadowColor = "#000000"
-  ,headerBoxShadowSize = "3px 3px 3px"
+    ,headerBoxShadowSize = "3px 3px 3px"
   
   ### sidebar
-  ,sidebarBackColor = "rgb(50, 50, 50)"
+  ,sidebarBackColor = BackSidebar#"#4e4c6b"
   ,sidebarPadding = 0
   
   ,sidebarMenuBackColor = "transparent"
@@ -34,50 +35,50 @@ customTheme <- shinyDashboardThemeDIY(
   
   ,sidebarShadowRadius = "3px 5px 5px"
   ,sidebarShadowColor = "#aaaaaa"
-  
-  ,sidebarUserTextColor = "rgb(221,221,2@1)"
-  
+    
+  ,sidebarUserTextColor = "#cccccc"#BackHeaderButtons#"rgb(241,246,243)"
+    
   ,sidebarSearchBackColor = "rgb(55,72,80)"
   ,sidebarSearchIconColor = "rgb(153,153,153)"
   ,sidebarSearchBorderColor = "rgb(55,72,80)"
   
-  ,sidebarTabTextColor = "rgb(221,221,221)"
-  ,sidebarTabTextSize = 12
-  ,sidebarTabBorderStyle = "none none solid none"
+  ,sidebarTabTextColor = "#ffffff"
+    ,sidebarTabTextSize = 14
+  ,sidebarTabBorderStyle = "none none none none"
   ,sidebarTabBorderColor = "rgb(90,90,90)"
   ,sidebarTabBorderWidth = 1
   
-  ,sidebarTabBackColorSelected = cssGradientThreeColors(
-    direction = "right"
-    ,colorStart = "rgb(221, 221, 221)"
-    ,colorMiddle = "rgb(200, 200, 200)"
-    ,colorEnd = "rgb(100,100,100)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 38
-    ,colorEndPos = 80
-  )
+  ,sidebarTabBackColorSelected = '#F7F6EE'#cssGradientThreeColors(
+    #   direction = "right"
+  #   ,colorStart = "#E5E3C9"
+  #   ,colorMiddle = "#E5E3C9"
+  #   ,colorEnd = "#fefefd"
+  #   ,colorStartPos = 0
+  #   ,colorMiddlePos = 38
+  #   ,colorEndPos = 80
+  # )
   ,sidebarTabTextColorSelected = "rgb(0,0,0)"
-  ,sidebarTabRadiusSelected = "0px 20px 20px 0px"
+  ,sidebarTabRadiusSelected = "0px 10px 10px 0px"
   
-  ,sidebarTabBackColorHover = cssGradientThreeColors(
-    direction = "right"
-    ,colorStart = "rgb(248, 248, 248)"
-    ,colorMiddle = "rgb(220, 220, 220)"
-    ,colorEnd = "rgb(150,150,150)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 40
-    ,colorEndPos = 70
-  )
+  ,sidebarTabBackColorHover = '#FFFFFF'#cssGradientThreeColors(
+    #   direction = "right"
+  #   ,colorStart = "#E5E3C9"
+  #   ,colorMiddle = "#E5E3C9"
+  #   ,colorEnd = "#fefefd"
+  #   ,colorStartPos = 0
+  #   ,colorMiddlePos = 40
+  #   ,colorEndPos = 70
+  # )
   ,sidebarTabTextColorHover = "rgb(50,50,50)"
   ,sidebarTabBorderStyleHover = "none none solid none"
   ,sidebarTabBorderColorHover = "rgb(75,126,151)"
-  ,sidebarTabBorderWidthHover = 1
-  ,sidebarTabRadiusHover = "0px 20px 20px 0px"
+  ,sidebarTabBorderWidthHover = 0
+  ,sidebarTabRadiusHover = "0px 10px 10px 0px"
   
   ### boxes
-  ,boxBackColor = "rgb(245,245,245)"
-  ,boxBorderRadius = 5
-  ,boxShadowSize = "0px 1px 1px"
+  ,boxBackColor = "#ffffff"
+    ,boxBorderRadius = 5
+  ,boxShadowSize = "0px 2px 2px"
   ,boxShadowColor = "rgba(0,0,0,.4)"
   ,boxTitleSize = 16
   ,boxDefaultColor = "rgb(210,214,220)"
@@ -87,16 +88,16 @@ customTheme <- shinyDashboardThemeDIY(
   ,boxWarningColor = "rgb(52, 177, 201)"
   ,boxDangerColor = "rgb(221,75,57)"
   
-  ,tabBoxTabColor = "rgb(248,248,248)"
-  ,tabBoxTabTextSize = 14
+  ,tabBoxTabColor = "#ffffff"
+    ,tabBoxTabTextSize = 14
   ,tabBoxTabTextColor = "rgb(0,0,0)"
   ,tabBoxTabTextColorSelected = "rgb(0,0,0)"
-  ,tabBoxBackColor = "rgb(248,248,248)"
-  ,tabBoxHighlightColor = "rgb(44,62,80)"
+  ,tabBoxBackColor = "#ffffff"
+    ,tabBoxHighlightColor = "rgb(44,62,80)"
   ,tabBoxBorderRadius = 5
   
   ### inputs
-  ,buttonBackColor = "rgb(1, 1, 1)"
+  ,buttonBackColor = BackHeaderButtons#"#1a1a33"
   ,buttonTextColor = "rgb(221 ,221, 221)"
   ,buttonBorderColor = "rgb(200,200,200)"
   ,buttonBorderRadius = 5

@@ -56,7 +56,7 @@ addDataToMRXML(InHouse_GSO_2960_84, fields = adminData_InHouse_GSO_2960_84, node
 addPropToMRXML(xmlObject = InHouse_GSO_2960_84, fields = additData_InHouse_GSO_2960_84, node = 'mr:additionalValues')
 message(xmlObject <- InHouse_GSO_2960_84)
 
-write_xml(InHouse_GSO_2960_84, 'www/CertMRC/XML/InHouse_GSO_2960_84.xml')
+write_xml(InHouse_GSO_2960_84, 'www/MR_MRC/Para calibrantes/InHouse_GSO_2960_84.xml')
 
 
 

@@ -68,7 +68,7 @@ addPropToMRXML(xmlObject = NIST_SRM_928, fields = certiData_NIST_SRM_928, node =
 addPropToMRXML(xmlObject = NIST_SRM_928, fields = additData_NIST_SRM_928, node = 'mr:additionalValues')
 message(xmlObject <- NIST_SRM_928)
 
-write_xml(NIST_SRM_928, 'www/CertMRC/XML/NIST_SRM_928.xml')
+write_xml(NIST_SRM_928, 'www/MR_MRC/Para EDTA/NIST_SRM_928.xml')
 
 # str(listNIST_SRM_928 <- as_list(read_xml('www/CertMRC/XML/NIST_SRM_928.xml'))[[1]])
 # listNIST_SRM_928$administrativeData$producer$ror[[1]]

@@ -1,78 +1,89 @@
 inicioLy <- fluidRow(
+  tags$hr(), #tags$hr(), #h2(HTML(spcs(5)), tags$b('Herramientas para la validación de métodos')),
   column(
-    12, 
-    box(
-      title = div(style = 'font-size:25px', tags$b('Introducción')),
-      width = 12, status = 'primary', collapsible = TRUE, collapsed = FALSE,
-      column(
-        10,
-        h5("Esta aplicación trata los datos de medición para la caracterización de Materiales de Referencia
-        Certificados (MRC) por medio de titulaciones gravimétricas utilizando los siguientes protocolos de medicion:",
-           tags$br(),
-           tags$ul(
-             tags$li(tags$b("M-03-L-14-P-007"),
-                     "Determinación de Fracción Másica (Pureza) de la Sal Disódica Dihidratada del
+    width = 10, offset = 1, Nlns(3),
+    tags$h4(style = 'margin-left: -20px;',
+            tags$b('Introducción')),
+    h5("Esta aplicación trata los datos de medición para la caracterización de Materiales de Referencia
+       Certificados (MRC) por medio de titulaciones gravimétricas utilizando los siguientes protocolos de medicion:",
+       tags$br(),
+       tags$ul(
+         tags$li(tags$b("M-03-L-14-P-007"), tags$br(),
+                 "Determinación de Fracción Másica (Pureza) de la Sal Disódica Dihidratada del
                      Ácido Etilendiaminotetracético por Titulación Complejométrica Gravimétrica"),
-             tags$li(tags$b("M-03-L-14-P-008"),
-                     "Determinación de Fracción Másica de Iones Plomo, Cadmio y Calcio, en Disoluciones
+         tags$li(tags$b("M-03-L-14-P-008"), tags$br(),
+                 "Determinación de Fracción Másica de Iones Plomo, Cadmio y Calcio, en Disoluciones
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
-           tags$br(), tags$br(),
-           
-           'Este aplicativo incorpora el uso del',
-           tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital'),
-           'para el almacenamiento y la transferencia de datos metrológicos. 
-           Este esquema utiliza archivos en formato XML y se desarrolló desde el 
-           Programa Europeo Metrológico para la Innovación y la Investigación (EMPIR).',
-           tags$br(), tags$hr(),
-           'El aplicativo', tags$b('titulaR'), 'se utiliza de la siguiente manera:',
-           tags$ol(
-             tags$li("En esta página, en el recuadro", tags$b('Inicio'),
-                     "diligencie la información de la persona responsable y de la institución correspondiente."),
-             tags$li("En el recuadro", tags$b('Trazabilidad Metrológica de Balanzas'),
-                     "verifique que se encuentra cargada la información de los certificados de calibración
-                     de las balanzas que utilizará, o cargue los archivos correspondientes que hagan falta.",
-                     tags$br(), 'Estos archivos puede generarlos desde la',
-                     tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'GUI del paquete masscor.')),
-             tags$hr(),
-             tags$li("Diríjase a la opción ", tags$b(icon("fill-drip"), "MRCs y disoluciones"),
-                     "Ubique el tipo de disolución que necesita (disolución patrón o disolución muestra)
-                     y siga las instrucciones del módulo para cargar o crear la información correspondiente."),
-             tags$li("Navegue hasta la opción del tipo de titulación que realizará y siga las instrucciones
-                     del módulo para generar resultados individuales de la muestra de interés.
-                     Descargue los archivos de resultados de  cada titulación."),
-             tags$li("Cuando termine las titulaciones, combine lo archivos XML de resultados individuales
-                     usando la pestaña de combinación de resultados del mismo módulo en el que generó los
-                     resultados individuales.")),
-           tags$br(), tags$br())),
-      column(2, img(src = "D-SI.png", width="180", height="130"))),
-    
-      box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Inicio')), 
-          width = 5, status = 'primary', collapsible = TRUE, collapsed = FALSE,#height = '300px',
-          tags$b("Información general:"),
-          tags$div(id = "inline", 
-                   dateInput('Fecha', label = 'Fecha: .', language = 'es'),
-                   textInput("nombre", label = "Responsable: .", width = "300px", value = 'Cristhian Paredes'),
-                   textInput("correo", label = "Correo: .", value = "caparedes@inm.gov.co"),
-                   textInput(
-                     "orcid", 
-                     label = tags$div(
-                       tags$a(href="https://orcid.org/", img(src = "ORCID.png", width="30", height="30")), 
-                       " ORCID: ."),
-                     value = "https://orcid.org/0000-0001-7049-9597"),
-                  textInput("instit", label = "Institución: .", value = "Instituto Nacional de Metrología"),
-                  textInput(
-                    "ror", 
-                    label = tags$div(
-                      tags$a(href="https://ror.org/", img(src = "ROR.png", width="30", height="30")), 
-                      " ROR: ."),
-                    value = "https://ror.org/028s91538")),
-          
-                   # select
-          tags$br(), 
-          checkboxInput('BalanzVerif', label = 'Está disponible el certificado de calibración de la balanza', value = TRUE, width = '100%'), 
-          tags$hr(), 
-          conditionalPanel('input.BalanzVerif', actionButton('Start1', tags$b('Comenzar')))
-      ),
-      BalanceCalibCertUI('BalanceCalibCert'),
+       Nlns(2), tags$hr(),
+       fluidRow(
+         column(2, img(src = "D-SI.png", width = "90%")),
+         column(
+           6, 'Este aplicativo utiliza el',
+           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital')),
+           '(D-SI) para el manejo de datos metrológicos.', Nlns(),
+           'En el esquema del D-SI se usan archivos en formato XML para el almacenamiento y la transferencia
+           de la información.')),
+       tags$hr(), Nlns(2),
+       'El aplicativo ', tags$b('titulaR'), 'está compuesto por los siguientes módulos:',
+       tags$ul(
+         tags$br(),
+         # tags$li("Diligencie la información general en el recuadro que se muestra abajo a la derecha."), tags$br(),
+         tags$li(
+           actionLink('tabsCertMass', label = tags$b(icon("certificate"), 'Balanzas')),
+           tags$br(),
+           "Contiene la información de los certificados de calibración de las balanzas y permite
+           cargar nuevos archivos de información de calibración creados con el ",
+           tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.')),
+         tags$li(
+           actionLink('tabsCertMRCs', label = tags$b(icon("certificate"), "Materiales de referencia")), tags$br(),
+           "Muestra la información de los archivos .xml de los materiales de referencia (RM) y materiales de 
+           referencia certificados (MRC) que se utilizan en los procedimientos de medición."),
+         tags$li(
+           actionLink('tabsSolution', label = tags$b(icon("fill-drip"), "Preparación disoluciones")),tags$br(),
+           "Permite crear o cargar archivos .xml con la información de disoluciones estándar
+           y disoluciones de muestras."),
+         tags$li(
+           actionLink('tabsMonoelem', label = tags$b(icon("bong"), "Titular disolución calibrante")), tags$br(),
+           "Titulaciones de disoluciones calibrantes monoelementales y 
+           generación de archivos de resultados individuales (en formato .xml)."),
+         tags$li(
+           actionLink('tabsEDTAsalt', label = tags$b(icon("stroopwafel"), "Titular sal de EDTA")), tags$br(),
+           "Titulaciones de disoluciones de la sal disódica dihidratada de EDTA y 
+           generación de archivos de resultados individuales (en formato .xml)."),
+         tags$li(
+           actionLink('tabsSummResu', label = tags$b(icon("compass"), "Combinación resultados")), tags$br(),
+           "Combinación de archivos de resultados individuales.")
+       )
     )
+  )
+  
+  # box(title = div(style = 'font-size:20px;valign="bottom"', tags$b('Inicio')), 
+  #     width = 5, status = 'primary', collapsible = TRUE, collapsed = FALSE,#height = '300px',
+  #     tags$b("Información general:"),
+  #     tags$div(id = "inline", 
+  #              dateInput('Fecha', label = 'Fecha: .', language = 'es'),
+  #              textInput("nombre", label = "Responsable: .", width = "300px", value = 'Cristhian Paredes'),
+  #              textInput("correo", label = "Correo: .", value = "caparedes@inm.gov.co"),
+  #              textInput(
+  #                "orcid", 
+  #                label = tags$div(
+  #                  tags$a(href="https://orcid.org/", img(src = "ORCID.png", width="30", height="30")), 
+  #                  " ORCID: ."),
+  #                value = "https://orcid.org/0000-0001-7049-9597"),
+  #              textInput("instit", label = "Institución: .", value = "Instituto Nacional de Metrología"),
+  #              textInput(
+  #                "ror", 
+  #                label = tags$div(
+  #                  tags$a(href="https://ror.org/", img(src = "ROR.png", width="30", height="30")), 
+  #                  " ROR: ."),
+  #                value = "https://ror.org/028s91538")),
+  #     
+  #     # select
+  #     tags$br(), 
+  #     checkboxInput('BalanzVerif', label = 'Está disponible el certificado de calibración de la balanza', value = TRUE, width = '100%'), 
+  #     tags$hr(), 
+  #     conditionalPanel('input.BalanzVerif', actionButton('Start1', tags$b('Comenzar')))
+  # ),
+  # BalanceCalibCertUI('BalanceCalibCert'),
 )
+

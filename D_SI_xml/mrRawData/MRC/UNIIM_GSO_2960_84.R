@@ -57,7 +57,7 @@ addPropToMRXML(xmlObject = UNIIM_GSO_2960_84, fields = certiData_UNIIM_GSO_2960_
 addPropToMRXML(xmlObject = UNIIM_GSO_2960_84, fields = additData_UNIIM_GSO_2960_84, node = 'mr:additionalValues')
 message(xmlObject <- UNIIM_GSO_2960_84)
 
-write_xml(UNIIM_GSO_2960_84, 'www/CertMRC/XML/UNIIM_GSO_2960_84.xml')
+write_xml(UNIIM_GSO_2960_84, 'www/MR_MRC/Para calibrantes/UNIIM_GSO_2960_84.xml')
 
 
 

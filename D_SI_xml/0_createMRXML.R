@@ -3,7 +3,7 @@ library(dplyr)
 library(stringr)
 library(xml2)
 
-heading <- '<?xml version="1.0" encoding="UTF-8"?>
+headingMR <- '<?xml version="1.0" encoding="UTF-8"?>
 <mr:MRXML
   xmlns:mr="https://inm.gov.co/mr"
   xmlns:inst="https://inm.gov.co/inst"
@@ -13,7 +13,7 @@ heading <- '<?xml version="1.0" encoding="UTF-8"?>
   xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
 
 initiateMRXML <- function(name) {
-  heading <- str_replace(heading, 'MRXML', name)
+  heading <- str_replace(headingMR, 'MRXML', name)
   xmlObject <- read_xml(heading) 
   xmlObject %>% {
     xml_add_child(., 'mr:administrativeData')
@@ -51,7 +51,19 @@ addPropToMRXML <- function(xmlObject, fields, node) {
   return(xmlObject)
 }
 
-sapply(list('D_SI_xml/mrRawData/NIST_SRM_928.R',
-            'D_SI_xml/mrRawData/UNIIM_GSO_2960_84.R',
-            'D_SI_xml/mrRawData/InHouse_GSO_2960_84.R'),
-       source)
+
+############ Personal
+headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
+<person:PersonXML
+  xmlns:person="https://inm.gov.co/personal"
+  xmlns:inst="https://inm.gov.co/inst"/>'
+
+initiatePersonXML <- function(name) {
+  heading <- str_replace(headingPerson, 'PersonXML', name)
+  xmlObject <- read_xml(heading) 
+  xmlObject %>% {
+    xml_add_child(., 'person:data')
+    xml_add_child(., 'person:inst')
+  }
+  return(xmlObject)
+}
