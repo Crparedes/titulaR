@@ -57,7 +57,7 @@ PreparaDisolucioUI <- function(id) {
                 tags$b('Condiciones ambientales', style = 'margin-left:-20px'),
                 fluidRow(
                   column( # Valores
-                    3, 
+                    4, 
                     autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                      ns('Temp'), label = NonReqField('Temperatura:'), value = 18),
                     autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
@@ -96,11 +96,43 @@ PreparaDisolucioUI <- function(id) {
 }
 
 
-PreparaDisolucioServer <- function(id, devMode, balanzas) {
+PreparaDisolucioServer <- function(id, devMode, balanzas, materiales) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
+    
+    balanzasPicker <- reactive({
+      balanceChioces <- sapply(balanzas(), function (x) x$balanceID)
+      if (length(balanceChioces) == 0) {
+        return(tags$div(
+          style = 'color:red;',
+          'Vaya al módulo de', tags$b('Balanzas,'), 'y seleccione o cargue la información de al menos una balanza)'))}
+      pickerInput(
+        session$ns("balanzasUse"), label = ReqField('Balanza', 3),
+        choices = sapply(balanzas(), function (x) x$balanceID), width = '100%',# inline = FALSE,
+        multiple = TRUE, selected = NULL,
+        options = list(
+          `max-options` = 1,
+          `none-selected-text` = "(Módulo balanzas)"))
+    })
+    output$balanzasPicker <- renderUI(balanzasPicker())
+    
+    Analista <- reactive({
+      req(input$Analista)
+      authPersons[[input$Analista]]
+    })
+    datosAnalista <- eventReactive(input$Analista, ignoreNULL = TRUE, ignoreInit = TRUE, {
+      tags$div(
+        Nlns(2),
+        tags$a(href = gsub('www/', '', list.files(path = 'www/Personal/', pattern = input$Analista, full.names = TRUE)),
+               'Descargar XML analista', download = NA, target = "_blank"),
+        spcs(3), tags$a(href = Analista()$data$orcid, img(src = "ORCID.png", width = "25", height = "25"), target = "_blank"),
+        spcs(3), tags$a(href = Analista()$inst$ror, img(src = "ROR.png", width = "25", height = "25"), target = "_blank")
+      )
+    })
+    output$datosAnalista <- renderUI(datosAnalista())
+    
     
     EDTA_STD_solutions <- reactiveValues()
     observeEvent(input$NewEDTAStdSol, {
@@ -125,32 +157,6 @@ PreparaDisolucioServer <- function(id, devMode, balanzas) {
       )
     })
     
-    balanzasPicker <- reactive({
-      #if (is.null(input$balanzasElected)) return('(Seleccione o cargue la información de al menos una balanza)')
-      pickerInput(
-        session$ns("balanzasUse"), label = ReqField('Balanza', 3),
-        choices = balanzasList, width = '100%',# inline = FALSE,
-        multiple = TRUE, selected = NULL,
-        options = list(
-          `max-options` = 1,
-          `none-selected-text` = "(Módulo balanzas)"))
-    })
-    output$balanzasPicker <- renderUI(balanzasPicker())
-    
-    Analista <- reactive({
-      req(input$Analista)
-      authPersons[[input$Analista]]
-    })
-    datosAnalista <- eventReactive(input$Analista, ignoreNULL = TRUE, ignoreInit = TRUE, {
-      tags$div(
-        Nlns(2),
-        tags$a(href = gsub('www/', '', list.files(path = 'www/Personal/', pattern = input$Analista, full.names = TRUE)),
-               'Descargar XML analista', download = NA, target = "_blank"),
-        spcs(3), tags$a(href = Analista()$data$orcid, img(src = "ORCID.png", width = "25", height = "25"), target = "_blank"),
-        spcs(3), tags$a(href = Analista()$inst$ror, img(src = "ROR.png", width = "25", height = "25"), target = "_blank")
-      )
-    })
-    output$datosAnalista <- renderUI(datosAnalista())
     
     SelectMRC <- reactive(
       pickerInput(

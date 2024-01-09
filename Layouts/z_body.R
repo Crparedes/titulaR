@@ -32,7 +32,8 @@ customBody <- dashboardBody(
       type = "text/css", 
       ".selectize-input, autonumeric-input {padding-left: 1px; border: none;}
        .selectize-control.single .selectize-input:not(.no-arrow):after {right: 2px;}
-       .autonumeric-input {padding: 3px;}"),
+       .form-control {padding:2px !important;}
+       .autonumeric-input {padding: 2px !important;}"),
     
     tags$style(
       type = "text/css", ".handsontable {overflow: hidden;}"),

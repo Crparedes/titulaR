@@ -55,7 +55,7 @@ server <- function(input, output, session) {
   
   BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode)
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode)
-  DisolInfoPC <- PreparaDisolucioServer('Disoluci', devMode = devMode, balanzas = BalanzasDCC)
+  DisolInfoPC <- PreparaDisolucioServer('Disoluci', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC)
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))
   observeEvent(input$tabsCertMRCs, updateTabItems(session, "tabs", 'tabsCertMRCs'))

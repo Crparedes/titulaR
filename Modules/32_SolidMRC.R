@@ -13,7 +13,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
     ),
     tags$br(),
     splitLayout(
-      cellWidths = c("40%", "20%", "40%"),
+      cellWidths = c("30%", "10%", "30%"),
       tags$div(
         id = "inline", style = 'font-size:12px; margin-left:25px', 
         h5(tags$b('Masa del solido')),
@@ -42,7 +42,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
           2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                               ns('u_DensitDis'), label = '\u00B1', 
                               value = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)))),
-        column(2, selectInput(ns('units_Densit'), label = NULL, choices = TemperatureUnits)),
+        column(2, selectInput(ns('units_Densit'), label = NULL, choices = DensityUnits)),
         column(2, selectInput(ns('covFac_Densit'), label = NULL, choices = CobertureFactors)),
         column(2, selectInput(ns('Distri_Densit'), label = NULL, choices = Distributions)))),
     tags$hr(),

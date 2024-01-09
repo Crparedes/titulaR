@@ -76,6 +76,7 @@ BalanceCalibCertServer <- function(id, devMode) {
         print(balanzasList[[input$balanzasShowData]])#, complete = complete())
       }
     })
-    return()
+    
+    return(reactive(lapply(input$balanzasElected, function(x) balanzasList[[x]])))
   })
 }
