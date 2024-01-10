@@ -19,7 +19,7 @@ inicioLy <- fluidRow(
          column(2, img(src = "D-SI.png", width = "90%")),
          column(
            6, 'Este aplicativo utiliza el',
-           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital')),
+           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital', target = '_blank')),
            '(D-SI) para el manejo de datos metrológicos.', Nlns(),
            'En el esquema del D-SI se usan archivos en formato XML para el almacenamiento y la transferencia
            de la información.')),
@@ -33,7 +33,7 @@ inicioLy <- fluidRow(
            tags$br(),
            "Contiene la información de los certificados de calibración de las balanzas y permite
            cargar nuevos archivos de información de calibración creados con el ",
-           tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.')),
+           tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.', target = '_blank')),
          tags$li(
            actionLink('tabsCertMRCs', label = tags$b(icon("certificate"), "Materiales de referencia")), tags$br(),
            "Muestra la información de los archivos .xml de los materiales de referencia (RM) y materiales de 

@@ -16,11 +16,14 @@ customSidebar <- dashboardSidebar(
     tags$hr(),
     # tags$b(HTML('&ensp;'), 'Ácido-Base'),
     # menuItem("", tabName = "Acido1", icon = icon("bong")),
-    tags$hr(), 
+    
     menuItem(("Combinación de resultados"), tabName = "tabsSummResu", icon = icon("compass")),
-    Nlns(2),
     menuItem("Curva de titulación genérica", tabName = "tabsGenerica", icon = icon("bong")),
-    Nlns(5),
-    materialSwitch('Desarrollador', 'devel', status = 'primary'),
-    uiOutput('brwz')
+    Nlns(2), uiOutput('dateTimeISO8601'), Nlns(2),
+    conditionalPanel('input.Desarrollador',
+                     div(id = 'inline', style = 'font-size:12px;',
+                         tags$hr(), spcs(5), dateInput('Fecha', label = NULL, language = 'es')),
+                     # timeInput("Hora", "Modificar hora: (hh:mm:ss)", value = Sys.time()),
+                     actionButton('brwz', label = tags$b('Pausar aplicativo'), width = '70%')),
+    materialSwitch('Desarrollador', 'devel', status = 'primary')
   ))

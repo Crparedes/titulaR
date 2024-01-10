@@ -14,6 +14,12 @@ customBody <- dashboardBody(
                   }, 100);
                   }",
     functions = c('activateTab')),
+  extendShinyjs(
+    text = "shinyjs.collapse = function(boxid) {
+              $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+            }",
+    functions = c('collapse')),
+  
   tags$script(HTML("$('body').addClass('fixed');")),
   
   chooseSliderSkin(skin = "Flat", color = BackHeaderButtons),

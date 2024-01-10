@@ -21,3 +21,9 @@ install.packages('EnvStats')
 install.packages('data.table')
 install.packages('outliers')
 install.packages('units')
+
+
+install.packages('xml2')
+install.packages('dplyr')
+install.packages('stringr')
+# install.packages("shinyTime")

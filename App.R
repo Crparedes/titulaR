@@ -22,6 +22,7 @@ library(units)
 library(xml2)
 library(dplyr)
 library(stringr)
+# library(shinyTime)
 
 # How many users are connected to my Shiny application? https://stackoverflow.com/questions/47728208
 users <- reactiveValues(count = 0)
@@ -50,12 +51,12 @@ server <- function(input, output, session) {
   # 
   
   devMode <- reactive(input$Desarrollador)
-  output$brwz <- renderUI(if(devMode()) actionButton(inputId = 'brwz', label = tags$b('Pausar aplicativo'), width = '70%'))
   observeEvent(input$brwz, browser())
   
   BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode)
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode)
-  DisolInfoPC <- PreparaDisolucioServer('Disoluci', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC)
+  DisolInfoPC <- PreparaDisolucioServer(
+    'Disoluci', devMode = devMode, dateTime = dateTimeISO8601, balanzas = BalanzasDCC, materiales = MateReferDC)
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))
   observeEvent(input$tabsCertMRCs, updateTabItems(session, "tabs", 'tabsCertMRCs'))
@@ -65,6 +66,16 @@ server <- function(input, output, session) {
   observeEvent(input$tabsSummResu, updateTabItems(session, "tabs", 'tabsSummResu'))
   
   
+  dateTimeISO8601 <- reactive({
+    invalidateLater(1000)
+    tm <- as.POSIXlt(Sys.time())
+    if (devMode()) tm <- as.POSIXct(sub(Sys.Date(), input$Fecha, Sys.time()))
+    tm_iso8601 <- sub('(+[0-9]{2})([0-9]{2}$)','\\1:\\2', strftime(tm, "%Y-%m-%dT%H:%M:%S%z") , fixed=FALSE)
+  })
+  output$dateTimeISO8601 <- renderUI(tags$div(
+    style = 'font-size:12px;', spcs(5),
+    tags$a(href = 'https://www.iso.org/iso-8601-date-and-time-format.html', tags$b('ISO 8601:'), target = '_blank'),
+    dateTimeISO8601()))
   
 }
 
