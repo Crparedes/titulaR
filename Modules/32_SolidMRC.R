@@ -1,7 +1,7 @@
 SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
-    title = tags$b(id), tags$hr(), uiOutput(ns('brwz')),
+    title = tags$b(id), tags$hr(), # uiOutput(ns('brwz')),
     actionButton(ns('brwz'), label = tags$b('Pausar submódulo')),
     tags$b(paste0('Nueva disolucion de ', reagKey)), tags$br(), 
     paste0('Estandar para titular muestras de ', explan), 
@@ -62,6 +62,7 @@ SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
     # output$brwz <- renderUI(
       # if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
+    # browser()
     
     fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
                               "Descargar certificado ", download = NA, target = "_blank"))
@@ -180,7 +181,7 @@ SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
-      xmlObject <- initiateSolutionXML()
+      xmlObject <- initiateSolutionXML(id)
       AdminList <- list('solution:type' = 'Reference')
       PropeList <- list(
         'solution:substance' = list(

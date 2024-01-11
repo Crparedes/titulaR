@@ -106,18 +106,14 @@ PreparaDisolucioServer <- function(id, devMode, dateTime, balanzas, materiales) 
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    
     balanzasPicker <- reactive({
       balanceChioces <- sapply(balanzas(), function (x) x$balanceID)
       if (length(balanceChioces) == 0) {
-        return(tags$div(
-          style = 'color:red;', 'Vaya al módulo de', tags$b('Balanzas,'),
-          'y seleccione o cargue la información de al menos una balanza)', tags$hr()))}
+        return(tags$div(style = 'color:red;', 'Vaya al módulo de', tags$b('Balanzas,'),
+                        'y seleccione o cargue la información de al menos una balanza)', tags$hr()))}
       pickerInput(
-        session$ns("balanzasUse"), label = ReqField('Balanza', 3), inline = TRUE, width = 'fit',
-        choices = sapply(balanzas(), function (x) x$balanceID),
-        multiple = TRUE, selected = NULL,
-        options = list(`max-options` = 1, `none-selected-text` = "(Módulo balanzas)"))
+        session$ns("balanzasUse"), label = ReqField('Balanza', 3), inline = TRUE, width = 'fit', multiple = TRUE, selected = NULL,
+        choices = sapply(balanzas(), function (x) x$balanceID), options = list(`max-options` = 1, `none-selected-text` = "(Módulo balanzas)"))
     })
     output$balanzasPicker <- renderUI(balanzasPicker())
     
@@ -140,37 +136,17 @@ PreparaDisolucioServer <- function(id, devMode, dateTime, balanzas, materiales) 
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)
       js$collapse("condAmbiBox")
-      tabName <- isolate(paste0('EstandarEDTA.', input$NewEDTAStdSol))
+      tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
       isolate(SolidMRCServer(id = tabName, devMode = devMode, IDUsuario = 'IDUsuario', fecha = 'fecha'))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
-          id = tabName, reagent = 'EDTA', reagKey = 'EDTA',
+          id = session$ns(tabName), reagent = 'EDTA', reagKey = 'EDTA',
           explan = 'calibrantes monoelementales.'))
     })
-    observeEvent(input$NewCaliSamSol, {
-      req(input$NewCaliSamSol > 0)
-      appendTab(
-        inputId = 'NewSolutions', select = TRUE, 
-        tab = tabPanel(
-          title = tags$b(paste0('MuestraCalib.', input$NewCaliSamSol)),
-          tags$hr(),
-          tags$div(id = "inline", style = 'font-size:12px', tags$hr()))
-      )
-    })
+
     
-    
-    SelectMRC <- reactive(
-      pickerInput(
-        session$ns("MRCtoView"), width = "100%",
-        label = "Seleccione un material de referencia para visualizar la información",
-        choices = list(
-          `Para caracterizar EDTA` = as.list(namesMR_MRCs$forEDTA),
-          `Para caracterizar disoluciones calibrantes` = as.list(namesMR_MRCs$forCali)),
-        selected = NULL, multiple = TRUE,
-        options = list(`max-options` = 1, `none-selected-text` = "(Ninguno seleccionado)")
-      ))
-    output$SelectMRC <- renderUI(SelectMRC())
+
     
 
     

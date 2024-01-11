@@ -25,10 +25,7 @@ library(dplyr)
 library(stringr)
 # library(shinyTime)
 
-# How many users are connected to my Shiny application? https://stackoverflow.com/questions/47728208
-users <- reactiveValues(count = 0)
-
-
+source('D_SI_xml/0_createMRXML.R')
 
 # Por lo general, los módulos_UI son llamados desde las funciones de layouts
 functiFiles <- list.files(path = "Functions", full.names = TRUE)
