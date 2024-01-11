@@ -67,3 +67,26 @@ initiatePersonXML <- function(name) {
   }
   return(xmlObject)
 }
+
+
+############## Disoluciones
+headingSolution <- '<?xml version="1.0" encoding="UTF-8"?>
+<solution:DISOLUCION
+  xmlns:solution="https://inm.gov.co/disoluciones"
+  xmlns:mr="https://inm.gov.co/mr"
+  xmlns:inst="https://inm.gov.co/inst"
+  xmlns:si="https://ptb.de/si"
+  xmlns:qudt="http://qudt.org/vocab/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
+
+initiateSolutionXML <- function(name) {
+  heading <- str_replace(headingSolution, 'DISOLUCION', name)
+  xmlObject <- read_xml(heading) 
+  xmlObject %>% {
+    xml_add_child(., 'solution:administrativeData')
+    xml_add_child(., 'solution:propertyValues')
+  }
+  return(xmlObject)
+}
+

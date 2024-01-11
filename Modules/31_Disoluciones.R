@@ -55,13 +55,14 @@ PreparaDisolucioUI <- function(id) {
                   tags$b('Temperatura'),
                   fluidRow(
                     style = 'margin-left:10px;',
-                    column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
+                    column(3, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                                ns('Temp'), label = NULL, value = 18)),
-                    column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
+                    column(3, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                                ns('u_Temp'), label = '\u00B1', value = 2)),
-                    column(2, selectInput(ns('units_Temp'), label = NULL, choices = TemperatureUnits)),
-                    column(4, selectInput(ns('covFac_Temp'), label = 'Factor', choices = CobertureFactors),
-                           selectInput(ns('Distri_Temp'), label = 'Distribución', choices = Distributions))),
+                    column(3, selectInput(ns('units_Temp'), label = NULL, choices = TemperatureUnits))),
+                  fluidRow(
+                    column(4, offset = 2, selectInput(ns('covFac_Temp'), label = 'Factor de cobertura', choices = CobertureFactors)),
+                    column(3, selectInput(ns('Distri_Temp'), label = 'Distribución', choices = Distributions))),
                   
                   tags$hr(), tags$b('Presión barométrica'),
                   fluidRow(
@@ -70,9 +71,10 @@ PreparaDisolucioUI <- function(id) {
                                                ns('BarPres'), label = NULL, value = 750)),
                     column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                                ns('u_BarPres'), label = '\u00B1', value = 2)),
-                    column(2, selectInput(ns('units_BarPres'), label = NULL, choices = AtmosPressuUnits)),
-                    column(4, selectInput(ns('covFac_BarPres'), label = 'Factor', choices = CobertureFactors),
-                           selectInput(ns('Distri_BarPres'), label = 'Distribución', choices = Distributions))),
+                    column(2, selectInput(ns('units_BarPres'), label = NULL, choices = AtmosPressuUnits))),
+                  fluidRow(
+                    column(4, offset = 2, selectInput(ns('covFac_BarPres'), label = 'Factor de cobertura', choices = CobertureFactors)),
+                    column(3, selectInput(ns('Distri_BarPres'), label = 'Distribución', choices = Distributions))),
                   
                   tags$hr(), tags$b('Humedad relativa'),
                   fluidRow(
@@ -81,9 +83,10 @@ PreparaDisolucioUI <- function(id) {
                                                ns('relHum'), label = NULL, value = 45)),
                     column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                                ns('u_relHum'), label = '\u00B1', value = 3)),
-                    column(2, selectInput(ns('units_relHum'), label = NULL, choices = RelatiHumidUnits)),
-                    column(4, selectInput(ns('covFac_relHum'), label = 'Factor', choices = CobertureFactors),
-                           selectInput(ns('Distri_relHum'), label = 'Distribución', choices = Distributions)))
+                    column(2, selectInput(ns('units_relHum'), label = NULL, choices = RelatiHumidUnits))),
+                  fluidRow(
+                    column(4, offset = 2, selectInput(ns('covFac_relHum'), label = 'Factor de cobertura', choices = CobertureFactors)),
+                    column(3, selectInput(ns('Distri_relHum'), label = 'Distribución', choices = Distributions)))
                 )
               )
             )
@@ -169,26 +172,7 @@ PreparaDisolucioServer <- function(id, devMode, dateTime, balanzas, materiales) 
       ))
     output$SelectMRC <- renderUI(SelectMRC())
     
-    observeEvent(input$MRCtoView, {
-      fileXML <- list.files('www/MR_MRC', recursive = TRUE, full.names = TRUE,
-                            pattern = paste0(input$MRCtoView, '.xml'))
-      
-      filePDF <- list.files('www/MR_MRC', recursive = TRUE, full.names = TRUE,
-                            pattern = paste0(input$MRCtoView, '.pdf'))
-      withCallingHandlers({
-        shinyjs::html("printTheMrXML", "")
-        message(read_xml(fileXML))},
-        message = function(m) {
-          shinyjs::html(id = "printTheMrXML",
-                        html = paste0('<textarea cols = 75, rows = 40>',
-                                      m$message, '</textarea>'), add = FALSE)})
-      
-      output$downlXMLBttn <- renderUI(tags$div(
-        a(href = gsub('www/', '', fileXML), 'Descargar archivo XML', 
-          download = NA, target = "_blank"), tags$br(),
-        a(href = gsub('www/', '', filePDF), 'Descargar certificado o reporte en PDF', 
-          download = NA, target = "_blank")))
-    })
+
     
   })
   return()

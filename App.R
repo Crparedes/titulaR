@@ -17,6 +17,7 @@ library(outliers)
 library(FrF2)
 library(purrr) # map-like functional programing (?)
 library(units)
+library(masscor)
 
 
 library(xml2)

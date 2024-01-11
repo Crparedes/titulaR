@@ -2,6 +2,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(id), tags$hr(), uiOutput(ns('brwz')),
+    actionButton(ns('brwz'), label = tags$b('Pausar submódulo')),
     tags$b(paste0('Nueva disolucion de ', reagKey)), tags$br(), 
     paste0('Estandar para titular muestras de ', explan), 
     tags$br(), tags$br(), 
@@ -37,8 +38,7 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
         uiOutput(ns('deriMasaDisMRC')))),
     
     tags$div(
-      id = "inline", style = 'font-size:12px; margin-left:25px;',
-      h5(tags$b('Densidad de la disolución')),
+      id = "inline", style = 'font-size:12px; margin-left:25px;', tags$hr(), h5(tags$b('Densidad de la disolución')),
       fluidRow(
         style = 'margin-left:10px;',
         column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
@@ -47,19 +47,20 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
         column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                    ns('u_DensitDis'), label = '\u00B1',
                                    value = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)))),
-        column(2, selectInput(ns('units_Densit'), label = NULL, choices = DensityUnits)),
-        column(4, selectInput(ns('covFac_Densit'), label = 'Factor', choices = CobertureFactors),
-               selectInput(ns('Distri_Densit'), label = 'Distribución', choices = Distributions)))),
+        column(2, selectInput(ns('units_Densit'), label = NULL, choices = DensityUnits))),
+      fluidRow(
+        column(4, offset = 2, selectInput(ns('covFac_Densit'), label = 'Factor de cobertura', choices = CobertureFactors)),
+        column(3, selectInput(ns('Distri_Densit'), label = 'Distribución', choices = Distributions)))),
     tags$hr(),
-    actionButton(ns('buttonCalc'), label = 'Crear disolución'), tags$hr(),
-    uiOutput(ns('InfoDisBox'))
+    spcs(5), actionButton(ns('buttonCalc'), label = 'Crear disolución'), spcs(5), uiOutput(ns("downlXMLlink")), tags$hr(),
+    htmlOutput(ns('InfoDisXML'))
     )
 }
 
 SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
   moduleServer(id, function(input, output, session) {
-    output$brwz <- renderUI(
-      if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
+    # output$brwz <- renderUI(
+      # if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
     
     fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
@@ -177,6 +178,31 @@ SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
     output$NiceDensitAir <- renderUI(NiceDensitAir())
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
+    
+    DisolucionXML <- eventReactive(input$buttonCalc, {
+      xmlObject <- initiateSolutionXML()
+      AdminList <- list('solution:type' = 'Reference')
+      PropeList <- list(
+        'solution:substance' = list(
+          'solution:name' = 'EDTA disodium salt dihydrate',
+          'solution:InChI' = c('1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2', version = '1.0.6'),
+          'solution:InChiKey' = c('FXKZPKBFTQUJBA-UHFFFAOYSA-N', version = '1.0.6')))
+      addDataToMRXML(xmlObject, AdminList, node = 'solution:administrativeData')
+      addDataToMRXML(xmlObject, PropeList, node = 'solution:propertyValues')
+      return(xmlObject)
+    })
+    
+    observeEvent(input$buttonCalc, {
+      withCallingHandlers({
+        shinyjs::html("InfoDisXML", "")
+        message(DisolucionXML())},
+        message = function(m) {
+          shinyjs::html(id = "InfoDisXML",
+                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
+                                      m$message, '</textarea>'), add = FALSE)})
+    })
+    
+    
     
     return(list('infoDisMRC' = infoDisMRC))
   })
