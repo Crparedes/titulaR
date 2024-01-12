@@ -1,8 +1,7 @@
 SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
-    title = tags$b(id), tags$hr(), # uiOutput(ns('brwz')),
-    actionButton(ns('brwz'), label = tags$b('Pausar submódulo')),
+    title = tags$b(id), tags$hr(), uiOutput(ns('brwz')),
     tags$b(paste0('Nueva disolucion de ', reagKey)), tags$br(), 
     paste0('Estandar para titular muestras de ', explan), 
     tags$br(), tags$br(), 
@@ -59,8 +58,8 @@ SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
 
 SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
   moduleServer(id, function(input, output, session) {
-    # output$brwz <- renderUI(
-      # if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
+    output$brwz <- renderUI(
+    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
     # browser()
     
@@ -71,9 +70,8 @@ SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
     MolWeiMRC <- reactive(MRC.At_MolWeigths[[reagKey]][[input$MRCElected]])
     DensitMRC <- reactive(MRC.densities[[reagKey]][[input$MRCElected]])
     
-    DensitAir <- reactive(c(airDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1),
-                            uncertAirDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1, 
-                                             u_Temp = input$u_Temp1, u_p = input$u_BarPres1, u_h = input$u_relHum1, printRelSD = FALSE)))
+    
+    
     
     derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
     masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))
@@ -168,15 +166,11 @@ SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
       content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
     
     # Messages
-    NiceDensitAir <- reactive(tags$div(style = 'font-size:11px',
-                                       'Densidad local del aire (CIMP2007): ', 
-                                       signif(DensitAir()[1], 7), ' \u00B1 ', signif(DensitAir()[2], 3), '[g cm', tags$sup('-3'), ']'))
     deriMasaMRC <- eventReactive(input$MasRecMRC1, 
                                  div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassMRC() * 1000, 2), ' [mg]'))
     deriMasaDisMRC <- eventReactive(input$MasRecDis1,
                                     div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' [mg]'))
     
-    output$NiceDensitAir <- renderUI(NiceDensitAir())
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
     

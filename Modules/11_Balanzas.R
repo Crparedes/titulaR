@@ -11,7 +11,7 @@ BalanceCalibCertUI <- function(id) {
       tags$hr(),
       tags$b('Cargue los archivos con los certificados que le hagan falta.'), tags$br(),
       'Estos archivos se crean con el ',
-      tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.'),
+      tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.', target = '_blank'),
       tags$br(),
       'Suba los archivos individualmente en las siguientes cajas y asegurese de opimir el botón',
       tags$u('Cargar'),
@@ -60,8 +60,6 @@ BalanceCalibCertServer <- function(id, devMode) {
           `none-selected-text` = "(Revise la vigencia del certificado de calibración - fecha)"))
     })
     output$balanzasPicker <- renderUI(balanzasPicker()) 
-    
-    
     
     plotThebalanzas <- reactive({
       if (input$ShallplotThebalanzas && !is.null(input$balanzasShowData)) {

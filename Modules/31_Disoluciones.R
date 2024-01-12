@@ -145,7 +145,15 @@ PreparaDisolucioServer <- function(id, devMode, dateTime, balanzas, materiales) 
           explan = 'calibrantes monoelementales.'))
     })
 
+    DensitAir <- reactive(c(airDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1),
+                            uncertAirDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1, 
+                                             u_Temp = input$u_Temp1, u_p = input$u_BarPres1,
+                                             u_h = input$u_relHum1, printRelSD = FALSE)))
     
+    NiceDensitAir <- reactive(tags$div(style = 'font-size:11px',
+                                       'Densidad local del aire (CIMP2007): ', 
+                                       signif(DensitAir()[1], 7), ' \u00B1 ', signif(DensitAir()[2], 3), '[g cm', tags$sup('-3'), ']'))
+    output$NiceDensitAir <- renderUI(NiceDensitAir())
 
     
 
