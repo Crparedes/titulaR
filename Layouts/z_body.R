@@ -18,6 +18,8 @@ customBody <- dashboardBody(
     text = "shinyjs.collapse = function(boxid) {
               $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
             }",
+
+    # $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
     functions = c('collapse')),
   
   tags$script(HTML("$('body').addClass('fixed');")),
@@ -74,3 +76,4 @@ customBody <- dashboardBody(
     tabItem(tabName = "tabsGenerica")
   )
 )
+

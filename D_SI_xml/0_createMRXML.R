@@ -69,20 +69,20 @@ initiatePersonXML <- function(name) {
 }
 
 ############## Ambient conditions
-headingAmbiente <- '<?xml version="1.0" encoding="UTF-8"?>
-<ambient:AMBIENTE
-  xmlns:ambiente="https://inm.gov.co/condicionesambiente"
+headingAmbiente <- '
+<mr:ambiente ID = "idAmbiente"
+  xmlns:mr="https://inm.gov.co/mr"
   xmlns:si="https://ptb.de/si"
   xmlns:qudt="http://qudt.org/vocab/"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
 
 initiateAmbienteXML <- function(name) {
-  heading <- str_replace(headingAmbiente, 'AMBIENTE', name)
-  xmlObject <- read_xml(heading) 
+  heading <- str_replace(headingAmbiente, 'idAmbiente', name)
+  xmlObject <- read_xml(headingAmbiente) 
   xmlObject %>% {
-    xml_add_child(., 'ambient:condiciones')
-    xml_add_child(., 'ambient:propertyValues')
+    xml_add_child(., 'mr:ambientConditions')
+    xml_add_child(., 'mr:airDensity')
   }
   return(xmlObject)
 }

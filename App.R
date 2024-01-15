@@ -25,6 +25,8 @@ library(dplyr)
 library(stringr)
 # library(shinyTime)
 
+library(shinydashboardPlus)
+
 source('D_SI_xml/0_createMRXML.R')
 
 # Por lo general, los módulos_UI son llamados desde las funciones de layouts
