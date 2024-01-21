@@ -1,59 +1,50 @@
-SolidMRCUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
+SolidMRCUI <- function(id, title, reagent, reagKey, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
-    title = tags$b(id), tags$hr(), uiOutput(ns('brwz')),
+    title = tags$b(title), uiOutput(ns('brwz')),
     tags$b(paste0('Nueva disolucion de ', reagKey)), tags$br(), 
     paste0('Estandar para titular muestras de ', explan), 
-    tags$br(), tags$br(), 
-    
-    pickerInput(
-      ns("MRCtoUse"), width = "fit", selected = NULL, multiple = TRUE, inline = TRUE,
-      label = ReqField("Material de referencia"), choices = as.list(namesMR_MRCs$forEDTA),
-      options = list(`max-options` = 1, `none-selected-text` = "(Escoja el material de partida)")
-    ),
-    tags$br(),
-    splitLayout(
-      cellWidths = c("38%", "10%", "38%"),
-      tags$div(
-        id = "inline", style = 'font-size:12px; margin-left:25px', 
-        h5(tags$b('Masa del solido')),
-        autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
-                         ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = 0),
-        autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, 
-                         ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = 0),
-        autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, 
-                         ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = 0),
-        uiOutput(ns('deriMasaMRC'))),
-      tags$div(),
-      tags$div(
-        id = "inline", style = 'font-size:12px;',
-        h5(tags$b('Masa final de la disolución')),
-        autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, 
-                         ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
-        autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, 
-                         ns('MasDis1'), label = 'Masa final disolución [g]: .', value = 0),
-        autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, 
-                         ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
-        uiOutput(ns('deriMasaDisMRC')))),
-    
+    tags$br(), tags$br(),
     tags$div(
-      id = "inline", style = 'font-size:12px; margin-left:25px;', tags$hr(), h5(tags$b('Densidad de la disolución')),
-      fluidRow(
-        style = 'margin-left:10px;',
-        column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
-                                   ns('DensitDis'), label = NULL,
-                                   ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)))),
-        column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
-                                   ns('u_DensitDis'), label = '\u00B1',
-                                   value = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)))),
-        column(2, selectInput(ns('units_Densit'), label = NULL, choices = DensityUnits))),
-      fluidRow(
-        column(4, offset = 2, selectInput(ns('covFac_Densit'), label = 'Factor de cobertura', choices = CobertureFactors)),
-        column(3, selectInput(ns('Distri_Densit'), label = 'Distribución', choices = Distributions)))),
-    tags$hr(),
-    spcs(5), actionButton(ns('buttonCalc'), label = 'Crear disolución'), spcs(5), uiOutput(ns("downlXMLlink")), tags$hr(),
-    htmlOutput(ns('InfoDisXML'))
-    )
+      style = 'font-size:12px; margin-left:25px', 
+      pickerInput(
+        ns("MRCtoUse"), width = "fit", selected = NULL, multiple = TRUE, inline = TRUE,
+        label = h5(tags$b(ReqField("MRC de partida"))), choices = as.list(namesMR_MRCs$forEDTA),
+        options = list(`max-options` = 1, `none-selected-text` = "(Lista de MRCs en el módulo de materiales de referencia)")),
+      tags$hr(),
+      splitLayout(
+        cellWidths = c("38%", "10%", "38%"),
+        tags$div(
+          id = "inline", style = 'margin-left:25px', 
+          h5(tags$b('Masa del solido')),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                           ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
+                           ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                           ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = 0),
+          uiOutput(ns('deriMasaMRC'))),
+        tags$div(),
+        tags$div(
+          id = "inline",
+          h5(tags$b('Masa final de la disolución')),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+                           ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
+                           ns('MasDis1'), label = 'Masa final disolución [g]: .', value = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+                           ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
+          uiOutput(ns('deriMasaDisMRC')))),
+      tags$hr(),
+      SiRealInputUI(ns('DensiDisol'), name = 'Densidad de la disolución', 
+                    x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
+                    u0 = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)), units = DensityUnits,
+                    decimalPlaces = 3),
+      tags$hr(), actionButton(ns('buttonCalc'), label = 'Crear disolución'), Nlns(3)),
+    fluidRow(
+      column(width = 2, img(src = "D-SI.png", width = "95%")),
+      column(width = 10, tags$br(), uiOutput(ns("downlXMLlink")), htmlOutput(ns('InfoDisXML'))))
+  )
 }
 
 SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
@@ -62,6 +53,8 @@ SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
     # browser()
+    
+    DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
     
     fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
                               "Descargar certificado ", download = NA, target = "_blank"))

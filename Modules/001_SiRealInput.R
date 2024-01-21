@@ -4,7 +4,7 @@ SiRealXML <- function(quantityTypeQUDT, value, units, uncert, covFac, distributi
     list('si:quantityTypeQUDT' = quantityTypeQUDT, 'si:value' = value, 'si:unit' = units,
          'si:expandedUnc' = list('si:uncertainty' = uncert, 'si:coverageFactor' = covFac, 'si:coverageProbability' = distribution))))}
 
-SiRealInputUI <- function(id, name, x0, u0, units) {
+SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3) {
   ns <- NS(id)
   tags$div(
     id = "inline", style = 'font-size:12px;', uiOutput(ns('brwz')),
@@ -12,9 +12,9 @@ SiRealInputUI <- function(id, name, x0, u0, units) {
     fluidRow(
       style = 'margin-left:10px;',
       column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
-                                 inputId = ns('value'), label = NULL, value = x0)),
+                                 inputId = ns('value'), label = NULL, value = x0, decimalPlaces = decimalPlaces)),
       column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
-                                 inputId = ns('uncert'), label = '\u00B1', value = u0)),
+                                 inputId = ns('uncert'), label = '\u00B1', value = u0, decimalPlaces = decimalPlaces)),
       column(2, selectInput(ns('units'), label = NULL, choices = units))),
     fluidRow(
       column(4, offset = 2, selectInput(ns('covFac'), label = 'Factor de cobertura', choices = CobertureFactors)),

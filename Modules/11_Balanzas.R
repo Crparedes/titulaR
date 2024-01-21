@@ -27,8 +27,8 @@ BalanceCalibCertUI <- function(id) {
     column(
       6,  style = 'margin-left: 80px;', Nlns(7), 
       box(
-        title = NULL, width = 12, status = 'primary', collapsible = FALSE,
-        tags$b('Visualizador'), uiOutput(ns('balanzasPicker')),
+        title = tags$b('Visualizador'), width = 12, status = 'primary', collapsible = FALSE,
+        uiOutput(ns('balanzasPicker')),
         splitLayout(
           materialSwitch(ns('ShallprintThebalanzas'), label = 'Información del certificado de calibración',
                          value = FALSE, status = "primary"),

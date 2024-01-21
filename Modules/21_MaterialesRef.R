@@ -10,7 +10,7 @@ MaterialesRefereUI <- function(id) {
         title = NULL, width = 12, status = 'primary', collapsible = FALSE,
         fluidRow(
           column(width = 2, img(src = "D-SI.png", width = "100%")),
-          column(width = 10, tags$br(), uiOutput(ns("downlXMLBttn"))), 
+          column(width = 10, tags$br(), uiOutput(ns("downlXMLlink"))), 
           column(width = 12, tags$br(), htmlOutput(ns('printTheMrXML')))
         )
       )
@@ -61,7 +61,7 @@ MaterialesRefereServer <- function(id, devMode) {
                         html = paste0('<textarea rows = 40 style = "width: 100%;">',
                                       m$message, '</textarea>'), add = FALSE)})
       
-      output$downlXMLBttn <- renderUI(tags$div(
+      output$downlXMLlink <- renderUI(tags$div(
         a(href = gsub('www/', '', fileXML), 'Descargar archivo XML', 
           download = NA, target = "_blank"), tags$br(),
         a(href = gsub('www/', '', filePDF), 'Descargar certificado o reporte en PDF', 

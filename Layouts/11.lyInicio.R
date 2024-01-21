@@ -19,10 +19,10 @@ inicioLy <- fluidRow(
          column(2, img(src = "D-SI.png", width = "80%")),
          column(
            6, 'Este aplicativo utiliza el',
-           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital', target = '_blank')),
-           '(D-SI) para el manejo de datos metrológicos.', Nlns(),
+           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
+           'para el manejo de datos metrológicos.', Nlns(),
            'En el esquema del D-SI se usan archivos en formato XML para el almacenamiento y la transferencia
-           de la información. Este esquema permite que la información metrológica cumpla con los ',
+           de la información. Este esquema ayuda a que la información metrológica cumpla con los ',
            tags$b(tags$a(href = 'https://www.go-fair.org/fair-principles/', 'Principios FAIR:', target = '_blank')),
            tags$br(), tags$br(),
            tags$ul(
