@@ -69,8 +69,8 @@ customBody <- dashboardBody(
     tabItem(tabName = "tabsInicio", inicioLy),
     tabItem(tabName = "tabsCertMass", BalanceCalibCertUI('Balanzas')),
     tabItem(tabName = "tabsCertMRCs", MaterialesRefereUI('MateRefe')),
-    tabItem(tabName = "tabsSolution", PreparaDisolucioUI('Disoluci')),
-    tabItem(tabName = "tabsMonoElem"),
+    tabItem(tabName = "tabsSolution", PreparaDisolucioUI('Solution')),
+    tabItem(tabName = "tabsMonoElem", TitularMonoelemtUI('MonoElem')),
     tabItem(tabName = "tabsEDTAsalt"),
     tabItem(tabName = "tabsSummResu"),
     tabItem(tabName = "tabsGenerica")

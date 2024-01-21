@@ -16,13 +16,22 @@ inicioLy <- fluidRow(
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
        fluidRow(
-         column(2, img(src = "D-SI.png", width = "90%")),
+         column(2, img(src = "D-SI.png", width = "80%")),
          column(
            6, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital', target = '_blank')),
            '(D-SI) para el manejo de datos metrológicos.', Nlns(),
            'En el esquema del D-SI se usan archivos en formato XML para el almacenamiento y la transferencia
-           de la información.')),
+           de la información. Este esquema permite que la información metrológica cumpla con los ',
+           tags$b(tags$a(href = 'https://www.go-fair.org/fair-principles/', 'Principios FAIR:', target = '_blank')),
+           tags$br(), tags$br(),
+           tags$ul(
+             tags$li(tags$i(tags$b('F', .noWS = c('after')), 'indability'), spcs(6), '(Datos encontrables)'),
+             tags$li(tags$i(tags$b('A', .noWS = c('after')), 'ccessability'), spcs(2), '(Datos accesibles)'),
+             tags$li(tags$i(tags$b('I', .noWS = c('after')), 'nteroperability'), '(Datos interoperables)'),
+             tags$li(tags$i(tags$b('R', .noWS = c('after')), 'eusability'), spcs(5), '(Datos reusables)')
+           )
+           )),
        tags$hr(), Nlns(2),
        'El aplicativo ', tags$b('titulaR'), 'está compuesto por los siguientes módulos:',
        tags$ul(

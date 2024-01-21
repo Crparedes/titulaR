@@ -5,12 +5,15 @@ PreparaDisolucioUI <- function(id) {
       12, Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: 60px;', tags$b('Disoluciones estandar y disoluciones muestra para las titulaciones'))),
     column(
-      width = 6, style = 'margin-left: 80px;', tags$b('Titulacion de calibrantes monoelementales'), tags$br(),
-      actionButton(ns('NewEDTAStdSol'), width = '35%', 'Crear disolución estándar de EDTA'),
+      width = 6, style = 'margin-left: 80px;',
+      tags$b('Titulacion de calibrantes monoelementales'), tags$br(),
+      spcs(10), actionButton(ns('NewEDTAStdSol'), width = '35%', 'Crear disolución estándar de EDTA'),
       actionButton(ns('NewCaliSamSol'), width = '35%', 'Crear disolución muestra del elemento'), tags$br(), tags$br(),
       tags$b('Titulacion de la sal de EDTA'), tags$br(),
-      actionButton(ns('NewLeadStdSol'), width = '35%', 'Crear disolución estándar de plomo'),
-      actionButton(ns('NewEDTASamSol'), width = '35%', 'Crear disolución muestra de EDTA')),
+      spcs(10), actionButton(ns('NewLeadStdSol'), width = '35%', 'Crear disolución estándar de plomo'),
+      actionButton(ns('NewEDTASamSol'), width = '35%', 'Crear disolución muestra de EDTA'),
+      tags$hr(),
+      balanzasPickerUI(ns('SolPrep')), AnalystPickerUI(ns('Analyst'))),
     column(
       width = 4, style = 'margin-left: 60px;', tags$b('Disoluciones preparadas en el pasado'), tags$br(),
       'Cargue los archivos XML con la información de un material de referencia faltante, 
@@ -23,22 +26,14 @@ PreparaDisolucioUI <- function(id) {
       tabBox(
         id = ns('NewSolutions'), width = 12, side = 'right',
         fluidRow(
-          column(1, img(src = "D-SI.png", width = "90%")),
-          column(
-            5, uiOutput(ns('balanzasPicker')),
-            pickerInput(
-              ns("Analista"), label = ReqField('Analista', 2), inline = TRUE, width = 'fit',
-              choices = names(authPersons), multiple = TRUE, selected = NULL,
-              options = list(`max-options` = 1, `none-selected-text` = "(Personal con autorizaciones)"))),#),
-          column(5, uiOutput(ns('datosAnalista'))),
-          conditionalPanel(
-            condition = 'input.Analista.length > 0', ns = ns,
+          column(1, img(src = "D-SI.png", width = "160%")),
+          column(11, 
             tags$div(
-              id = "inline", style = 'font-size:12px; margin-left:20px;',
+              id = "inline", style = 'font-size:12px;',
               shinydashboardPlus::box(
                 status = 'black', 
                 title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'), id = ns('condAmbiBox'),
-                width = 12, collapsible = TRUE, collapsed = FALSE, AmbiDensAireUI(ns('AmbiDensAireSolutions')))))
+                width = 12, collapsible = TRUE, collapsed = TRUE, AmbiDensAireUI(ns('AmbiDensAireSolutions')))))
     ))),
     column(width = 4, style = 'margin-left: 60px;')
       
@@ -46,37 +41,15 @@ PreparaDisolucioUI <- function(id) {
 }
 
 
-PreparaDisolucioServer <- function(id, devMode, dateTime, balanzas, materiales) {
+PreparaDisolucioServer <- function(id, devMode, balanzas, materiales) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    balanzasPicker <- reactive({
-      balanceChioces <- sapply(balanzas(), function (x) x$balanceID)
-      if (length(balanceChioces) == 0) {
-        return(tags$div(style = 'color:red;', 'Vaya al módulo de', tags$b('Balanzas,'),
-                        'y seleccione o cargue la información de al menos una balanza)', tags$hr()))}
-      pickerInput(
-        session$ns("balanzasUse"), label = ReqField('Balanza', 3), inline = TRUE, width = 'fit', multiple = TRUE, selected = NULL,
-        choices = sapply(balanzas(), function (x) x$balanceID), options = list(`max-options` = 1, `none-selected-text` = "(Módulo balanzas)"))
-    })
-    output$balanzasPicker <- renderUI(balanzasPicker())
+    balanzasUse <- balanzasPickerServer('SolPrep', devMode, balanzas)
+    Analyst <- AnalystPickerServer('Analyst')
     
-    Analista <- reactive({
-      req(input$Analista)
-      authPersons[[input$Analista]]
-    })
-    datosAnalista <- eventReactive(input$Analista, ignoreNULL = TRUE, ignoreInit = TRUE, {
-      tags$div(
-        Nlns(3),
-        tags$a(href = gsub('www/', '', list.files(path = 'www/Personal/', pattern = input$Analista, full.names = TRUE)),
-               tags$b('XML analista'), download = NA, target = "_blank"),
-        spcs(3), tags$a(href = Analista()$data$orcid, img(src = "ORCID.png", width = "25", height = "25"), target = "_blank"),
-        spcs(3), tags$a(href = Analista()$inst$ror, img(src = "ROR.png", width = "25", height = "25"), target = "_blank")
-      )
-    })
-    output$datosAnalista <- renderUI(datosAnalista())
     
     AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode)
     

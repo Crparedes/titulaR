@@ -58,6 +58,8 @@ headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
   xmlns:person="https://inm.gov.co/personal"
   xmlns:inst="https://inm.gov.co/inst"/>'
 
+read_xml(headingPerson) 
+
 initiatePersonXML <- function(name) {
   heading <- str_replace(headingPerson, 'PersonXML', name)
   xmlObject <- read_xml(heading) 
