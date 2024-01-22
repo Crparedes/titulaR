@@ -28,9 +28,10 @@ PreparaDisolucioUI <- function(id) {
         tags$h4(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
         tags$div(
           id = "inline", style = 'font-size:12px; margin-left:60px;',
-          shinydashboardPlus::box(
-            status = 'black', 
-            title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'), id = ns('condAmbiBox'),
+          # shinyDashboardplusbox(status = 'black',
+          box(
+            status = 'primary',
+            title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'), #id = ns('condAmbiBox'),
             width = 12, collapsible = TRUE, collapsed = TRUE, AmbiDensAireUI(ns('AmbiDensAireSolutions')))),
         balanzasPickerUI(ns('SolPrep')), AnalystPickerUI(ns('Analyst')),
         Nlns(2),
@@ -54,7 +55,7 @@ PreparaDisolucioServer <- function(id, devMode, balanzas, materiales, fecha) {
     EDTA_STD_solutions <- reactiveValues()
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)
-      if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
+      # if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
       tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
       isolate(SolidMRCServer(id = tabName, devMode = devMode, analyst = Analyst, balanza = balanzasUse, fecha = 'fecha'))
       appendTab(
