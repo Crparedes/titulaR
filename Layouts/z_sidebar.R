@@ -22,7 +22,7 @@ customSidebar <- dashboardSidebar(
     Nlns(2), uiOutput('dateTimeISO8601'), Nlns(2),
     conditionalPanel('input.Desarrollador',
                      div(id = 'inline', style = 'font-size:12px;',
-                         tags$hr(), spcs(5), dateInput('Fecha', label = NULL, language = 'es')),
+                         tags$hr(), spcs(5), dateInput('fecha', label = NULL, language = 'es')),
                      # timeInput("Hora", "Modificar hora: (hh:mm:ss)", value = Sys.time()),
                      actionButton('brwz', label = tags$b('Pausar aplicativo'), width = '70%')),
     materialSwitch('Desarrollador', 'devel', status = 'primary')

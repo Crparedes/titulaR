@@ -53,10 +53,13 @@ server <- function(input, output, session) {
   devMode <- reactive(input$Desarrollador)
   observeEvent(input$brwz, browser())
   
+  fecha <- reactive(input$fecha)
+  
   BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode)
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode)
-  DisolInfoPC <- PreparaDisolucioServer(
-    'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC)
+  DisolInfoPC <- PreparaDisolucioServer('Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha)
+  
+  TitMonoelem <- TitularMonoelemtServer('MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC)
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))
   observeEvent(input$tabsCertMRCs, updateTabItems(session, "tabs", 'tabsCertMRCs'))
@@ -69,7 +72,7 @@ server <- function(input, output, session) {
   dateTimeISO8601 <- reactive({
     invalidateLater(1000)
     tm <- as.POSIXlt(Sys.time())
-    if (devMode()) tm <- as.POSIXct(sub(Sys.Date(), input$Fecha, Sys.time()))
+    if (devMode()) tm <- as.POSIXct(sub(Sys.Date(), input$fecha, Sys.time()))
     tm_iso8601 <- sub('(+[0-9]{2})([0-9]{2}$)','\\1:\\2', strftime(tm, "%Y-%m-%dT%H:%M:%S%z") , fixed=FALSE)
   })
   output$dateTimeISO8601 <- renderUI(tags$div(

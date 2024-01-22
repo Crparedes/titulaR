@@ -53,19 +53,14 @@ addPropToMRXML <- function(xmlObject, fields, node) {
 
 
 ############ Personal
-headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
-<person:PersonXML
-  xmlns:person="https://inm.gov.co/personal"
-  xmlns:inst="https://inm.gov.co/inst"/>'
-
-read_xml(headingPerson) 
 
 initiatePersonXML <- function(name) {
-  heading <- str_replace(headingPerson, 'PersonXML', name)
-  xmlObject <- read_xml(heading) 
+  headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
+  <respPerson/>'
+  xmlObject <- read_xml('<respPerson/>') 
   xmlObject %>% {
-    xml_add_child(., 'person:data')
-    xml_add_child(., 'person:inst')
+    xml_add_child(., 'data')
+    xml_add_child(., 'inst')
   }
   return(xmlObject)
 }

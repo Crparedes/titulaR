@@ -25,7 +25,7 @@ PreparaDisolucioUI <- function(id) {
       'input.NewEDTAStdSol > 0 || input.NewCaliSamSol > 0 || input.NewLeadStdSol > 0 || input.NewEDTASamSol > 0', ns = ns,
       column(
         width = 6, style = 'margin-left: 100px;', 
-        tags$h5(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
+        tags$h4(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
         tags$div(
           id = "inline", style = 'font-size:12px; margin-left:60px;',
           shinydashboardPlus::box(
@@ -39,7 +39,7 @@ PreparaDisolucioUI <- function(id) {
 }
 
 
-PreparaDisolucioServer <- function(id, devMode, balanzas, materiales) {
+PreparaDisolucioServer <- function(id, devMode, balanzas, materiales, fecha) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
@@ -56,11 +56,11 @@ PreparaDisolucioServer <- function(id, devMode, balanzas, materiales) {
       req(input$NewEDTAStdSol > 0)
       if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
       tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, IDUsuario = 'IDUsuario', fecha = 'fecha'))
+      isolate(SolidMRCServer(id = tabName, devMode = devMode, analyst = Analyst, balanza = balanzasUse, fecha = 'fecha'))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
-          id = session$ns(tabName), title = tabName, reagent = 'EDTA', reagKey = 'EDTA',
+          id = session$ns(tabName), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
           explan = 'calibrantes monoelementales.'))
     })
 

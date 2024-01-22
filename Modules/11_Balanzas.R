@@ -4,10 +4,13 @@ BalanceCalibCertUI <- function(id) {
     column(
       width = 4, style = 'margin-left: 80px;', Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: -20px;', tags$b('Informacion de calibracion de balanzas')),
-      checkboxGroupInput(
-        ns("balanzasElected"), width = '100%',
-        label = 'Seleccione los certificados de calibración de las balanzas que necesita:',
-        choices = balanzasShow),
+       tags$br(),
+      fluidRow(
+        column(width = 4, img(src = "SI_kilogram.png", width = "90%")),
+        column(8, checkboxGroupInput(
+          ns("balanzasElected"), width = '100%',
+          label = tags$b('Seleccione los certificados de calibración de las balanzas que necesita:'),
+          choices = balanzasShow))),
       tags$hr(),
       tags$b('Cargue los archivos con los certificados que le hagan falta.'), tags$br(),
       'Estos archivos se crean con el ',

@@ -4,9 +4,9 @@ inicioLy <- fluidRow(
     width = 10, offset = 1, Nlns(3),
     tags$h4(style = 'margin-left: -20px;',
             tags$b('Introducción')),
-    h5("Esta aplicación trata los datos de medición para la caracterización de Materiales de Referencia
-       Certificados (MRC) por medio de titulaciones gravimétricas utilizando los siguientes protocolos de medicion:",
-       tags$br(),
+    h5("Esta aplicación automatiza el tratamiento de los datos de medición para la caracterización de Materiales de Referencia
+       Certificados (MRC) por medio de titulaciones gravimétricas, utilizando los siguientes protocolos de medicion:",
+       Nlns(),
        tags$ul(
          tags$li(tags$b("M-03-L-14-P-007"), tags$br(),
                  "Determinación de Fracción Másica (Pureza) de la Sal Disódica Dihidratada del
@@ -16,7 +16,7 @@ inicioLy <- fluidRow(
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
        fluidRow(
-         column(2, img(src = "D-SI.png", width = "80%")),
+         column(2, img(src = "SI_units.png", width = "75%")),
          column(
            6, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),

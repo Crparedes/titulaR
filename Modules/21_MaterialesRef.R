@@ -9,7 +9,7 @@ MaterialesRefereUI <- function(id) {
       box(
         title = NULL, width = 12, status = 'primary', collapsible = FALSE,
         fluidRow(
-          column(width = 2, img(src = "D-SI.png", width = "100%")),
+          column(width = 2, img(src = "SI_mol.png", width = "100%")),
           column(width = 10, tags$br(), uiOutput(ns("downlXMLlink"))), 
           column(width = 12, tags$br(), htmlOutput(ns('printTheMrXML')))
         )

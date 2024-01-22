@@ -1,4 +1,4 @@
-SolidMRCUI <- function(id, title, reagent, reagKey, explan, nu = FALSE) {
+SolidMRCUI <- function(id, title, reagent, reagKey, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
@@ -6,11 +6,13 @@ SolidMRCUI <- function(id, title, reagent, reagKey, explan, nu = FALSE) {
     paste0('Estandar para titular muestras de ', explan), 
     tags$br(), tags$br(),
     tags$div(
-      style = 'font-size:12px; margin-left:25px', 
+      id = 'inline', style = 'font-size:12px; margin-left:25px', 
+      textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 8))), width = '300px',
+                value = paste(gsub('-', '', fecha), title, sep = '_')),
       pickerInput(
         ns("MRCtoUse"), width = "fit", selected = NULL, multiple = TRUE, inline = TRUE,
         label = h5(tags$b(ReqField("MRC de partida"))), choices = as.list(namesMR_MRCs$forEDTA),
-        options = list(`max-options` = 1, `none-selected-text` = "(Lista de MRCs en el módulo de materiales de referencia)")),
+        options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo Materiales de referencia)")),
       tags$hr(),
       splitLayout(
         cellWidths = c("38%", "10%", "38%"),
@@ -42,12 +44,12 @@ SolidMRCUI <- function(id, title, reagent, reagKey, explan, nu = FALSE) {
                     decimalPlaces = 3),
       tags$hr(), actionButton(ns('buttonCalc'), label = 'Crear disolución'), Nlns(3)),
     fluidRow(
-      column(width = 2, img(src = "D-SI.png", width = "95%")),
+      column(width = 2, img(src = "SI_mol.png", width = "95%")),
       column(width = 10, tags$br(), uiOutput(ns("downlXMLlink")), htmlOutput(ns('InfoDisXML'))))
   )
 }
 
-SolidMRCServer <- function(id, devMode, reagKey, IDUsuario, fecha) {
+SolidMRCServer <- function(id, devMode, reagKey, analyst, balanza, fecha) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
