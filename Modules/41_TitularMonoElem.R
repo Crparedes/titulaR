@@ -4,11 +4,13 @@ TitularMonoelemtUI <- function(id) {
     column(12, Nlns(4), uiOutput(ns('brwz')),
            tags$h4(style = 'margin-left: 60px;', tags$b('Titulación de disoluciones calibrantes monoelementales'))),
     column(
-      width = 5, style = 'margin-left: 80px;',
-      balanzasPickerUI(ns('TitMonoelem')), AnalystPickerUI(ns('Analyst')),
-      uiOutput(ns('StanDisol')), uiOutput(ns('SampDisol')), tags$hr(),
-      actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;')
-    )#,
+      width = 3, style = 'margin-left: 80px;',
+      balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst'), inline = FALSE, width = '300px'), tags$br(),
+      uiOutput(ns('StanDisol')), tags$br(), uiOutput(ns('SampDisol')), tags$hr(),
+      disabled(actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;'))),
+    conditionalPanel('input.NewTit > 0', ns = ns,
+                     column(width = 8, Nlns(), tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'right')))
+    
     # )
   
   #uiOutput(ns('pestana'))
@@ -29,34 +31,57 @@ TitularMonoelemtUI <- function(id) {
   )
 }
 
-TitularMonoelemtServer <- function(id, devMode, balanzas, solutions,
+TitularMonoelemtServer <- function(id, devMode, balanzas, solutions, fecha,
                                         Elemento = NULL, LeadAM = NULL, u_LeadAM = NULL,
                                         sampleID = NULL, dscrMuestraMonoelemTit = NULL,
                                         BalanzaMonoelemTit = NULL,
-                                        DisEDTA_MRC = NULL, IDUsuario = NULL, number = NULL, fecha = NULL) {
+                                        DisEDTA_MRC = NULL, IDUsuario = NULL, number = NULL) {
   moduleServer(id, function(input, output, session) {
     
     output$brwz <- renderUI(
       if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
     observeEvent(input$brwz, browser())
     
-    balanzasUse <- balanzasPickerServer('TitMonoelem', devMode, balanzas)
+    balanzasUse <- balanzasPickerServer('TitMonoelem', devMode, balanzas, inline = FALSE, width = '300px')
+    Analyst <- AnalystPickerServer('Analyst')
     
     StanDisol <- reactive({
       pickerInput(
-        session$ns("StanDisol"), label = ReqField('Disolución estándar de EDTA', 9), inline = TRUE, width = 'fit',
+        session$ns("StanDisol"), label = ReqField('Disolución estándar de EDTA', 9), inline = FALSE, width = '300px',
         choices = names(authPersons), multiple = TRUE, selected = NULL,
-        options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo de Preparación disoluciones)"))
+        options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
     })
     output$StanDisol <- renderUI(StanDisol())
     
     SampDisol <- reactive({
       pickerInput(
-        session$ns("SampDisol"), label = ReqField('Muestra disolución monoelemental', 2), inline = TRUE, width = 'fit',
+        session$ns("SampDisol"), label = ReqField('Muestra disolución monoelemental', 2), inline = FALSE, width = '300px',
         choices = names(authPersons), multiple = TRUE, selected = NULL,
-        options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo de Preparación disoluciones)"))
+        options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
     })
     output$SampDisol <- renderUI(SampDisol())
+    
+    observe({
+      req(balanzasUse(), Analyst(), input$StanDisol, input$SampDisol)
+      enable(session$ns('NewTit'))
+    })
+    
+    IndivTitrResult <- reactiveValues()
+    observeEvent(input$NewTit, {
+      req(input$NewTit > 0)
+      
+      tabName <- isolate(paste0('Titulación_', input$NewTit))
+      isolate(TitIndividualServer(id = tabName, devMode = devMode, analyst = Analyst, balanza = balanzasUse, fecha = 'fecha'))
+      appendTab(
+        inputId = 'Titrations', select = TRUE, 
+        tab = TitIndividualUI(
+          id = session$ns(tabName), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
+          explan = 'calibrante monoelemental.'))
+    })
+    
+    
+    
+    
     
     CondiMasaAlic <- reactive(
       if(!is.null(DisEDTA_MRC$infoDisMRC())) return(numericInput(session$ns('MasaAlic'), value = 0, label = 'Masa de alicuota [g]: .'))

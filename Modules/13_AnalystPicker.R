@@ -1,8 +1,8 @@
-AnalystPickerUI <- function(id) {
+AnalystPickerUI <- function(id, inline = TRUE, width = 'fit') {
   ns <- NS(id)
   fluidRow(
     column(6, pickerInput(
-      ns("Analista"), label = ReqField('Analista', 2), inline = TRUE, width = 'fit',
+      ns("Analista"), label = ReqField('Analista', 2), inline = inline, width = width,
       choices = names(authPersons), multiple = TRUE, selected = NULL,
       options = list(`max-options` = 1, `none-selected-text` = "(Personal con autorizaciones)"))),
     column(6, uiOutput(ns('datosAnalista')))

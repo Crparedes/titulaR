@@ -59,7 +59,7 @@ server <- function(input, output, session) {
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode)
   DisolInfoPC <- PreparaDisolucioServer('Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha)
   
-  TitMonoelem <- TitularMonoelemtServer('MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC)
+  TitMonoelem <- TitularMonoelemtServer('MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC, fecha = fecha)
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))
   observeEvent(input$tabsCertMRCs, updateTabItems(session, "tabs", 'tabsCertMRCs'))

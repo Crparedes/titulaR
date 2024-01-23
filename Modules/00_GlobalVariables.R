@@ -15,7 +15,7 @@ names(balanzasShow) <- c(balanzasArchivos)
 
 TemperatureUnits <- list('°C' = '\\degreecelsius')
 AtmosPressuUnits <- list('hPa' = '\\hecto\\pascal')
-RelatiHumidUnits <- list('%' = '\\percent?')
+RelatiHumidUnits <- list('%' = '\\percent')
 DensityUnits <- list('g/cm^3' = '\\gram\\centi\\meter\\tothe{-3}')
 CobertureFactors <- list('(k = 1)' = 1, '(k = 1.96)' = 1.96, '(k = 2)' = 2)
 Distributions <- list('Normal')

@@ -2,10 +2,15 @@ AmbiDensAireUI <- function(id) {
   ns <- NS(id)
   tagList(
     uiOutput(ns('brwz')),
+    fluidRow(
+      column(2, offset = 1, img(src = "SI_Kelvin.png", width = "92%")),
+      column(2, img(src = "SI_pascal.png", width = "92%")),
+      column(2, img(src = "SI_mol.png", width = "92%"))),
+    tags$hr(),
     SiRealInputUI(ns('Temperatura'), name = 'Temperatura', 20, 2, TemperatureUnits), tags$hr(),
     SiRealInputUI(ns('PressionBar'), name = 'Presión barométrica', 750, 3, AtmosPressuUnits), tags$hr(),
     SiRealInputUI(ns('HumedadRela'), name = 'Humedad relativa', 45, 3, RelatiHumidUnits),
-    uiOutput(ns('NiceDensitAir')),
+    uiOutput(ns('NiceDensitAir'))
   )
 }
 
@@ -16,9 +21,9 @@ AmbiDensAireServer <- function(id, devMode) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa submodulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    Temperatura <- SiRealInputServer('Temperatura', devMode = devMode)
-    PressionBar <- SiRealInputServer('PressionBar', devMode = devMode)
-    HumedadRela <- SiRealInputServer('HumedadRela', devMode = devMode)
+    Temperatura <- SiRealInputServer('Temperatura', devMode = devMode, quantityTypeQUDT = 'Temperature')
+    PressionBar <- SiRealInputServer('PressionBar', devMode = devMode, quantityTypeQUDT = 'AmbientPressure')
+    HumedadRela <- SiRealInputServer('HumedadRela', devMode = devMode, quantityTypeQUDT = 'RelativeHumidity')
     
     DensitAir <- reactive({
       Temp <- xml_double(xml_find_all(Temperatura(), '//si:value'))
@@ -38,7 +43,7 @@ AmbiDensAireServer <- function(id, devMode) {
         case_when(
           xml_text(xml_find_all(PressionBar(), '//si:unit')) == '\\hecto\\pascal' ~ 'hPa'),
         case_when(
-          xml_text(xml_find_all(HumedadRela(), '//si:unit')) == '\\percent?' ~ '%'))
+          xml_text(xml_find_all(HumedadRela(), '//si:unit')) == '\\percent' ~ '%'))
       
       
       return(c(airDensity(Temp = Temp, p = p, h = h, unitsENV = unitsENV),
