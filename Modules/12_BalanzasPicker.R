@@ -3,7 +3,7 @@ balanzasPickerUI <- function(id) {
   uiOutput(ns('balanzasPicker'))
 }
 
-balanzasPickerServer <- function(id, devMode, balanzas, inline = TRUE, width = 'fit') {
+balanzasPickerServer <- function(id, devMode, demo, balanzas, inline = TRUE, width = 'fit') {
   moduleServer(id, function(input, output, session) {
     balanzasPicker <- reactive({
       balanceChioces <- sapply(balanzas(), function (x) x$balanceID)

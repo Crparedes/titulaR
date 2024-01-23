@@ -9,7 +9,7 @@ AnalystPickerUI <- function(id, inline = TRUE, width = 'fit') {
   )
 }
 
-AnalystPickerServer <- function(id, devMode, balanzas) {
+AnalystPickerServer <- function(id, devMode, demo, showData = TRUE) {
   moduleServer(id, function(input, output, session) {
     Analista <- reactive({
       req(input$Analista)
@@ -18,7 +18,7 @@ AnalystPickerServer <- function(id, devMode, balanzas) {
     datosAnalista <- eventReactive(input$Analista, ignoreNULL = TRUE, ignoreInit = TRUE, {
       tags$div(
         tags$a(href = gsub('www/', '', list.files(path = 'www/Personal/', pattern = input$Analista, full.names = TRUE)),
-               tags$b('XML analista'), download = NA, target = "_blank"),
+               tags$b(ifelse(showData, 'XML analista', '')), download = NA, target = "_blank"),
         spcs(3), tags$a(href = Analista()$data$orcid, img(src = "ORCID.png", width = "25", height = "25"), target = "_blank"),
         spcs(3), tags$a(href = Analista()$inst$ror, img(src = "ROR.png", width = "25", height = "25"), target = "_blank")
       )

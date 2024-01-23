@@ -40,14 +40,14 @@ PreparaDisolucioUI <- function(id) {
 }
 
 
-PreparaDisolucioServer <- function(id, devMode, balanzas, materiales, fecha) {
+PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fecha) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    balanzasUse <- balanzasPickerServer('SolPrep', devMode, balanzas)
-    Analyst <- AnalystPickerServer('Analyst')
+    balanzasUse <- balanzasPickerServer(id = 'SolPrep', devMode = devMode, demo = demo, balanzas = balanzas)
+    Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo)
     
     
     AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode)
@@ -57,11 +57,11 @@ PreparaDisolucioServer <- function(id, devMode, balanzas, materiales, fecha) {
       req(input$NewEDTAStdSol > 0)
       # if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
       tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, analyst = Analyst, balanza = balanzasUse, fecha = 'fecha'))
+      isolate(SolidMRCServer(id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzasUse, fecha = 'fecha'))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
-          id = session$ns(tabName), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
+          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
           explan = 'calibrantes monoelementales.'))
     })
 

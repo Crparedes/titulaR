@@ -1,200 +1,166 @@
-TitIndividualUI <- function(id, title, reagent, reagKey, fecha, explan, nu = FALSE) {
+TitIndividualUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
-    tags$b(paste0('Titulación de ', reagKey)), tags$br(), 
-    paste0('Estandar para titular muestras de ', explan), 
-    tags$br(), tags$br(),
-    tags$div(
-      id = 'inline', style = 'font-size:12px; margin-left:25px', 
-      textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 8))), width = '300px',
-                value = paste(gsub('-', '', fecha), title, sep = '_')),
-      pickerInput(
-        ns("MRCtoUse"), width = "fit", selected = NULL, multiple = TRUE, inline = TRUE,
-        label = h5(tags$b(ReqField("MRC de partida"))), choices = as.list(namesMR_MRCs$forEDTA),
-        options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo Materiales de referencia)")),
-      tags$hr(),
-      splitLayout(
-        cellWidths = c("38%", "10%", "38%"),
-        tags$div(
-          id = "inline", style = 'margin-left:25px', 
-          h5(tags$b('Masa del solido')),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
-                           ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = 0),
-          uiOutput(ns('deriMasaMRC'))),
-        tags$div(),
-        tags$div(
-          id = "inline",
-          h5(tags$b('Masa final de la disolución')),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
-                           ns('MasDis1'), label = 'Masa final disolución [g]: .', value = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
-          uiOutput(ns('deriMasaDisMRC')))),
-      tags$hr(),
-      SiRealInputUI(ns('DensiDisol'), name = 'Densidad de la disolución', 
-                    x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
-                    u0 = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)), units = DensityUnits,
-                    decimalPlaces = 3),
-      tags$hr(), actionButton(ns('buttonCalc'), label = 'Crear disolución'), Nlns(3)),
+    tags$b(paste0('Titulación de ', explan)), tags$hr(), Nlns(1),
     fluidRow(
-      column(width = 2, img(src = "SI_mol.png", width = "95%")),
-      column(width = 10, tags$br(), uiOutput(ns("downlXMLlink")), htmlOutput(ns('InfoDisXML'))))
+      column(
+        6,
+        tags$div(
+          id = 'inline', style = 'font-size:12px; margin-left:25px', 
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+                           ns('MasaAlic'), label = ReqField('Masa de la alícuota [g]'), value = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante [g]'), value = 0),
+          conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, tags$hr(), rHandsontableOutput(ns("TitData"), width = '100%')))),
+      column(
+        6, tags$b('Curva de titulación:'),
+        fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'))), tags$br(),
+        disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$br(),
+        uiOutput(ns('TitulTerminada')))
+    )
   )
 }
 
-TitIndividualServer <- function(id, devMode, reagKey, analyst, balanza, fecha) {
+TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
-    # browser()
     
-    DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
+    horaInicio <- eventReactive(input$MasaAlic, paste0(fecha(), format(Sys.time(), '_%H-%M')))
+    horaFinal  <- eventReactive(input$TermTit, paste0(fecha(), format(Sys.time(), '_%H-%M')))
     
-    fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
-                              "Descargar certificado ", download = NA, target = "_blank"))
-    dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
-    MassFrMRC <- reactive(MRCs.MassFraction[[reagKey]][[input$MRCElected]])
-    MolWeiMRC <- reactive(MRC.At_MolWeigths[[reagKey]][[input$MRCElected]])
-    DensitMRC <- reactive(MRC.densities[[reagKey]][[input$MRCElected]])
-    
-    
-    
-    
-    derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
-    masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))
-    derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
-    masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
-    
-    
-    CalibCertDis <- reactive(tags$div(id = "inline", style = 'font-size:12px', 
-                                      pickerInput(session$ns("CalibCertDis"), 
-                                                  label = 'Balanza utilizada: .',
-                                                  choices = CalibCertShow, selected = input$CalibCertMRC, width = '100%', multiple = FALSE)))
-    
-    convMassMRC <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g'),
-                              uncertConvMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g')))
-    BuoyMRC <- reactive(c(MABC(rho = DensitMRC()[1], rho_air = DensitAir()[1]),
-                          uncertMABC(rho = DensitMRC()[1], rho_air = DensitAir()[1], 
-                                     u_rho = DensitMRC()[2], u_rho_air = DensitAir()[2], printRelSD = FALSE)))
-    
-    convMassDis <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g'),
-                              uncertConvMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g')))
-    BuoyDis <- reactive(c(MABC(rho = input$DensitDis, rho_air = DensitAir()[1]),
-                          uncertMABC(rho = input$DensitDis, rho_air = DensitAir()[1], 
-                                     u_rho = input$u_DensitDis, u_rho_air = DensitAir()[2], printRelSD = FALSE)))
-    
-    DisConc <- reactive({
-      #xx <- 
-      propagate(expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
-                data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC(), BuoyMRC = BuoyMRC(), 
-                             MolWeiMRC = MolWeiMRC(), convMassDis = convMassDis(), BuoyDis = BuoyDis()),
-                do.sim = FALSE)
-      #return(xx$prop[c(1, 3)])
+    TableDat_0  <- reactiveValues(hot = data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29))))
+    TableData <- reactive({
+      DT <- NULL
+      
+      if (!is.null(input$TitData)) {
+        DT <- setDT(hot_to_r(input$TitData))
+        TableDat_0[["hot"]]  <-  DT
+      } else {#For initial data upload
+        if (!is.null(TableDat_0[["hot"]])) {DT <- TableDat_0[["hot"]]}
+      }
+      if (!is.null(DT)) {
+        nDat <- length(na.omit(DT$Signal))
+        try(isolate(DT$DerAppr[1:nDat] <- c(NA, abs((DT$Signal[2:nDat] - DT$Signal[1:(nDat - 1)])/(DT$Titrant[2:nDat] - DT$Titrant[1:(nDat - 1)]))/100)))
+        #rhandsontable(DT)
+        rhandsontable(DT, colHeaders = c('Masa de titulante\n (\\gram)', 'Diferencia de potencial \n  (\\mili\\volt)', 'Derivada \n |d(m)/d(E)|'), 
+                      readOnly = FALSE, fillHandle = list(direction = 'vertical', autoInsertRow = TRUE)) %>% 
+          hot_col(col = 1, type = 'numeric', format = "0.0000") %>% 
+          hot_col(col = 2, type = 'numeric', format = "0.0") %>%  
+          hot_col(col = 3, type = 'numeric', format = "0.000", readOnly = TRUE, halign = 'htRight') %>% 
+          hot_validate_numeric(col = 1, min = 0, allowInvalid = TRUE) %>% 
+          hot_heatmap(cols = 3, color_scale = c('#edf2f4', '#9caac6')) %>% 
+          hot_table(highlightCol = TRUE, highlightRow = TRUE)
+      }
     })
     
+    TitCurvDat <- reactive(hot_to_r(input$TitData))
     
-    infoDisMRC <- eventReactive(input$buttonCalc, {
-      if (input$SourceOption == "daCapo") {
-        if (!is.na(DisConc()$prop[[1]] > 0) && !is.na(DisConc()$prop[[3]] > 0)) {
-          return(list('MRC empleado' = input$MRCElected,
-                      'Fecha de vencimiento MRC' = dateMRC(),
-                      'Especie ' = reagKey,
-                      'Concentración [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
-                      'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
-                      'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
-                                                         Correo = IDUsuario()[2]),
-                      'Fecha de preparación' = fecha(),
-                      'PropagateCompleto' = DisConc()))
-        } else {
-          return('Los datos ingresados no son validos!')
-        }
+    
+    output$TitData <- renderRHandsontable(TableData())
+    
+    observe({req(TitCurvDat()); if(length(na.omit(TitCurvDat()$Titrant)) >= 7) enable('TermTit')})
+    
+    CleanDf <- eventReactive(input$TermTit, {
+      dff <- as.data.frame(TitCurvDat()[(as.numeric(!is.na(TitCurvDat()$Titrant)) + as.numeric(!is.na(TitCurvDat()$Signal))) > 1, ])
+      dff <- dff[dff[, 1] > 0, ]
+      dff[, 1] <- dff[, 1] + input$MasaEDTA0
+      if(nrow(dff) > 3) {
+        return(df2t.curve(df = dff, plot = FALSE))
       } else {
-        dataFile <- readRDS(input$DisFile$datapath)
-        if (dataFile['Especie '] != reagKey) {
-          return(rbind('ERROR!!! ERROR!!! ERROR!!!', 
-                       'Por favor ingrese una disolución de la especie apropiada' ))
-        } else {
-          return(dataFile)
-        }
-        
-      }})
-    #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
-    
-    
-    InfoMrcBox <- reactive({
-      box(title = div(style = 'font-size:14px', 
-                      ifelse(dateMRC() > fecha(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
-          width = 12, collapsible = TRUE, collapsed = TRUE,
-          status = ifelse(dateMRC() > fecha(), 'success', 'danger'),
-          div(style = 'font-size:12px',
-              tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
-              tags$b('Fracción masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
-              tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol', tags$sup('-1'),tags$br(),
-              tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm', tags$sup('-3')))
+        return()
+      }
     })
     
-    InfoDisBox <- eventReactive(input$buttonCalc, {
-      trigger <- TRUE
-      #printedStuff <- ifelse()
-      box(title = div(style = 'font-size:14px', 'Información de la disolución:'),
-          width = 12, collapsible = TRUE, collapsed = FALSE,
-          status = 'primary',#ifelse(trigger, 'success', 'danger'),
-          renderPrint(tryCatch(infoDisMRC(),
-                               error = function(cond) {'Los datos ingresados no son validos!'})),
-          if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
+    # observeEvent(input$TermTit, { # https://stackoverflow.com/questions/54652364/r-shiny-automatically-start-download
+    #   if (is.numeric(ResParcial())) {
+    #     runjs(paste0("$('#", number(), "-DwnlResFile')[0].click();"))
+    #   }
+    # })
+  
+    
+    TitCurvePlot <- reactive(
+      tryCatch(
+        expr = {
+          if(length(na.omit(TitCurvDat()$Titrant)) >= 3) {
+            if(input$TermTit < 1) {
+              plot(TitCurvDat()$Signal[TitCurvDat()$Titrant != 0] ~ TitCurvDat()$Titrant[TitCurvDat()$Titrant != 0])
+            } else {
+              plotCurve(curve = CleanDf(), xlab = 'Titulante [g]', ylab = 'Señal [mV]')
+            }
+          } else {
+            plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+            text(x = 0.5, y = 0.5, paste("Esperando datos de titulación..."), 
+                 cex = 1.6, col = "black")
+          }}, 
+        error = function(cond) {
+          plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+          text(x = 0.5, y = 0.5, paste("Esperando datos de titulación..."), 
+               cex = 1.6, col = "black")
+        })
+    )
+    
+    TitulTerminada <- eventReactive(input$TermTit, {
+      if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
+        tags$b('No se puede terminar la titulación con menos de 7 datos!')
+      } else {
+        tags$div(
+          tags$hr(),
+          tags$b('Resultados de la titulación:'), tags$br(),
+          tags$div(style = 'font-size:12px', 
+                   infoBox(
+                     width = 12, title = tags$b('Fracción másica del elemento en la alícuota: '), icon = icon("vials"), color = 'black', 
+                     value = tags$div(tags$b(round(ResParcial(), 3), ' [mg/kg]')#, renderPrint(summaryTitration())
+                     ), 
+                     subtitle = 'Exporte y guarde el archivo de resultados individuales.´'), tags$br(), tags$br(),
+                   downloadButton(session$ns('DwnlResFile'), label = tags$b('Descargar archivo .tit')), tags$br(), tags$br())
+        )
+      }
     })
+    MasaEquiv <- eventReactive(input$TermTit, {try(EP.1stDer(curve = CleanDf()))})
+    MasAtoElem <- reactive(ifelse(Elemento == 'Pb', LeadAM, ElementsAtomicMass[[Elemento]][1]))
+    u_MasAtoElem <- reactive(ifelse(Elemento == 'Pb', u_LeadAM, ElementsAtomicMass[[Elemento]][2]))
+    ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]` / input$MasaAlic * MasAtoElem())
+    ResParcUnc <- reactive(propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
+                                     data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv()),
+                                                          sqrt(2) * uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv(), 
+                                                                                   d = 0.1, d.units = 'mg')),
+                                                  Mbln = c(0, 0.0028/(2*sqrt(3))),
+                                                  Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
+                                                            DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
+                                                  Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic),
+                                                           uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic)),
+                                                  Mato = c(MasAtoElem(), u_MasAtoElem())),
+                                     second.order = FALSE, do.sim = FALSE
+    ))
     
-    output$MRC_CertiFile <- renderUI(fileDwnHTML())
-    output$InfoMrcBox <- renderUI(InfoMrcBox())
-    output$InfoDisBox <- renderUI(InfoDisBox())
-    output$CalibCertDis <- renderUI(CalibCertDis())
-    output$DwnlDisFile <- downloadHandler(
-      filename = function() {paste0("Disolucion_MRC_", reagKey, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
-      content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
+    summaryTitration <- reactive(
+      list(Muestra = sampleID, Elemento = Elemento, MasaAlicuota = input$MasaAlic, 
+           MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 'Incertidumbre estandar' = ResParcUnc(), 
+           'Disolución titulante' = DisEDTA_MRC$infoDisMRC(),
+           'Certificado calibración balanza' = CalibCertList[[BalanzaMonoelemTit]],
+           Analista = IDUsuario(),#[1], correoAnalista = IDUsuario()[2],
+           TitCurvDat = TitCurvDat()[complete.cases(TitCurvDat()), ],
+           dscripMuestra = dscrMuestraMonoelemTit, 
+           MasAtoElem = c(MasAtoElem(), u_MasAtoElem()),
+           Inicio = horaInicio(),
+           Final = horaFinal()
+      ))
     
-    # Messages
-    deriMasaMRC <- eventReactive(input$MasRecMRC1, 
-                                 div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassMRC() * 1000, 2), ' [mg]'))
-    deriMasaDisMRC <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' [mg]'))
+    output$DwnlResFile <- downloadHandler(
+      filename = function() {paste0(Elemento, "_", sampleID, ".", number, "_", isolate(horaInicio()), ".tit")},
+      content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
     
-    output$deriMasaMRC <- renderUI(deriMasaMRC())
-    output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
+    output$TitCurvePlot <- renderPlot(TitCurvePlot())
+    output$TitulTerminada <- renderUI(TitulTerminada())
+    output$DescaResu <- renderUI(DescaResu())
+    return(list('Titulación' = summaryTitration#, 
+                #'Exito' = !is.null(is.numeric(ResParcial()))
+    ))
     
-    DisolucionXML <- eventReactive(input$buttonCalc, {
-      xmlObject <- initiateSolutionXML(id)
-      AdminList <- list('solution:type' = 'Reference')
-      PropeList <- list(
-        'solution:substance' = list(
-          'solution:name' = 'EDTA disodium salt dihydrate',
-          'solution:InChI' = c('1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2', version = '1.0.6'),
-          'solution:InChiKey' = c('FXKZPKBFTQUJBA-UHFFFAOYSA-N', version = '1.0.6')))
-      addDataToMRXML(xmlObject, AdminList, node = 'solution:administrativeData')
-      addDataToMRXML(xmlObject, PropeList, node = 'solution:propertyValues')
-      return(xmlObject)
-    })
-    
-    observeEvent(input$buttonCalc, {
-      withCallingHandlers({
-        shinyjs::html("InfoDisXML", "")
-        message(DisolucionXML())},
-        message = function(m) {
-          shinyjs::html(id = "InfoDisXML",
-                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
-                                      m$message, '</textarea>'), add = FALSE)})
-    })
-    
-    
-    
-    return(list('infoDisMRC' = infoDisMRC))
+    # return(list('infoDisMRC' = infoDisMRC))
   })
 }
                            

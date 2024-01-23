@@ -1,4 +1,4 @@
-SolidMRCUI <- function(id, title, reagent, reagKey, fecha, explan, nu = FALSE) {
+SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
@@ -42,14 +42,14 @@ SolidMRCUI <- function(id, title, reagent, reagKey, fecha, explan, nu = FALSE) {
                     x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
                     u0 = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)), units = DensityUnits,
                     decimalPlaces = 3),
-      tags$hr(), actionButton(ns('buttonCalc'), label = 'Crear disolución'), Nlns(3)),
+      tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
     fluidRow(
       column(width = 2, img(src = "SI_mol.png", width = "95%")),
       column(width = 10, tags$br(), uiOutput(ns("downlXMLlink")), htmlOutput(ns('InfoDisXML'))))
   )
 }
 
-SolidMRCServer <- function(id, devMode, reagKey, analyst, balanza, fecha) {
+SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, fecha) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
@@ -57,6 +57,11 @@ SolidMRCServer <- function(id, devMode, reagKey, analyst, balanza, fecha) {
     # browser()
     
     DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
+    
+    observe({
+      req(balanza, analyst, input$DisolID, input$MRCtoUse)
+      if (input$MasMRC1 > 0 && input$MasDis1 > 0) enable('buttonCalc')
+    })
     
     fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
                               "Descargar certificado ", download = NA, target = "_blank"))
