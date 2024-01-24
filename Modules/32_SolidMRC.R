@@ -59,7 +59,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, fecha) 
     DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
     
     observe({
-      req(balanza, analyst, input$DisolID, input$MRCtoUse)
+      req(balanza, analyst, input$DisolID, input$MRCtoUse, input$MasMRC1, input$MasDis1)
       if (input$MasMRC1 > 0 && input$MasDis1 > 0) enable('buttonCalc')
     })
     
