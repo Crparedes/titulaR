@@ -52,11 +52,9 @@ MaterialesRefereServer <- function(id, devMode) {
     output$SelectMRC <- renderUI(SelectMRC())
     
     observeEvent(input$MRCtoView, {
-      index <- which(lapply(ReferenceMaterials[[input$MrXmlViewType]], function(x) {as_list(x)[[1]]$administrativeData$name[[1]]}) == input$MRCtoView)
-      browser()
-      # fileXML <- list.files('www/MR_MRC', recursive = TRUE, full.names = TRUE, pattern = paste0(input$MRCtoView, '.xml'))
-      # filePDF <- list.files('www/MR_MRC', recursive = TRUE, full.names = TRUE, pattern = paste0(input$MRCtoView, '.pdf'))
-      
+      req(input$MRCtoView)
+      index <- which(lapply(ReferenceMaterials[[input$MrXmlViewType]], function(x) {
+        as_list(x)[[1]]$administrativeData$name[[1]]}) == input$MRCtoView)
       withCallingHandlers({
         shinyjs::html("printTheMrXML", "")
         message(ReferenceMaterials[[input$MrXmlViewType]][[index]])},
@@ -64,19 +62,9 @@ MaterialesRefereServer <- function(id, devMode) {
           shinyjs::html(id = "printTheMrXML",
                         html = paste0('<textarea rows = 40 style = "width: 100%;">',
                                       m$message, '</textarea>'), add = FALSE)})
-      
       output$DescMrXml <-  downloadHandler(
         filename = function() {paste0(gsub(pattern = ' ', replacement = '_', input$MRCtoView, fixed = FALSE), ".xml")},
         content = function(file) {write_xml(ReferenceMaterials[[input$MrXmlViewType]][[index]], file)})
-        
-      # output$downlXMLlink <- renderUI(downloadLink(session$ns('DescMrXml'), label = "Descargar archivo XML"))
-        #tags$div(
-        #a(href = gsub('www/', '', fileXML), 'Descargar archivo XML', 
-        #  download = NA, target = "_blank")#, tags$br(),
-        #a(href = gsub('www/', '', filePDF), 'Descargar certificado o reporte en PDF', 
-        #  download = NA, target = "_blank")
-        #)
-      # )
     })
     
     CargarMrXml <- eventReactive(input$NewMrXml, ignoreInit = TRUE, {

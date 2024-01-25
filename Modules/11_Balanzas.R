@@ -7,10 +7,7 @@ BalanceCalibCertUI <- function(id) {
        tags$br(),
       fluidRow(
         column(width = 4, img(src = "SI_kilogram.png", width = "90%")),
-        column(8, checkboxGroupInput(
-          ns("balanzasElected"), width = '100%',
-          label = tags$b('Seleccione los certificados de calibración de las balanzas que necesita:'),
-          choices = balanzasShow))),
+        column(8, uiOutput(ns('balanzasElected')))),
       tags$hr(),
       tags$b('Cargue los archivos con los certificados que le hagan falta.'), tags$br(),
       'Estos archivos se crean con el ',
@@ -45,12 +42,17 @@ BalanceCalibCertUI <- function(id) {
   )
 }
 
-BalanceCalibCertServer <- function(id, devMode) {
+BalanceCalibCertServer <- function(id, devMode, demo) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
+    balanzasElected <- reactive(checkboxGroupInput(
+      session$ns("balanzasElected"), width = '100%', selected = ifelse(demo(), 'Mettler Toledo XPE 205 (2023-07-18)', ''),
+      label = tags$b('Seleccione los certificados de calibración de las balanzas que necesita:'),
+      choices = balanzasShow))
+    output$balanzasElected <- renderUI(balanzasElected())
     
     balanzasPicker <- reactive({
       if (is.null(input$balanzasElected)) return('(Seleccione o cargue la información de al menos una balanza)')

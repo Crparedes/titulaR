@@ -9,10 +9,7 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
       id = 'inline', style = 'font-size:12px; margin-left:25px', 
       textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 8))), width = '300px',
                 value = paste(gsub('-', '', fecha), title, sep = '_')),
-      pickerInput(
-        ns("MRCtoUse"), width = "fit", selected = NULL, multiple = TRUE, inline = TRUE,
-        label = h5(tags$b(ReqField("MRC de partida"))), choices = as.list(namesMR_MRCs$forEDTA),
-        options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo Materiales de referencia)")),
+      uiOutput(ns('MRCtoUse')),
       tags$hr(),
       splitLayout(
         cellWidths = c("38%", "10%", "38%"),
@@ -20,22 +17,22 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
           id = "inline", style = 'margin-left:25px', 
           h5(tags$b('Masa del solido')),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = 0),
+                           ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = ifelse(demo, 0.976601, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
-                           ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = 0),
+                           ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = ifelse(demo, 0.30042, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = 0),
+                           ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = ifelse(demo, 1.27705, 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaMRC'))),
         tags$div(),
         tags$div(
           id = "inline",
           h5(tags$b('Masa final de la disolución')),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
+                           ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = ifelse(demo, 16.77169, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
-                           ns('MasDis1'), label = 'Masa final disolución [g]: .', value = 0),
+                           ns('MasDis1'), label = 'Masa final disolución [g]: .', value = ifelse(demo, 80.02288, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
+                           ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = ifelse(demo, 96.79455, 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaDisMRC')))),
       tags$hr(),
       SiRealInputUI(ns('DensiDisol'), name = 'Densidad de la disolución', 
@@ -49,22 +46,30 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
   )
 }
 
-SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, fecha) {
+SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materiales, fecha) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
-    # browser()
     
+    choicesMateriales <- reactive(sapply(materiales, function(x) as_list(x)[[1]]$administrativeData$name))
+    
+    MRCtoUse <- reactive(pickerInput(
+      session$ns("MRCtoUse"), width = "fit", selected = ifelse(demo(), choicesMateriales()[[1]], ''), multiple = TRUE, inline = TRUE,
+      label = h5(tags$b(ReqField("MRC de partida"))), choices = choicesMateriales(),
+      options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo Materiales de referencia)")))
+    output$MRCtoUse <- renderUI(MRCtoUse())
     DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
     
     observe({
-      req(balanza, analyst, input$DisolID, input$MRCtoUse, input$MasMRC1, input$MasDis1)
-      if (input$MasMRC1 > 0 && input$MasDis1 > 0) enable('buttonCalc')
+      req(balanza, analyst, input$DisolID, input$MRCtoUse,
+          input$MasRec1, input$MasMRC1, input$MasRecMRC1, 
+          input$MasRec2, input$MasDis1, input$MasRecDis1)
+      if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
     
-    fileDwnHTML <- reactive(a(href = paste0('CertMRC/', reagKey, '/', input$MRCElected, '.pdf'),
-                              "Descargar certificado ", download = NA, target = "_blank"))
+
+    
     dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
     MassFrMRC <- reactive(MRCs.MassFraction[[reagKey]][[input$MRCElected]])
     MolWeiMRC <- reactive(MRC.At_MolWeigths[[reagKey]][[input$MRCElected]])
@@ -167,9 +172,9 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, fecha) 
     
     # Messages
     deriMasaMRC <- eventReactive(input$MasRecMRC1, 
-                                 div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassMRC() * 1000, 2), ' [mg]'))
+                                 div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassMRC() * 1000, 2), ' [mg]'))
     deriMasaDisMRC <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' [mg]'))
+                                    div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassDis() * 1000, 2), ' [mg]'))
     
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())

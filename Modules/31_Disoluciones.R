@@ -46,7 +46,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    balanzasUse <- balanzasPickerServer(id = 'SolPrep', devMode = devMode, demo = demo, balanzas = balanzas)
+    balanzaUsed <- balanzasPickerServer(id = 'SolPrep', devMode = devMode, demo = demo, balanzas = balanzas)
     Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo)
     
     
@@ -57,7 +57,8 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
       req(input$NewEDTAStdSol > 0)
       # if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
       tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzasUse, fecha = 'fecha'))
+      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', materiales = materiales$forEDTA,
+                             demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(

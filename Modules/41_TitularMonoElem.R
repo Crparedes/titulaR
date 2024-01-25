@@ -5,7 +5,7 @@ TitularMonoelemtUI <- function(id) {
            tags$h4(style = 'margin-left: 60px;', tags$b('Titulación de disoluciones calibrantes monoelementales'))),
     column(
       width = 3, style = 'margin-left: 80px;',
-      balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst'), inline = FALSE, width = '300px'), tags$br(),
+      balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst')), tags$br(),
       uiOutput(ns('StanDisol')), tags$br(), uiOutput(ns('SampDisol')), tags$hr(),
       disabled(actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;'))),
     conditionalPanel('input.NewTit > 0', ns = ns,
@@ -41,13 +41,13 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
       if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
     observeEvent(input$brwz, browser())
     
-    balanzasUse <- balanzasPickerServer(id = 'TitMonoelem', devMode = devMode, demo = demo, balanzas = balanzas, inline = FALSE, width = '300px')
-    Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo, showData = FALSE)
+    balanzaUsed <- balanzasPickerServer(id = 'TitMonoelem', devMode = devMode, demo = demo, balanzas = balanzas, inline = FALSE, width = '300px')
+    Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo, showData = FALSE, inline = FALSE, width = '300px')
     
     StanDisol <- reactive({
       pickerInput(
         session$ns("StanDisol"), label = ReqField('Disolución estándar de EDTA', 9), inline = FALSE, width = '300px',
-        choices = names(authPersons), multiple = TRUE, selected = NULL,
+        choices = paste0('Disolución dummy ', 1:3), multiple = TRUE, selected = NULL,
         options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
     })
     output$StanDisol <- renderUI(StanDisol())
@@ -55,13 +55,13 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
     SampDisol <- reactive({
       pickerInput(
         session$ns("SampDisol"), label = ReqField('Muestra: disolución monoelemental', 2), inline = FALSE, width = '300px',
-        choices = names(authPersons), multiple = TRUE, selected = NULL,
+        choices = paste0('Disolución dummy ', 1:3), multiple = TRUE, selected = NULL,
         options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
     })
     output$SampDisol <- renderUI(SampDisol())
     
     observe({
-      req(balanzasUse(), Analyst(), input$StanDisol, input$SampDisol)
+      req(balanzaUsed(), Analyst(), input$StanDisol, input$SampDisol)
       enable('NewTit')
     })
     

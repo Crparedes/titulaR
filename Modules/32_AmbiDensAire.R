@@ -3,9 +3,9 @@ AmbiDensAireUI <- function(id) {
   tagList(
     uiOutput(ns('brwz')),
     fluidRow(
-      column(2, offset = 1, img(src = "SI_Kelvin.png", width = "92%")),
-      column(2, img(src = "SI_pascal.png", width = "92%")),
-      column(2, img(src = "SI_mol.png", width = "92%"))),
+      column(3, offset = 1, img(src = "SI_Kelvin.png", width = "90%")),
+      column(3, img(src = "SI_pascal.png", width = "90%")),
+      column(3, img(src = "SI_mol.png", width = "90%"))),
     tags$hr(),
     SiRealInputUI(ns('Temperatura'), name = 'Temperatura', 20, 2, TemperatureUnits), tags$hr(),
     SiRealInputUI(ns('PressionBar'), name = 'Presión barométrica', 750, 3, AtmosPressuUnits), tags$hr(),

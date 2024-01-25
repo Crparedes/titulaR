@@ -53,11 +53,11 @@ server <- function(input, output, session) {
   devMode <- reactive(input$Desarrollador)
   observeEvent(input$brwz, browser())
   
-  demo <- reactive(input$demo)
+  demo <- reactive(input$Demo)
   
   fecha <- reactive(input$fecha)
   
-  BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode)
+  BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo)
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode)
   DisolInfoPC <- PreparaDisolucioServer(
     'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo)

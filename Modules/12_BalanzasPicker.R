@@ -1,10 +1,14 @@
 balanzasPickerUI <- function(id) {
   ns <- NS(id)
-  uiOutput(ns('balanzasPicker'))
+  tags$div(uiOutput(ns('brwz')), uiOutput(ns('balanzasPicker')))
 }
 
 balanzasPickerServer <- function(id, devMode, demo, balanzas, inline = TRUE, width = 'fit') {
   moduleServer(id, function(input, output, session) {
+    output$brwz <- renderUI(if(devMode()) {
+      tags$div(tags$hr(), actionButton(session$ns('brwzInsideModule'), tags$b('Pausa picker')))})
+    observeEvent(input$brwzInsideModule, browser())
+    
     balanzasPicker <- reactive({
       balanceChioces <- sapply(balanzas(), function (x) x$balanceID)
       if (length(balanceChioces) == 0) {
@@ -12,12 +16,15 @@ balanzasPickerServer <- function(id, devMode, demo, balanzas, inline = TRUE, wid
                         tags$div(style = 'color:red;', 'Vaya al módulo de', icon('certificate'), tags$b('Balanzas,'),
                                  'y seleccione o cargue la información de al menos una balanza)', tags$br(), tags$br())))}
       pickerInput(
-        session$ns("balanzasUse"), label = ReqField('Balanza', 3), inline = inline, width = width, multiple = TRUE, selected = NULL,
+        session$ns("balanzaUsed"), label = ReqField('Balanza', 3), inline = inline, width = width, multiple = TRUE,
+        selected = ifelse(demo(), 'BALANZA METTLER TOLEDO XPE 205', ''), 
         choices = sapply(balanzas(), function (x) x$balanceID), options = list(`max-options` = 1, `none-selected-text` = "(Módulo balanzas)"))
     })
     output$balanzasPicker <- renderUI(balanzasPicker())
     
-    balanzasUse <- reactive(input$balanzasUse)
-  return(balanzasUse)
+    balanzaUsed <- reactive({
+      req(input$balanzaUsed)
+      balanzas()[[which(sapply(balanzas(), function (x) x$balanceID) == input$balanzaUsed)]]})
+  return(balanzaUsed)
   })
 }
