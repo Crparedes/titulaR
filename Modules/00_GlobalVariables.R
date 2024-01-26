@@ -51,3 +51,7 @@ files <- gsub('', '', list.files(path = 'www/Personal/', pattern = 'xml', full.n
 authPersons <- lapply(files, function (x) read_xml(x))
 names(authPersons) <- sapply(authPersons, function (x) as_list(x)$respPerson$data$name)
 
+
+
+
+DummyNumber <- c(0, 0.1234567899999999999)

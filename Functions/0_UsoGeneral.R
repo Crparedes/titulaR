@@ -23,3 +23,10 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
     return(tm_iso8601)
   }
 }
+
+GetValueEstandUncert <- function(MrcXml) {
+  value <- xml_double(xml_find_all(DensiDisol(), xpath = 'si:value'))
+  kFact <- xml_double(xml_find_all(xml_child(DensiDisol(), search = 'si:coverageFactor'), xpath = 'si:uncertainty'))
+  stUnc <- xml_double(xml_find_all(xml_child(DensiDisol(), search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
+  return(c(value, stUnc))
+}

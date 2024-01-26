@@ -59,24 +59,26 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
       label = h5(tags$b(ReqField("MRC de partida"))), choices = choicesMateriales(),
       options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo Materiales de referencia)")))
     output$MRCtoUse <- renderUI(MRCtoUse())
+    
+    SolidMRC <- reactive({
+      req(input$MRCtoUse)
+      materiales[[which(sapply(materiales, function (x) as_list(x)[[1]]$administrativeData$name) == input$MRCtoUse)]]})
+    
+    ListSolidMRC <- reactive(as_list(SolidMRC()))
+      
     DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
     
     observe({
-      req(balanza, analyst, input$DisolID, input$MRCtoUse,
-          input$MasRec1, input$MasMRC1, input$MasRecMRC1, 
-          input$MasRec2, input$MasDis1, input$MasRecDis1)
+      req(balanza, analyst, input$DisolID, input$MRCtoUse, input$MasRec1, input$MasMRC1,
+          input$MasRecMRC1, input$MasRec2, input$MasDis1, input$MasRecDis1)
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
-    
-
+      
     
     dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
     MassFrMRC <- reactive(MRCs.MassFraction[[reagKey]][[input$MRCElected]])
     MolWeiMRC <- reactive(MRC.At_MolWeigths[[reagKey]][[input$MRCElected]])
     DensitMRC <- reactive(MRC.densities[[reagKey]][[input$MRCElected]])
-    
-    
-    
     
     derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
     masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))
