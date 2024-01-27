@@ -57,7 +57,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
       req(input$NewEDTAStdSol > 0)
       # if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
       tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', materiales = materiales$forEDTA,
+      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', materiales = materiales$forCalibrantes,
                              demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 

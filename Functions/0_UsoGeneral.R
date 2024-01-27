@@ -24,9 +24,18 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
   }
 }
 
-GetValueEstandUncert <- function(MrcXml) {
-  value <- xml_double(xml_find_all(DensiDisol(), xpath = 'si:value'))
-  kFact <- xml_double(xml_find_all(xml_child(DensiDisol(), search = 'si:coverageFactor'), xpath = 'si:uncertainty'))
-  stUnc <- xml_double(xml_find_all(xml_child(DensiDisol(), search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
-  return(c(value, stUnc))
+GetValueEstandUncert <- function(MrcXml, property = NULL) {
+  if (!missing(property)) {
+    QUDTnodes <- xml_find_all(MrcXml, '//si:quantityTypeQUDT')
+    PropNode <- gsub(pattern = '/si:real/si:quantityTypeQUDT', replacement = '', 
+                     xml_path(QUDTnodes[which(sapply(QUDTnodes, function(x) {as_list(x)[[1]]}) == property)]))
+    GetValueEstandUncert(xml_find_all(xml_find_all(MrcXml, xpath = PropNode), 'si:real'))
+  } else {
+    value <- xml_double(xml_find_all(MrcXml, xpath = 'si:value'))
+    kFact <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:coverageFactor'))
+    stUnc <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
+    return(c(value, stUnc))
+  }
 }
+
+

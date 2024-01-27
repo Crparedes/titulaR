@@ -73,12 +73,11 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
           input$MasRecMRC1, input$MasRec2, input$MasDis1, input$MasRecDis1)
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
-      
     
     dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
-    MassFrMRC <- reactive(MRCs.MassFraction[[reagKey]][[input$MRCElected]])
-    MolWeiMRC <- reactive(MRC.At_MolWeigths[[reagKey]][[input$MRCElected]])
-    DensitMRC <- reactive(MRC.densities[[reagKey]][[input$MRCElected]])
+    MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MassFraction'))
+    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MolarMass'))
+    DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'Density'))
     
     derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
     masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))
@@ -86,13 +85,8 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
     masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
     
     
-    CalibCertDis <- reactive(tags$div(id = "inline", style = 'font-size:12px', 
-                                      pickerInput(session$ns("CalibCertDis"), 
-                                                  label = 'Balanza utilizada: .',
-                                                  choices = CalibCertShow, selected = input$CalibCertMRC, width = '100%', multiple = FALSE)))
-    
-    convMassMRC <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g'),
-                              uncertConvMass(calibCert = CalibCertList[[input$CalibCertMRC]], reading = masMRC(), units = 'g')))
+    convMassMRC <- reactive(c(convMass(calibCert = balanza(), reading = masMRC(), units = 'g'),
+                              uncertConvMass(calibCert = balanza(), reading = masMRC(), units = 'g')))
     BuoyMRC <- reactive(c(MABC(rho = DensitMRC()[1], rho_air = DensitAir()[1]),
                           uncertMABC(rho = DensitMRC()[1], rho_air = DensitAir()[1], 
                                      u_rho = DensitMRC()[2], u_rho_air = DensitAir()[2], printRelSD = FALSE)))
