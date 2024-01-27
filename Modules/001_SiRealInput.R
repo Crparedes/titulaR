@@ -1,6 +1,6 @@
 SiRealXML <- function(quantityTypeQUDT, value, units, uncert, covFac, covProp, distribution) {
   return(addDataToMRXML(
-    read_xml('<si:real xmlns:si="https://ptb.de/si"/>'),
+    read_xml('<si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>'),
     list('si:quantityTypeQUDT' = quantityTypeQUDT, 'si:value' = value, 'si:unit' = units,
          'si:expandedUnc' = list(
            'si:uncertainty' = uncert, 'si:coverageFactor' = covFac,

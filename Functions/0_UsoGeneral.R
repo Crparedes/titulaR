@@ -32,9 +32,10 @@ GetValueEstandUncert <- function(MrcXml, property = NULL) {
     GetValueEstandUncert(xml_find_all(xml_find_all(MrcXml, xpath = PropNode), 'si:real'))
   } else {
     value <- xml_double(xml_find_all(MrcXml, xpath = 'si:value'))
+    unitV <- xml_text(xml_find_all(MrcXml, xpath = 'si:unit'))
     kFact <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:coverageFactor'))
     stUnc <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
-    return(c(value, stUnc))
+    return(list(ValUnc = c(value, stUnc), Units = unitV))
   }
 }
 

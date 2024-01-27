@@ -87,21 +87,21 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
     
     convMassMRC <- reactive(c(convMass(calibCert = balanza(), reading = masMRC(), units = 'g'),
                               uncertConvMass(calibCert = balanza(), reading = masMRC(), units = 'g')))
-    BuoyMRC <- reactive(c(MABC(rho = DensitMRC()[1], rho_air = DensitAir()[1]),
-                          uncertMABC(rho = DensitMRC()[1], rho_air = DensitAir()[1], 
-                                     u_rho = DensitMRC()[2], u_rho_air = DensitAir()[2], printRelSD = FALSE)))
+    BuoyMRC <- reactive(c(MABC(rho = DensitMRC()[[1]][1], rho_air = DensitAir()[[1]][1]),
+                          uncertMABC(rho = DensitMRC()[[1]][1], rho_air = DensitAir()[[1]][1], 
+                                     u_rho = DensitMRC()[[1]][2], u_rho_air = DensitAir()[[1]][2], printRelSD = FALSE)))
     
     convMassDis <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g'),
                               uncertConvMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g')))
-    BuoyDis <- reactive(c(MABC(rho = input$DensitDis, rho_air = DensitAir()[1]),
-                          uncertMABC(rho = input$DensitDis, rho_air = DensitAir()[1], 
-                                     u_rho = input$u_DensitDis, u_rho_air = DensitAir()[2], printRelSD = FALSE)))
+    BuoyDis <- reactive(c(MABC(rho = input$DensitDis, rho_air = DensitAir[[1]]()[1]),
+                          uncertMABC(rho = input$DensitDis, rho_air = DensitAir[[1]]()[1], 
+                                     u_rho = input$u_DensitDis, u_rho_air = DensitAir()[[1]][2], printRelSD = FALSE)))
     
     DisConc <- reactive({
       #xx <- 
       propagate(expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
-                data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC(), BuoyMRC = BuoyMRC(), 
-                             MolWeiMRC = MolWeiMRC(), convMassDis = convMassDis(), BuoyDis = BuoyDis()),
+                data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC()[[1]], BuoyMRC = BuoyMRC(), 
+                             MolWeiMRC = MolWeiMRC()[[1]], convMassDis = convMassDis(), BuoyDis = BuoyDis()),
                 do.sim = FALSE)
       #return(xx$prop[c(1, 3)])
     })

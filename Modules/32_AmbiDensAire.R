@@ -26,28 +26,17 @@ AmbiDensAireServer <- function(id, devMode) {
     HumedadRela <- SiRealInputServer('HumedadRela', devMode = devMode, quantityTypeQUDT = 'RelativeHumidity')
     
     DensitAir <- reactive({
-      Temp <- xml_double(xml_find_all(Temperatura(), '//si:value'))
-      p <- xml_double(xml_find_all(PressionBar(), '//si:value'))
-      h <- xml_double(xml_find_all(HumedadRela(), '//si:value'))
+      Temp <- GetValueEstandUncert(Temperatura())
+      p <- GetValueEstandUncert(PressionBar())
+      h <- GetValueEstandUncert(HumedadRela())
       
-      u_Temp <- xml_double(xml_find_all(Temperatura(), '//si:expandedUnc/si:uncertainty')) /
-        xml_double(xml_find_all(Temperatura(), '//si:expandedUnc/si:coverageFactor'))
-      u_p <- xml_double(xml_find_all(PressionBar(), '//si:expandedUnc/si:uncertainty')) /
-        xml_double(xml_find_all(Temperatura(), '//si:expandedUnc/si:coverageFactor'))
-      u_h <- xml_double(xml_find_all(HumedadRela(), '//si:expandedUnc/si:uncertainty')) /
-        xml_double(xml_find_all(Temperatura(), '//si:expandedUnc/si:coverageFactor'))
+      unitsENV <- c(case_when(Temp$Units == '\\degreecelsius' ~ 'deg.C'),
+                    case_when(p$Units == '\\hecto\\pascal' ~ 'hPa'),
+                    case_when(h$Units == '\\percent' ~ '%'))
       
-      unitsENV <- c(
-        case_when(
-          xml_text(xml_find_all(Temperatura(), '//si:unit')) == '\\degreecelsius' ~ 'deg.C'),
-        case_when(
-          xml_text(xml_find_all(PressionBar(), '//si:unit')) == '\\hecto\\pascal' ~ 'hPa'),
-        case_when(
-          xml_text(xml_find_all(HumedadRela(), '//si:unit')) == '\\percent' ~ '%'))
-      
-      
-      return(c(airDensity(Temp = Temp, p = p, h = h, unitsENV = unitsENV),
-               uncertAirDensity(model = 'CIMP2007', Temp = Temp, p = p, h = h, u_Temp = u_Temp, u_p = u_p, u_h = u_h,
+      return(c(airDensity(Temp = Temp[[1]][1], p = p[[1]][1], h = h[[1]][1], unitsENV = unitsENV),
+               uncertAirDensity(model = 'CIMP2007', Temp = Temp[[1]][1], p = p[[1]][1], h = h[[1]][1],
+                                u_Temp = Temp[[1]][2], u_p = p[[1]][2], u_h = u[[1]][2],
                                 unitsENV = unitsENV, plot = FALSE, printRelSD = FALSE)))
     })
     
@@ -57,7 +46,10 @@ AmbiDensAireServer <- function(id, devMode) {
     output$NiceDensitAir <- renderUI(NiceDensitAir())
     
     AmbientCondInfo <- reactive({
-      initiateAmbienteXML('Disoluciones')
+      XX <- initiateAmbienteXML('Disoluciones')
+      xml_add_child(.x = xml_child(XX, 'mr:ambientConditions'), .value = Temperatura())
+      xml_add_child(.x = xml_child(XX, 'mr:ambientConditions'), .value = PressionBar())
+      xml_add_child(.x = xml_child(XX, 'mr:ambientConditions'), .value = HumedadRela())
     })
     return(AmbientCondInfo)
   })
