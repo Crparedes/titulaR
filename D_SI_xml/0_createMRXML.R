@@ -75,8 +75,8 @@ initiatePersonXML <- function(name) {
 initiateSolutionXML <- function() {
   xmlObject <- read_xml(genericHeading('mr:standardSolution', TRUE))
   xmlObject %>% {
-    xml_add_child(., 'mr:coreData')
     xml_add_child(., 'mr:property')
+    xml_add_child(., 'mr:coreData')
   }
   return(xmlObject)
 }
