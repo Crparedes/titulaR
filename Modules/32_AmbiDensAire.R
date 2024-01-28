@@ -3,13 +3,13 @@ AmbiDensAireUI <- function(id) {
   tagList(
     uiOutput(ns('brwz')),
     fluidRow(
-      column(3, offset = 1, img(src = "SI_Kelvin.png", width = "84%")),
-      column(3, img(src = "SI_pascal.png", width = "84%")),
-      column(3, img(src = "SI_mol.png", width = "84%"))),
+      column(3, offset = 1, SI_unit_nice('kelvin')),
+      column(3, SI_unit_nice('pascal', derived = TRUE)),
+      column(3, SI_unit_nice('mole'))),
     tags$br(), uiOutput(ns('NiceDensitAir')), tags$hr(),
-    SiRealInputUI(ns('Temperatura'), name = 'Temperatura', 20, 2, TemperatureUnits), tags$hr(),
-    SiRealInputUI(ns('PressionBar'), name = 'Presión barométrica', 750, 3, AtmosPressuUnits), tags$hr(),
-    SiRealInputUI(ns('HumedadRela'), name = 'Humedad relativa', 45, 3, RelatiHumidUnits)
+    SiRealInputUI(ns('Temperatura'), name = ReqField('Temperatura'), 20, 2, TemperatureUnits), tags$hr(),
+    SiRealInputUI(ns('PressionBar'), name = ReqField('Presión barométrica'), 750, 3, AtmosPressuUnits), tags$hr(),
+    SiRealInputUI(ns('HumedadRela'), name = ReqField('Humedad relativa'), 45, 3, RelatiHumidUnits)
   )
 }
 

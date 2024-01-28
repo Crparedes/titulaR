@@ -67,7 +67,23 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
       } 
     })
 
-    
+    Lead_STD_solutions <- reactiveValues()
+    observeEvent(input$NewLeadStdSol, {
+      req(input$NewLeadStdSol > 0)
+      
+      tabName <- isolate(paste0('EstandarPlomo_', input$NewLeadStdSol))
+      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'Pb', reagForm = 'PbNO3', materiales = materiales$forEDTA,
+                             demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire))
+      appendTab(
+        inputId = 'NewSolutions', select = TRUE, 
+        tab = SolidMRCUI(
+          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'Pb', reagKey = 'Pb',
+          explan = 'disoluciones de EDTA.'))
+      
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
+        updateBox('condAmbiBox', action = 'toggle')
+      } 
+    })
 
     
   })

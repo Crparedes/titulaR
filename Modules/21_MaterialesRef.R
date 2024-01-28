@@ -13,9 +13,9 @@ MaterialesRefereUI <- function(id) {
       box(
         title = NULL, width = 12, status = 'primary', collapsible = FALSE,
         fluidRow(
-          column(width = 2, img(src = "SI_mol.png", width = "100%")),
-          column(width = 10, tags$br(), downloadLink(ns('DescMrXml'), label = "Descargar archivo XML")),#uiOutput(ns("downlXMLlink"))), 
-          column(width = 12, tags$br(), htmlOutput(ns('printTheMrXML')))
+          column(width = 2, SI_unit_nice('mole', width = "100%")),
+          column(width = 10, downloadLink(ns('DescMrXml'), label = "Descargar archivo XML del material de referencia"),
+                 tags$br(), htmlOutput(ns('printTheMrXML')))
         )
       )
     ),

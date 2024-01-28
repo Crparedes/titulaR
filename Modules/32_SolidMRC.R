@@ -2,8 +2,8 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
-    tags$b(paste0('Nueva disolucion de ', reagKey)), tags$br(), 
-    paste0('Estandar para titular muestras de ', explan), 
+    tags$b(paste0('Nueva disolucion estándar de ', reagKey)), tags$br(), 
+    paste0('Patrón para titular muestras de ', explan), 
     tags$br(), tags$br(),
     tags$div(
       id = 'inline', style = 'font-size:12px; margin-left:25px', 
@@ -17,32 +17,33 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
           id = "inline", style = 'margin-left:25px', 
           h5(tags$b('Masa del solido')),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = ifelse(demo, 0.976601, 0), align = 'left', minimumValue = 0),
+                           ns('MasRec1'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 0.976601, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
-                           ns('MasMRC1'), label = 'Masa del MRC [g]: .', value = ifelse(demo, 0.30042, 0), align = 'left', minimumValue = 0),
+                           ns('MasMRC1'), label = ReqField('Masa del MRC / g:'), value = ifelse(demo, 0.30042, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecMRC1'), label = 'Masa conjunta [g]: .', value = ifelse(demo, 1.27705, 0), align = 'left', minimumValue = 0),
+                           ns('MasRecMRC1'), label = ReqField('Masa conjunta / g:'), value = ifelse(demo, 1.27705, 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaMRC'))),
         tags$div(),
         tags$div(
           id = "inline",
           h5(tags$b('Masa final de la disolución')),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = ifelse(demo, 16.77169, 0), align = 'left', minimumValue = 0),
+                           ns('MasRec2'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 16.77169, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
-                           ns('MasDis1'), label = 'Masa final disolución [g]: .', value = ifelse(demo, 80.02288, 0), align = 'left', minimumValue = 0),
+                           ns('MasDis1'), label = ReqField('Masa final disolución / g:'), value = ifelse(demo, 80.02288, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = ifelse(demo, 96.79455, 0), align = 'left', minimumValue = 0),
+                           ns('MasRecDis1'), label = ReqField('Masa conjunta / g:'), value = ifelse(demo, 96.79455, 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaDisMRC')))),
       tags$hr(),
-      SiRealInputUI(ns('DensiDisol'), name = 'Densidad de la disolución', 
+      SiRealInputUI(ns('DensiDisol'), name = ReqField('Densidad de la disolución'),
                     x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
                     u0 = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)), units = DensityUnits,
                     decimalPlaces = 3),
       tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
     fluidRow(
-      column(width = 2, img(src = "SI_mol.png", width = "95%")),
-      column(width = 10, tags$br(), uiOutput(ns("downlXMLlink")), htmlOutput(ns('InfoDisXML'))))
+      column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
+      column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar'),
+             tags$br(), htmlOutput(ns('InfoDisXML'))))
   )
 }
 
@@ -73,9 +74,9 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
     
-    MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MassFraction'))
-    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MolarMass'))
-    DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'Density'))
+    MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MassFraction', node = 'mr:additionalValues'))
+    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MolarMass', node = 'mr:additionalValues'))
+    DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'Density', node = 'mr:additionalValues'))
     
     derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
     masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))
@@ -105,7 +106,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                      MolWeiMRC = MolWeiMRC()$ValUnc, convMassDis = convMassDis(), BuoyDis = BuoyDis()),
         do.sim = FALSE)
       xx <- SiRealXML(quantityTypeQUDT = 'AmountOfSubstancePerUnitMass', value = signif(xx$prop[[1]], 8),
-                      units = '\\milli\\mol\\kilo\\gram\\tothe{-1}', uncert =  signif(xx$prop[[2]], 5), covFac = 1)
+                      units = '\\milli\\mole\\kilo\\gram\\tothe{-1}', uncert =  signif(xx$prop[[2]], 5), covFac = 1)
       return(xx)
     })
     
@@ -178,7 +179,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
       xmlObject <- initiateSolutionXML()
-      AdminList <- list('mr:solutionType' = 'Reference', 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+      AdminList <- list('mr:solutionType' = 'ReferenceEDTA', 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[reagForm])
 
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')
@@ -191,6 +192,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     
     observeEvent(input$buttonCalc, {
+      downlXMLlink
       withCallingHandlers({
         shinyjs::html("InfoDisXML", "")
         message(DisolucionXML())},
@@ -200,9 +202,8 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                                       m$message, '</textarea>'), add = FALSE)})
     })
     
-    
-    
-    # return(list('infoDisMRC' = infoDisMRC))
+    output$downlXMLlink <- renderUI(downlXMLlink())
+    return(DisolucionXML)
   })
 }
                            

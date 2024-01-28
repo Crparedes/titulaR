@@ -16,7 +16,7 @@ inicioLy <- fluidRow(
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
        fluidRow(
-         column(2, img(src = "SI_units.png", width = "75%")),
+         column(2, SI_unit_nice(width = '75%')),
          column(
            6, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),

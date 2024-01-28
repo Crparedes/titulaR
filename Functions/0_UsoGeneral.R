@@ -24,7 +24,8 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
   }
 }
 
-GetValueEstandUncert <- function(MrcXml, property = NULL) {
+GetValueEstandUncert <- function(MrcXml, property = NULL, node = NULL) {
+  if (!missing(node)) MrcXml <- xml_child(MrcXml, search = node)
   if (!missing(property)) {
     QUDTnodes <- xml_find_all(MrcXml, '//si:quantityTypeQUDT')
     PropNode <- gsub(pattern = '/si:real/si:quantityTypeQUDT', replacement = '', 
