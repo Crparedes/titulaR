@@ -25,8 +25,7 @@ MaterialesRefereUI <- function(id) {
       tags$b('Cargar información de nuevos materiales de referencia.'), tags$br(),
       'Seleccione un archivo XML con la información de un material de referencia faltante, 
       indique el uso que tiene el material y opima el botón', tags$b('Cargar.'), Nlns(),
-      fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...',#placeholder = '',
-                multiple = FALSE, accept = '.xml', width = '90%'),
+      uiOutput(ns('NewMrXml')),
       uiOutput(ns('CargarMrXml'))
     )
   )
@@ -38,6 +37,14 @@ MaterialesRefereServer <- function(id, devMode) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
+    
+    NewMrXml <- reactive({
+      input$CargarMrXml
+      fileInput(session$ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...',#placeholder = '',
+                multiple = FALSE, accept = '.xml', width = '90%')
+    })
+    output$NewMrXml <- renderUI(NewMrXml())
+    
     
     ReferenceMaterials <- reactiveValues(
       forCalibrantes = lapply(list.files(path = 'www/MR_MRC/Para calibrantes', pattern = 'xml', full.names = TRUE), read_xml),
@@ -76,6 +83,7 @@ MaterialesRefereServer <- function(id, devMode) {
       } else {
         return(tags$div(
           style = 'margin-left:60px;',
+          tags$b('Archivo:'), input$NewMrXml$name,
           radioButtons(session$ns('MrXmlUploadType'), label = 'Uso del MRC:', 
                        choices = list('Para titular disoluciones calibrantes' = 'forCalibrantes',
                                       'Para titular EDTA' = 'forEDTA')),
@@ -86,6 +94,7 @@ MaterialesRefereServer <- function(id, devMode) {
     
     observeEvent(input$CargarMrXml, {
       ReferenceMaterials[[input$MrXmlUploadType]] <- append(ReferenceMaterials[[input$MrXmlUploadType]], values = list(read_xml(input$NewMrXml$datapath)))
+      
     })
     
     return(ReferenceMaterials)

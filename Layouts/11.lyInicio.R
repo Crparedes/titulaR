@@ -20,20 +20,26 @@ inicioLy <- fluidRow(
          column(
            6, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
-           'para el manejo de datos metrológicos.', Nlns(),
-           'En el esquema del D-SI se usan archivos en formato XML para el almacenamiento y la transferencia
-           de la información. Este esquema ayuda a que la información metrológica cumpla con los ',
+           'para el manejo de datos metrológicos utilizando archivos en formato XML para el almacenamiento y la transferencia
+           de la información.', Nlns(),
+           'El', tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
+           'busca que la información metrológica cumpla con los ',
            tags$b(tags$a(href = 'https://www.go-fair.org/fair-principles/', 'Principios FAIR:', target = '_blank')),
-           tags$br(), tags$br(),
+           Nlns(),
            tags$ul(
              tags$li(tags$i(tags$b('F', .noWS = c('after')), 'indability'), spcs(6), '(Datos encontrables)'),
              tags$li(tags$i(tags$b('A', .noWS = c('after')), 'ccessability'), spcs(2), '(Datos accesibles)'),
              tags$li(tags$i(tags$b('I', .noWS = c('after')), 'nteroperability'), '(Datos interoperables)'),
-             tags$li(tags$i(tags$b('R', .noWS = c('after')), 'eusability'), spcs(5), '(Datos reusables)')
-           )
-           )),
-       tags$hr(), Nlns(2),
-       'El aplicativo ', tags$b('titulaR'), 'está compuesto por los siguientes módulos:',
+             tags$li(tags$i(tags$b('R', .noWS = c('after')), 'eusability'), spcs(5), '(Datos reusables)')),
+           Nlns(),
+           'El aplicativo usa la ',
+           tags$a(href = 'http://qudt.org/', tags$html('Ontología', img(src = "QUDT.png", height = '14px')), target = '_blank'),
+           'para describir tipos de cantidades.', tags$br(),
+           tags$div(style = 'font-size:8px', '(Ver tema de discusión en ',
+                    tags$a(href = 'https://gitlab1.ptb.de/d-ptb/d-si/xsd-d-si/-/issues/35', 'Repositorio GitLab',
+                           target = '_blank', .noWS = 'after'), ')'))),
+       tags$hr(), Nlns(3),
+       'El aplicativo tiene por los siguientes módulos:',
        tags$ul(
          tags$br(),
          # tags$li("Diligencie la información general en el recuadro que se muestra abajo a la derecha."), tags$br(),

@@ -1,11 +1,16 @@
-SiRealXML <- function(quantityTypeQUDT, value, units, uncert, covFac, covProp = NULL, distribution = 'normal') {
-  if(missing(covProp)) covProp <- round(pnorm(covFac) - pnorm(-covFac), 3)
+SiRealXML <- function(quantityTypeQUDT = NULL, value = NULL, units = NULL,
+                      uncert = NULL, covFac = NULL, covProp = NULL, distribution = 'normal', SI.list = NULL) {
   SiRealXML <- read_xml('<si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>')
-  addDataToMRXML(SiRealXML, list(
-    'si:quantityTypeQUDT' = quantityTypeQUDT, 'si:value' = value, 'si:unit' = units,
-    'si:expandedUnc' = list(
-      'si:uncertainty' = uncert, 'si:coverageFactor' = covFac,
-      'si:coverageProbability' = covProp, 'si:distribution' = distribution)))
+  if(!missing(SI.list)) {
+    addDataToMRXML(SiRealXML, SI.list)
+  } else {
+    if(missing(covProp)) covProp <- round(pnorm(covFac) - pnorm(-covFac), 3)
+    addDataToMRXML(SiRealXML, list(
+      'si:quantityTypeQUDT' = quantityTypeQUDT, 'si:value' = value, 'si:unit' = units,
+      'si:expandedUnc' = list(
+        'si:uncertainty' = uncert, 'si:coverageFactor' = covFac,
+        'si:coverageProbability' = covProp, 'si:distribution' = distribution)))
+  }
   return(SiRealXML)
 }
 

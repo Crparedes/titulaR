@@ -47,7 +47,7 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
   )
 }
 
-SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analyst, materiales, fecha, ambient) {
+SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analyst, materiales, fecha, ambient, solutionType) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
@@ -69,8 +69,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode, quantityTypeQUDT = 'Density')
     
     observe({
-      req(balanza, analyst, input$DisolID, input$MRCtoUse, input$MasRec1, input$MasMRC1,
-          input$MasRecMRC1, input$MasRec2, input$MasDis1, input$MasRecDis1)
+      req(balanza, analyst, input$DisolID, input$MRCtoUse, input$MasRec1, input$MasMRC1, input$MasRecMRC1, input$MasRec2, input$MasDis1, input$MasRecDis1)
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
     
@@ -106,7 +105,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                      MolWeiMRC = MolWeiMRC()$ValUnc, convMassDis = convMassDis(), BuoyDis = BuoyDis()),
         do.sim = FALSE)
       xx <- SiRealXML(quantityTypeQUDT = 'AmountOfSubstancePerUnitMass', value = signif(xx$prop[[1]], 8),
-                      units = '\\milli\\mole\\kilo\\gram\\tothe{-1}', uncert =  signif(xx$prop[[2]], 5), covFac = 1)
+                      units = '\\milli\\mole\\kilo\\gram\\tothe{-1}', uncert =  signif(xx$prop[[3]], 3), covFac = 1)
       return(xx)
     })
     
@@ -171,16 +170,16 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     #   content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
     
     # Messages
-    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassMRC() * 1000, 2), ' [mg]'))
-    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassDis() * 1000, 2), ' [mg]'))
+    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassMRC() * 1000, 2), ' / mg'))
+    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassDis() * 1000, 2), ' / mg'))
     
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
       xmlObject <- initiateSolutionXML()
-      AdminList <- list('mr:solutionType' = 'ReferenceEDTA', 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
-      PropeList <- list('mr:substance' = Substances[reagForm])
+      AdminList <- list('mr:solutionType' = solutionType, 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+      PropeList <- list('mr:substance' = Substances[[reagForm]])
 
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')
       addDataToMRXML(xmlObject, PropeList, node = 'mr:property')

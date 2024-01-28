@@ -24,6 +24,18 @@ Substances <- list(
     'mr:InChiKey' = c('RVPVRDXYQKGNMQ-UHFFFAOYSA-N', version = '1.0.6'))
 )
 
+densities <- list(
+  Na2EDTA.2H2O = list(
+    'si:real' = list(
+      'si:quantityTypeQUDT' = 'Density',
+      'si:value' = 0.860,
+      'si:unit' = '\\gram\\centi\\meter\\tothe{-3}',
+      'si:expandedUnc' = list(
+        'si:uncertainty' = 0.05 * sqrt(3),
+        'si:coverageFactor' = sqrt(3),
+        'si:coverageProbability' = 0.95)))
+)
+
 RORs <- list(
   NIST = list(
     'mr:laboratoryName' = c('National Institute of Standards and Technology', lang = 'EN'),

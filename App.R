@@ -19,9 +19,9 @@ library(purrr) # map-like functional programing (?)
 library(units)
 library(masscor)
 
-
+# 
 library(xml2)
-library(XML) # to use XML::xmlCleanNamespaces()
+# library(XML) # to use XML::xmlCleanNamespaces()
 library(dplyr)
 library(stringr)
 

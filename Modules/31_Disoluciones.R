@@ -49,13 +49,17 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     
     AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode, fecha = fecha)
     
-    EDTA_STD_solutions <- reactiveValues()
+    StandardSampleSolutions <- reactiveValues(solutions = list())
+    
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)
-      
-      tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O', materiales = materiales$forCalibrantes,
-                             demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire))
+      solutionType <- 'EstandarEDTA'
+      tabName <- isolate(paste0(solutionType, '_', input$NewEDTAStdSol))
+      StandardSampleSolutions$solutions <- append(
+        StandardSampleSolutions$solutions, 
+        list(isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O', materiales = materiales$forCalibrantes,
+                                    demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire,
+                                    solutionType = solutionType))))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
@@ -67,18 +71,41 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
       } 
     })
 
-    Lead_STD_solutions <- reactiveValues()
     observeEvent(input$NewLeadStdSol, {
       req(input$NewLeadStdSol > 0)
+      solutionType <- 'EstandarPlomo'
+      tabName <- isolate(paste0(solutionType, '_', input$NewEDTAStdSol))
       
-      tabName <- isolate(paste0('EstandarPlomo_', input$NewLeadStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'Pb', reagForm = 'PbNO3', materiales = materiales$forEDTA,
-                             demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire))
+      StandardSampleSolutions$solutions <- append(
+        StandardSampleSolutions$solutions, 
+        list(isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'Pb', reagForm = 'PbNO3', materiales = materiales$forEDTA,
+                                    demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire,
+                                    solutionType = solutionType))))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
           id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'Pb', reagKey = 'Pb',
           explan = 'disoluciones de EDTA.'))
+      
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
+        updateBox('condAmbiBox', action = 'toggle')
+      } 
+    })
+    
+    observeEvent(input$NewEDTASamSol, {
+      req(input$NewEDTASamSol > 0)
+      solutionType <- 'MuestraEDTA'
+      tabName <- isolate(paste0(solutionType, '_', input$NewEDTASamSol))
+      StandardSampleSolutions$solutions <- append(
+        StandardSampleSolutions$solutions, 
+        list(isolate(SolidSampleServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O',
+                                       demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire,
+                                       solutionType = solutionType))))
+      appendTab(
+        inputId = 'NewSolutions', select = TRUE, 
+        tab = SolidSampleUI(
+          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
+          explan = 'Para asignar valor de fracción másica en el reactivo sólido.'))
       
       if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
         updateBox('condAmbiBox', action = 'toggle')
