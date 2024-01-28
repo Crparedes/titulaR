@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mr:InHouse_GSO_2960_84 xmlns:mr="https://inm.gov.co/mr" xmlns:inst="https://inm.gov.co/inst" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+<mr:InHouse_GSO_2960_84 xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
   <mr:administrativeData>
     <mr:name>InHouse GSO 2960-84</mr:name>
     <mr:batch>12</mr:batch>
     <mr:type>inHouse</mr:type>
     <mr:producer>
-      <inst:name lang="EN">Ural Scientific Research Institute for Metrology</inst:name>
-      <inst:shortName>UNIIM</inst:shortName>
-      <inst:country>RU</inst:country>
-      <inst:alternativeName lang="RU">Уральский научно-исследовательский институт метрологии</inst:alternativeName>
-      <inst:ror/>
-      <inst:url>https://uniim.ru/</inst:url>
+      <mr:laboratoryName lang="EN">Ural Scientific Research Institute for Metrology</mr:laboratoryName>
+      <mr:laboratoryShortName>UNIIM</mr:laboratoryShortName>
+      <mr:country>RU</mr:country>
+      <mr:laboratoryAltName lang="RU">Уральский научно-исследовательский институт метрологии</mr:laboratoryAltName>
+      <mr:laboratoryROR/>
+      <mr:laboratoryURL>https://uniim.ru/</mr:laboratoryURL>
     </mr:producer>
   </mr:administrativeData>
   <mr:certifiedValues/>

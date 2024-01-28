@@ -46,12 +46,11 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
   )
 }
 
-SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materiales, fecha) {
+SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analyst, materiales, fecha, ambient) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
-    
     choicesMateriales <- reactive(sapply(materiales, function(x) as_list(x)[[1]]$administrativeData$name))
     
     MRCtoUse <- reactive(pickerInput(
@@ -59,14 +58,14 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
       label = h5(tags$b(ReqField("MRC de partida"))), choices = choicesMateriales(),
       options = list(`max-options` = 1, `none-selected-text` = "(Ver módulo Materiales de referencia)")))
     output$MRCtoUse <- renderUI(MRCtoUse())
-    
+    # browser()
     SolidMRC <- reactive({
       req(input$MRCtoUse)
       materiales[[which(sapply(materiales, function (x) as_list(x)[[1]]$administrativeData$name) == input$MRCtoUse)]]})
     
-    ListSolidMRC <- reactive(as_list(SolidMRC()))
+    # ListSolidMRC <- reactive(as_list(SolidMRC()))
       
-    DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode)
+    DensiDisol <- SiRealInputServer('DensiDisol', devMode = devMode, quantityTypeQUDT = 'Density')
     
     observe({
       req(balanza, analyst, input$DisolID, input$MRCtoUse, input$MasRec1, input$MasMRC1,
@@ -74,7 +73,6 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
     
-    dateMRC <- reactive(MRC.ExpiricyDates[[reagKey]][[input$MRCElected]])
     MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MassFraction'))
     MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MolarMass'))
     DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'Density'))
@@ -84,109 +82,113 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
     derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
     masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
     
+    DisolDensi <- reactive(GetValueEstandUncert(req(DensiDisol())))
+    airDensity <- reactive(GetValueEstandUncert(req(ambient()), 'Density'))
+    
     
     convMassMRC <- reactive(c(convMass(calibCert = balanza(), reading = masMRC(), units = 'g'),
                               uncertConvMass(calibCert = balanza(), reading = masMRC(), units = 'g')))
-    BuoyMRC <- reactive(c(MABC(rho = DensitMRC()[[1]][1], rho_air = DensitAir()[[1]][1]),
-                          uncertMABC(rho = DensitMRC()[[1]][1], rho_air = DensitAir()[[1]][1], 
-                                     u_rho = DensitMRC()[[1]][2], u_rho_air = DensitAir()[[1]][2], printRelSD = FALSE)))
+    BuoyMRC <- reactive(c(MABC(rho = DensitMRC()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
+                          uncertMABC(rho = DensitMRC()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
+                                     u_rho = DensitMRC()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE, plot = FALSE)))
     
-    convMassDis <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g'),
-                              uncertConvMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g')))
-    BuoyDis <- reactive(c(MABC(rho = input$DensitDis, rho_air = DensitAir[[1]]()[1]),
-                          uncertMABC(rho = input$DensitDis, rho_air = DensitAir[[1]]()[1], 
-                                     u_rho = input$u_DensitDis, u_rho_air = DensitAir()[[1]][2], printRelSD = FALSE)))
+    convMassDis <- reactive(c(convMass(calibCert = balanza(), reading = masDis(), units = 'g'),
+                              uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')))
+    BuoyDis <- reactive(c(MABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
+                          uncertMABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
+                                     u_rho = DisolDensi()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE)))
     
-    DisConc <- reactive({
-      #xx <- 
-      propagate(expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
-                data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC()[[1]], BuoyMRC = BuoyMRC(), 
-                             MolWeiMRC = MolWeiMRC()[[1]], convMassDis = convMassDis(), BuoyDis = BuoyDis()),
-                do.sim = FALSE)
-      #return(xx$prop[c(1, 3)])
+    DisConc <- eventReactive(input$buttonCalc, {
+      xx <- propagate(
+        expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
+        data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC()$ValUnc, BuoyMRC = BuoyMRC(), 
+                     MolWeiMRC = MolWeiMRC()$ValUnc, convMassDis = convMassDis(), BuoyDis = BuoyDis()),
+        do.sim = FALSE)
+      xx <- SiRealXML(quantityTypeQUDT = 'AmountOfSubstancePerUnitMass', value = signif(xx$prop[[1]], 8),
+                      units = '\\milli\\mol\\kilo\\gram\\tothe{-1}', uncert =  signif(xx$prop[[2]], 5), covFac = 1)
+      return(xx)
     })
     
     
-    infoDisMRC <- eventReactive(input$buttonCalc, {
-      if (input$SourceOption == "daCapo") {
-        if (!is.na(DisConc()$prop[[1]] > 0) && !is.na(DisConc()$prop[[3]] > 0)) {
-          return(list('MRC empleado' = input$MRCElected,
-                      'Fecha de vencimiento MRC' = dateMRC(),
-                      'Especie ' = reagKey,
-                      'Concentración [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
-                      'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
-                      'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
-                                                         Correo = IDUsuario()[2]),
-                      'Fecha de preparación' = fecha(),
-                      'PropagateCompleto' = DisConc()))
-        } else {
-          return('Los datos ingresados no son validos!')
-        }
-      } else {
-        dataFile <- readRDS(input$DisFile$datapath)
-        if (dataFile['Especie '] != reagKey) {
-          return(rbind('ERROR!!! ERROR!!! ERROR!!!', 
-                       'Por favor ingrese una disolución de la especie apropiada' ))
-        } else {
-          return(dataFile)
-        }
-        
-      }})
+    # infoDisMRC <- eventReactive(input$buttonCalc, {
+    #   if (input$SourceOption == "daCapo") {
+    #     if (!is.na(DisConc()$prop[[1]] > 0) && !is.na(DisConc()$prop[[3]] > 0)) {
+    #       return(list('MRC empleado' = input$MRCElected,
+    #                   'Fecha de vencimiento MRC' = dateMRC(),
+    #                   'Especie ' = reagKey,
+    #                   'Concentración [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
+    #                   'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
+    #                   'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
+    #                                                      Correo = IDUsuario()[2]),
+    #                   'Fecha de preparación' = fecha(),
+    #                   'PropagateCompleto' = DisConc()))
+    #     } else {
+    #       return('Los datos ingresados no son validos!')
+    #     }
+    #   } else {
+    #     dataFile <- readRDS(input$DisFile$datapath)
+    #     if (dataFile['Especie '] != reagKey) {
+    #       return(rbind('ERROR!!! ERROR!!! ERROR!!!', 
+    #                    'Por favor ingrese una disolución de la especie apropiada' ))
+    #     } else {
+    #       return(dataFile)
+    #     }
+    #     
+    #   }})
     #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
     
     
-    InfoMrcBox <- reactive({
-      box(title = div(style = 'font-size:14px', 
-                      ifelse(dateMRC() > fecha(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
-          width = 12, collapsible = TRUE, collapsed = TRUE,
-          status = ifelse(dateMRC() > fecha(), 'success', 'danger'),
-          div(style = 'font-size:12px',
-              tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
-              tags$b('Fracción masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
-              tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol', tags$sup('-1'),tags$br(),
-              tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm', tags$sup('-3')))
-    })
-    
-    InfoDisBox <- eventReactive(input$buttonCalc, {
-      trigger <- TRUE
-      #printedStuff <- ifelse()
-      box(title = div(style = 'font-size:14px', 'Información de la disolución:'),
-          width = 12, collapsible = TRUE, collapsed = FALSE,
-          status = 'primary',#ifelse(trigger, 'success', 'danger'),
-          renderPrint(tryCatch(infoDisMRC(),
-                               error = function(cond) {'Los datos ingresados no son validos!'})),
-          if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
-    })
-    
-    output$MRC_CertiFile <- renderUI(fileDwnHTML())
-    output$InfoMrcBox <- renderUI(InfoMrcBox())
-    output$InfoDisBox <- renderUI(InfoDisBox())
-    output$CalibCertDis <- renderUI(CalibCertDis())
-    output$DwnlDisFile <- downloadHandler(
-      filename = function() {paste0("Disolucion_MRC_", reagKey, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
-      content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
+    # InfoMrcBox <- reactive({
+    #   box(title = div(style = 'font-size:14px', 
+    #                   ifelse(dateMRC() > fecha(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
+    #       width = 12, collapsible = TRUE, collapsed = TRUE,
+    #       status = ifelse(dateMRC() > fecha(), 'success', 'danger'),
+    #       div(style = 'font-size:12px',
+    #           tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
+    #           tags$b('Fracción masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
+    #           tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol', tags$sup('-1'),tags$br(),
+    #           tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm', tags$sup('-3')))
+    # })
+    # 
+    # InfoDisBox <- eventReactive(input$buttonCalc, {
+    #   trigger <- TRUE
+    #   #printedStuff <- ifelse()
+    #   box(title = div(style = 'font-size:14px', 'Información de la disolución:'),
+    #       width = 12, collapsible = TRUE, collapsed = FALSE,
+    #       status = 'primary',#ifelse(trigger, 'success', 'danger'),
+    #       renderPrint(tryCatch(infoDisMRC(),
+    #                            error = function(cond) {'Los datos ingresados no son validos!'})),
+    #       if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
+    # })
+    # 
+    # output$MRC_CertiFile <- renderUI(fileDwnHTML())
+    # output$InfoMrcBox <- renderUI(InfoMrcBox())
+    # output$InfoDisBox <- renderUI(InfoDisBox())
+    # output$CalibCertDis <- renderUI(CalibCertDis())
+    # output$DwnlDisFile <- downloadHandler(
+    #   filename = function() {paste0("Disolucion_MRC_", reagKey, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
+    #   content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
     
     # Messages
-    deriMasaMRC <- eventReactive(input$MasRecMRC1, 
-                                 div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassMRC() * 1000, 2), ' [mg]'))
-    deriMasaDisMRC <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassDis() * 1000, 2), ' [mg]'))
+    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassMRC() * 1000, 2), ' [mg]'))
+    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassDis() * 1000, 2), ' [mg]'))
     
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
-      xmlObject <- initiateSolutionXML(id)
-      AdminList <- list('solution:type' = 'Reference')
-      PropeList <- list(
-        'solution:substance' = list(
-          'solution:name' = 'EDTA disodium salt dihydrate',
-          'solution:InChI' = c('1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2', version = '1.0.6'),
-          'solution:InChiKey' = c('FXKZPKBFTQUJBA-UHFFFAOYSA-N', version = '1.0.6')))
-      addDataToMRXML(xmlObject, AdminList, node = 'solution:administrativeData')
-      addDataToMRXML(xmlObject, PropeList, node = 'solution:propertyValues')
+      xmlObject <- initiateSolutionXML()
+      AdminList <- list('mr:solutionType' = 'Reference', 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+      PropeList <- list('mr:substance' = Substances[reagForm])
+
+      addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')
+      addDataToMRXML(xmlObject, PropeList, node = 'mr:property')
+      xml_child(xmlObject, search = 'mr:coreData') %>% xml_add_child(., .value = analyst())
+      xml_child(xmlObject, search = 'mr:property') %>% xml_add_child(., .value = DisConc())
       return(xmlObject)
     })
+    
+    
     
     observeEvent(input$buttonCalc, {
       withCallingHandlers({
@@ -200,7 +202,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, balanza, analyst, materia
     
     
     
-    return(list('infoDisMRC' = infoDisMRC))
+    # return(list('infoDisMRC' = infoDisMRC))
   })
 }
                            

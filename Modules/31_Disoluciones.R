@@ -21,20 +21,17 @@ PreparaDisolucioUI <- function(id) {
         fileInput(ns('NewMrXml'), label = NULL, multiple = FALSE, accept = '.xml', width = '90%'),
         uiOutput(ns('CargarMrXml')))
       ),
-    conditionalPanel(
-      'input.NewEDTAStdSol > 0 || input.NewCaliSamSol > 0 || input.NewLeadStdSol > 0 || input.NewEDTASamSol > 0', ns = ns,
-      column(
-        width = 6, style = 'margin-left: 100px;', 
-        tags$h4(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
+    column(
+      width = 6, style = 'margin-left: 100px;',
+      shinydashboardPlus::box(status = 'black', title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'), id = ns('condAmbiBox'),
+                              width = 12, collapsible = TRUE, collapsed = FALSE, AmbiDensAireUI(ns('AmbiDensAireSolutions'))),
+      conditionalPanel(
+        'input.NewEDTAStdSol > 0 || input.NewCaliSamSol > 0 || input.NewLeadStdSol > 0 || input.NewEDTASamSol > 0', ns = ns,  
+        # tags$h4(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
         tags$div(
           id = "inline", style = 'font-size:12px; margin-left:60px;',
-          # shinyDashboardplusbox(status = 'black',
-          box(
-            status = 'primary',
-            title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'), #id = ns('condAmbiBox'),
-            width = 12, collapsible = TRUE, collapsed = TRUE, AmbiDensAireUI(ns('AmbiDensAireSolutions')))),
-        balanzasPickerUI(ns('SolPrep')), AnalystPickerUI(ns('Analyst')),
-        Nlns(2),
+          ),
+        balanzasPickerUI(ns('SolPrep')), AnalystPickerUI(ns('analyst')), Nlns(1),
         tabBox(title = NULL, id = ns('NewSolutions'), width = 12, side = 'right')))
   )
 }
@@ -47,23 +44,27 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     observeEvent(input$brwzInsideModule, browser())
     
     balanzaUsed <- balanzasPickerServer(id = 'SolPrep', devMode = devMode, demo = demo, balanzas = balanzas)
-    Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo)
+    analyst <- AnalystPickerServer('analyst', devMode = devMode, demo = demo)
     
     
-    AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode)
+    AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode, fecha = fecha)
     
     EDTA_STD_solutions <- reactiveValues()
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)
-      # if(!input$condAmbiBox$collapsed) updateBox('condAmbiBox', 'toggle')
+      
       tabName <- isolate(paste0('EstandarEDTA_', input$NewEDTAStdSol))
-      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', materiales = materiales$forCalibrantes,
-                             demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha))
+      isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O', materiales = materiales$forCalibrantes,
+                             demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
           id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
           explan = 'calibrantes monoelementales.'))
+      
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
+        updateBox('condAmbiBox', action = 'toggle')
+      } 
     })
 
     

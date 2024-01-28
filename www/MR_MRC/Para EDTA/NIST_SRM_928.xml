@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mr:NIST_SRM_928 xmlns:mr="https://inm.gov.co/mr" xmlns:inst="https://inm.gov.co/inst" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+<mr:NIST_SRM_928 xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
   <mr:administrativeData>
     <mr:name>NIST SRM 928</mr:name>
     <mr:type>certified</mr:type>
     <mr:producer>
-      <inst:name lang="EN">National Institute of Standards and Technology</inst:name>
-      <inst:shortName>NIST</inst:shortName>
-      <inst:country>US</inst:country>
-      <inst:ror>https://ror.org/05xpvk416</inst:ror>
-      <inst:url>https://www.nist.gov/</inst:url>
+      <mr:laboratoryName lang="EN">National Institute of Standards and Technology</mr:laboratoryName>
+      <mr:laboratoryShortName>NIST</mr:laboratoryShortName>
+      <mr:country>US</mr:country>
+      <mr:laboratoryROR>https://ror.org/05xpvk416</mr:laboratoryROR>
+      <mr:laboratoryURL>https://www.nist.gov/</mr:laboratoryURL>
     </mr:producer>
     <mr:validUntil>2025/12/02</mr:validUntil>
   </mr:administrativeData>

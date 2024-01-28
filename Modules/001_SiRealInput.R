@@ -1,10 +1,13 @@
-SiRealXML <- function(quantityTypeQUDT, value, units, uncert, covFac, covProp, distribution) {
-  return(addDataToMRXML(
-    read_xml('<si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>'),
-    list('si:quantityTypeQUDT' = quantityTypeQUDT, 'si:value' = value, 'si:unit' = units,
-         'si:expandedUnc' = list(
-           'si:uncertainty' = uncert, 'si:coverageFactor' = covFac,
-           'si:coverageProbability' = covProp, 'si:distribution' = distribution))))}
+SiRealXML <- function(quantityTypeQUDT, value, units, uncert, covFac, covProp = NULL, distribution = 'normal') {
+  if(missing(covProp)) covProp <- round(pnorm(covFac) - pnorm(-covFac), 3)
+  SiRealXML <- read_xml('<si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>')
+  addDataToMRXML(SiRealXML, list(
+    'si:quantityTypeQUDT' = quantityTypeQUDT, 'si:value' = value, 'si:unit' = units,
+    'si:expandedUnc' = list(
+      'si:uncertainty' = uncert, 'si:coverageFactor' = covFac,
+      'si:coverageProbability' = covProp, 'si:distribution' = distribution)))
+  return(SiRealXML)
+}
 
 SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3) {
   ns <- NS(id)
@@ -20,8 +23,7 @@ SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3) {
       column(2, selectInput(ns('units'), label = NULL, choices = units)),
       column(5, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
                                  inputId = ns('covFac'), label = NonReqField('Factor k'), value = 1.96, decimalPlaces = 2),
-             autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
-                              inputId = ns('covProp'), label = NonReqField('Probabilidad'), value = 0.95, decimalPlaces = 2),
+             uiOutput(ns('covProp')),
              selectInput(ns('distribution'), label = NonReqField('Distribución'), choices = Distributions))),
   )
 }
@@ -31,6 +33,13 @@ SiRealInputServer <- function(id, devMode, quantityTypeQUDT = '') {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa subsubmodulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
+    
+    covProp <- reactive({
+      autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
+                       inputId = session$ns('covProp'), label = NonReqField('Probabilidad'), value = pnorm(input$covFac) - pnorm(-input$covFac),
+                       decimalPlaces = 3)
+    })
+    output$covProp <- renderUI(covProp())
     
     SiReal <- reactive(SiRealXML(quantityTypeQUDT, input$value, input$units, input$uncert,
                                  input$covFac, input$covProp, input$distribution))

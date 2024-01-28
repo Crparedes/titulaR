@@ -3,17 +3,21 @@ library(dplyr)
 library(stringr)
 library(xml2)
 
-headingMR <- '<?xml version="1.0" encoding="UTF-8"?>
-<mr:MRXML
-  xmlns:mr="https://inm.gov.co/mr"
-  xmlns:inst="https://inm.gov.co/inst"
-  xmlns:si="https://ptb.de/si"
-  xmlns:qudt="http://qudt.org/vocab/"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
+genericHeading <- function(x, inclVerEnc = FALSE) {
+  VerEnc <- '<?xml version="1.0" encoding="UTF-8"?>'
+  heading <- 'YYY
+  <XXX
+    xmlns:mr="https://inm.gov.co/mr"
+    xmlns:si="https://ptb.de/si"
+    xmlns:qudt="http://qudt.org/vocab/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
+  heading <- gsub('YYY', ifelse(inclVerEnc, VerEnc, ''), gsub('XXX', x, heading))
+  return(heading)
+}
 
 initiateMRXML <- function(name) {
-  heading <- str_replace(headingMR, 'MRXML', name)
+  heading <- str_replace(genericHeading('mr:MRXML', TRUE), 'MRXML', name)
   xmlObject <- read_xml(heading) 
   xmlObject %>% {
     xml_add_child(., 'mr:administrativeData')
@@ -65,42 +69,14 @@ initiatePersonXML <- function(name) {
   return(xmlObject)
 }
 
-############## Ambient conditions
-headingAmbiente <- '
-<mr:ambiente ID = "idAmbiente"
-  xmlns:mr="https://inm.gov.co/mr"
-  xmlns:si="https://ptb.de/si"
-  xmlns:qudt="http://qudt.org/vocab/"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
 
-initiateAmbienteXML <- function(name) {
-  heading <- str_replace(headingAmbiente, 'idAmbiente', name)
-  xmlObject <- read_xml(headingAmbiente) 
-  xmlObject %>% {
-    xml_add_child(., 'mr:ambientConditions')
-    xml_add_child(., 'mr:airDensity')
-  }
-  return(xmlObject)
-}
 
 ############## Disoluciones
-headingSolution <- '<?xml version="1.0" encoding="UTF-8"?>
-<solution:DISOLUCION
-  xmlns:solution="https://inm.gov.co/disoluciones"
-  xmlns:mr="https://inm.gov.co/mr"
-  xmlns:inst="https://inm.gov.co/inst"
-  xmlns:si="https://ptb.de/si"
-  xmlns:qudt="http://qudt.org/vocab/"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd"/>'
-
-initiateSolutionXML <- function(name) {
-  heading <- str_replace(headingSolution, 'DISOLUCION', name)
-  xmlObject <- read_xml(heading) 
+initiateSolutionXML <- function() {
+  xmlObject <- read_xml(genericHeading('mr:standardSolution', TRUE))
   xmlObject %>% {
-    xml_add_child(., 'solution:administrativeData')
-    xml_add_child(., 'solution:propertyValues')
+    xml_add_child(., 'mr:coreData')
+    xml_add_child(., 'mr:property')
   }
   return(xmlObject)
 }

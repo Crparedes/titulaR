@@ -1,20 +1,13 @@
+source('Modules/00_DigitalReferences.R')
 adminData_NIST_SRM_928 <- list(
   'mr:name' = 'NIST SRM 928',
   'mr:type' = 'certified',
-  'mr:producer' = list(
-    'inst:name' = c('National Institute of Standards and Technology', lang = 'EN'),
-    'inst:shortName' = 'NIST',
-    'inst:country' = 'US',
-    'inst:ror' = 'https://ror.org/05xpvk416',
-    'inst:url' = 'https://www.nist.gov/'),
+  'mr:producer' = RORs$NIST,
   'mr:validUntil' = '2025/12/02')
 
 certiData_NIST_SRM_928 <- list(
   certProp1 = list(
-    'mr:substance' = list(
-      'mr:name' = 'Lead nitrate',
-      'mr:InChI' = c('1S/2NO3.Pb/c2*2-1(3)4;/q2*-1;+2', version = '1.0.6'),
-      'mr:InChiKey' = c('RLJMLMKIBZAXJO-UHFFFAOYSA-N', version = '1.0.6')),
+    'mr:substance' = Substances$PbNO3,
     'mr:matrix' = 'High purity reagent',
     'si:real' = list(
       'si:quantityTypeQUDT' = 'MassFraction',
@@ -27,10 +20,7 @@ certiData_NIST_SRM_928 <- list(
 
 additData_NIST_SRM_928 <- list(
   ionMassFraction = list(
-    'mr:substance' = list(
-      'mr:name' = 'lead(2+)',
-      'mr:InChI' = c('1S/Pb/q+2', version = '1.0.6'),
-      'mr:InChiKey' = c('RVPVRDXYQKGNMQ-UHFFFAOYSA-N', version = '1.0.6')),
+    'mr:substance' = Substances$PbII,
     'si:real' = list(
       'si:quantityTypeQUDT' = 'MassFraction',
       'si:value' = 207.209 / 331.219,
@@ -40,10 +30,7 @@ additData_NIST_SRM_928 <- list(
         'si:coverageFactor' = 2,
         'si:coverageProbability' = 0.95))),
     ionMolarMass = list(
-      'mr:substance' = list(
-        'mr:name' = 'lead(2+)',
-        'mr:InChI' = c('1S/Pb/q+2', version = '1.0.6'),
-        'mr:InChiKey' = c('RVPVRDXYQKGNMQ-UHFFFAOYSA-N', version = '1.0.6')),
+      'mr:substance' = Substances$PbII,
       'si:real' = list(
         'si:quantityTypeQUDT' = 'MolarMass',
         'si:value' = 207.209,

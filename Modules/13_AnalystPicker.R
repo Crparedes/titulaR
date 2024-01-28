@@ -1,7 +1,7 @@
 AnalystPickerUI <- function(id) {
   ns <- NS(id)
   fluidRow(
-    column(6, uiOutput(ns('Analista'))),
+    column(6, uiOutput(ns('AnalistaPicker'))),
     column(6, uiOutput(ns('datosAnalista')))
   )
 }
@@ -13,11 +13,11 @@ AnalystPickerServer <- function(id, devMode, demo, showData = TRUE, inline = TRU
       authPersons[[input$Analista]]
     })
     
-    Analista <- reactive(pickerInput(
+    AnalistaPicker <- reactive(pickerInput(
       session$ns("Analista"), label = ReqField('Analista', 2), inline = inline, width = width,
       choices = names(authPersons), multiple = TRUE, selected = ifelse(demo(), 'Cristhian Paredes', ''),
       options = list(`max-options` = 1, `none-selected-text` = "(Personal con autorizaciones)")))
-    output$Analista <- renderUI(Analista())
+    output$AnalistaPicker <- renderUI(AnalistaPicker())
 
     datosAnalista <- eventReactive(input$Analista, ignoreNULL = TRUE, ignoreInit = TRUE, {
       tags$div(

@@ -21,11 +21,14 @@ library(masscor)
 
 
 library(xml2)
+library(XML) # to use XML::xmlCleanNamespaces()
 library(dplyr)
 library(stringr)
+
+library(propagate)
 # library(shinyTime)
 
-# library(shinydashboardPlus)
+library(shinydashboardPlus)
 
 source('D_SI_xml/0_createMRXML.R')
 
