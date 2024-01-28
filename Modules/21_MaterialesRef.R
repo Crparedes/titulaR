@@ -14,8 +14,8 @@ MaterialesRefereUI <- function(id) {
         title = NULL, width = 12, status = 'primary', collapsible = FALSE,
         fluidRow(
           column(width = 2, SI_unit_nice('mole', width = "100%")),
-          column(width = 10, downloadLink(ns('DescMrXml'), label = "Descargar archivo XML del material de referencia"),
-                 tags$br(), htmlOutput(ns('printTheMrXML')))
+          column(width = 10, disabled(downloadLink(ns('DescMrXml'), label = "Descargar archivo XML de material de referencia")),
+                 Nlns(2), htmlOutput(ns('printTheMrXML')))
         )
       )
     ),
@@ -51,8 +51,11 @@ MaterialesRefereServer <- function(id, devMode) {
         options = list(`max-options` = 1, `none-selected-text` = "Seleccione un MRC"))))
     output$SelectMRC <- renderUI(SelectMRC())
     
+
     observeEvent(input$MRCtoView, {
       req(input$MRCtoView)
+      enable('DescMrXml')
+      
       index <- which(lapply(ReferenceMaterials[[input$MrXmlViewType]], function(x) {
         as_list(x)[[1]]$administrativeData$name[[1]]}) == input$MRCtoView)
       withCallingHandlers({

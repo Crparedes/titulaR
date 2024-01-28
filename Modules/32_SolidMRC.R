@@ -42,8 +42,8 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
       tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
     fluidRow(
       column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
-      column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar'),
-             tags$br(), htmlOutput(ns('InfoDisXML'))))
+      column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar')),
+             Nlns(2), htmlOutput(ns('InfoDisXML'))))
   )
 }
 
@@ -192,7 +192,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     
     observeEvent(input$buttonCalc, {
-      downlXMLlink
+      enable('downlXMLlink')
       withCallingHandlers({
         shinyjs::html("InfoDisXML", "")
         message(DisolucionXML())},
@@ -200,9 +200,12 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
           shinyjs::html(id = "InfoDisXML",
                         html = paste0('<textarea rows = 40 style = "width: 100%;">',
                                       m$message, '</textarea>'), add = FALSE)})
+      
+      output$downlXMLlink <-  downloadHandler(
+        filename = function() {paste0(gsub(pattern = ' ', replacement = '_', input$DisolID, fixed = FALSE), ".xml")},
+        content = function(file) {write_xml(DisolucionXML(), file)})
     })
     
-    output$downlXMLlink <- renderUI(downlXMLlink())
     return(DisolucionXML)
   })
 }
