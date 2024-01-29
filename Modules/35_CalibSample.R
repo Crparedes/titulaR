@@ -13,16 +13,15 @@
       id = 'inline', style = 'font-size:12px; margin-left:25px',
       pickerInput(ns('Elemento'), label = h5(tags$b(ReqField('Elemento', 3, 6))), multiple = FALSE, inline = TRUE, width = 'fit',
                   choices = list('Plomo' = 'PbII', 'Cadmio' = 'CdII',  'Calcio' = 'CaII')),
-      pickerInput(ns('MolarMassOpt'), label = NULL, multiple = FALSE,  inline = TRUE, width = 'fit',
-                  choices = list('Peso atómico estándar' = 'IUPAC', 'Ingresar peso atómico' = 'Otro')),
       pickerInput(ns('DilutionOpt'), label = NULL, multiple = FALSE,  inline = TRUE, width = 'fit',
-                  choices = list('Calibrante sin diluír' = 'noDil', 'Dilución gravimétrica' = 'Dil'))),
+                  choices = list('Calibrante sin diluír' = 'noDil', 'Dilución gravimétrica' = 'Dil')),
+      pickerInput(ns('MolarMassOpt'), label = NULL, multiple = FALSE,  inline = TRUE, width = 'fit',
+                  choices = list('Peso atómico estándar' = 'IUPAC', 'Ingresar peso atómico manualmente' = 'Otro'))),
       
       conditionalPanel(
-        'input.DilutionOpt == "Dil"', ns = ns, 
+        'input.DilutionOpt == "Dil"', ns = ns, tags$hr(), tags$b('Dilución gravimétrica de la muestra:', style = 'margin-left:20px'),
         tags$div(
-          id = "inline", style = 'margin-left:25px',
-          tags$hr(), tags$b('Dilución gravimétrica de la muestra:', style = 'margin-left:-15px'),
+          id = "inline", style = 'margin-left:45px; font-size:12px;', 
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
                            ns('MasRec1'), label = ReqField('Masa del recipiente / g:'),
                            value = ifelse(demo, 10.00000, 0), align = 'left', minimumValue = 0),
@@ -32,19 +31,18 @@
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
                            ns('MasRecSample1'), label = ReqField('Masa del recipiente con calibrante / g:'),
                            value = ifelse(demo, 11.00001, 0), align = 'left', minimumValue = 0),
+          uiOutput(ns('deriMasaAlicuota')),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
                            ns('MasRecSample1'), label = ReqField('Masa del disolvente / g:'),
                            value = ifelse(demo, 9.00002, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
                            ns('MasRecSample1'), label = ReqField('Masa del recipiente con disolución / g:'),
                            value = ifelse(demo, 20.0000, 0), align = 'left', minimumValue = 0),
-          uiOutput(ns('deriMasaSample')))),
+          uiOutput(ns('deriMasaDisolucion')))),
+    conditionalPanel('input.MolarMassOpt == "Otro"', ns = ns, tags$hr(), uiOutput(ns('ShowMolarMass'))),
+    tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución', style = 'margin-left:45px')), Nlns(3),
     
-        uiOutput(ns('ShowMolarMass')),
-        tags$hr(),
-        tags$hr(),
-        tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3),
-      fluidRow(
+    fluidRow(
         column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
         column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra')),
                Nlns(2), htmlOutput(ns('InfoDisXML'))))
@@ -54,14 +52,26 @@
 CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambient, solutionType) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
-      if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
+      if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
     
+    InitMolarMass <- reactive(IUPAC2019AW[[input$Elemento]])
+    
+    ShowMolarMass <- reactive({
+      if (input$MolarMassOpt == 'Otro') {
+        MasaMolarInputUI <- SiRealInputUI(session$ns('MasaMolar'),
+                                          name = tags$h5(tags$b('Peso atómico del elemento'), style = 'margin-left:20px'),
+                                          colWid = c(2, 2, 3, 4),
+                                          x0 = InitMolarMass()[1], u0 = InitMolarMass()[2], units = '\\gram\\mole\\tothe{-1}')
+        return(MasaMolarInputUI)
+      }
+    })
+    output$ShowMolarMass <- renderUI(ShowMolarMass())
+    observe(isolate(SiRealInputServer(id = 'MasaMolar', devMode = devMode, quantityTypeQUDT = 'MolarMass')))
     # OtroMasaMolar <- reactive({
     #   if(input$MasaMolarOpt == 'Otro') {
     #     
-    #     MasaMolarInputUI <- SiRealInputUI(session$ns('MasaMolar'), name = 'Valor de masa molar del elemento')))
-    #   return(MasaMolarInputUI)
+        
     #   }
     # })
     

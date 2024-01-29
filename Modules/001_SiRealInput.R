@@ -14,19 +14,19 @@ SiRealXML <- function(quantityTypeQUDT = NULL, value = NULL, units = NULL,
   return(SiRealXML)
 }
 
-SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3) {
+SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3, colWid = c(2, 2, 2, 5)) {
   ns <- NS(id)
   tags$div(
     id = "inline", style = 'font-size:12px;', uiOutput(ns('brwz')),
     tags$b(name),
     fluidRow(
       style = 'margin-left:10px;',
-      column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
+      column(colWid[1], autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE,
                                  inputId = ns('value'), label = NULL, value = x0, decimalPlaces = decimalPlaces)),
-      column(2, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
+      column(colWid[2], autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
                                  inputId = ns('uncert'), label = NonReqField('\u00B1', 3), value = u0, decimalPlaces = decimalPlaces)),
-      column(2, selectInput(ns('units'), label = NULL, choices = units)),
-      column(5, autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
+      column(colWid[3], selectInput(ns('units'), label = NULL, choices = units)),
+      column(colWid[4], autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
                                  inputId = ns('covFac'), label = NonReqField('Factor k'), value = 1.96, decimalPlaces = 2),
              uiOutput(ns('covProp')),
              selectInput(ns('distribution'), label = NonReqField('Distribución'), choices = Distributions))),
