@@ -18,7 +18,7 @@ library(FrF2)
 library(purrr) # map-like functional programing (?)
 library(units)
 library(masscor)
-
+library(CIAAWconsensus)
 # 
 library(xml2)
 # library(XML) # to use XML::xmlCleanNamespaces()

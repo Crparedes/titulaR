@@ -26,6 +26,6 @@ customSidebar <- dashboardSidebar(
                      # timeInput("Hora", "Modificar hora: (hh:mm:ss)", value = Sys.time()),
                      actionButton('brwz', label = tags$b('Pausar aplicativo'), width = '70%')),
     splitLayout(
-      materialSwitch('Demo', 'Demo', status = 'primary'),
-      materialSwitch('Desarrollador', 'Devel', status = 'primary'))
+      materialSwitch('Demo', 'Demo', value = TRUE, status = 'primary'),
+      materialSwitch('Desarrollador', 'Devel', value = TRUE, status = 'primary'))
   ))

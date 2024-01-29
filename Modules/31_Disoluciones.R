@@ -70,6 +70,26 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
         updateBox('condAmbiBox', action = 'toggle')
       } 
     })
+    ### Disoluci'on calibrante monoelemental
+    observeEvent(input$NewCaliSamSol, {
+      req(input$NewCaliSamSol > 0)
+      solutionType <- 'MuestraCalib'
+      tabName <- isolate(paste0(solutionType, '_', input$NewCaliSamSol))
+      StandardSampleSolutions$solutions <- append(
+        StandardSampleSolutions$solutions, 
+        list(isolate(CalibSampleServer(id = tabName, devMode = devMode, demo = demo, analyst = analyst, balanza = balanzaUsed,
+                                       fecha = fecha, ambient = AmbiDensAire, solutionType = solutionType))))
+      appendTab(
+        inputId = 'NewSolutions', select = TRUE, 
+        tab = CalibSampleUI(
+          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha())#,
+          # explan = 'Para asignar valor de fracción másica en el reactivo sólido.'
+      ))
+      
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
+        updateBox('condAmbiBox', action = 'toggle')
+      } 
+    })
 
     observeEvent(input$NewLeadStdSol, {
       req(input$NewLeadStdSol > 0)
@@ -111,6 +131,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
         updateBox('condAmbiBox', action = 'toggle')
       } 
     })
+    
 
     
   })

@@ -24,6 +24,13 @@ Substances <- list(
     'mr:InChiKey' = c('RVPVRDXYQKGNMQ-UHFFFAOYSA-N', version = '1.0.6'))
 )
 
+IUPAC2019AW <- list(
+  CaII = c(40.078, signif(0.004 / sqrt(3), 2)),
+  CdII = c(112.414, signif(0.004 / sqrt(3), 2)),
+  PbII = c(mean(c(206.14, 207.94)), signif(diff(c(206.14, 207.94)) / 2 / sqrt(3), 2))
+)
+# https://www.degruyter.com/document/doi/10.1515/pac-2019-0603/html
+
 densities <- list(
   Na2EDTA.2H2O = list(
     'si:real' = list(
