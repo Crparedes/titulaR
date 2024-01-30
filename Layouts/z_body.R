@@ -64,7 +64,6 @@ customBody <- dashboardBody(
                       background-color: #3f4e4f; border-color: #3f4e4f;}'))
   ),
   customTheme,
-  
   tabItems(
     tabItem(tabName = "tabsInicio", inicioLy),
     tabItem(tabName = "tabsCertMass", BalanceCalibCertUI('Balanzas')),

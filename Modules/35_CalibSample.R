@@ -33,10 +33,10 @@
                            value = ifelse(demo, 11.00001, 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaAlicuota')),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecSample1'), label = ReqField('Masa del disolvente / g:'),
+                           ns('MasDisolv1'), label = ReqField('Masa del disolvente / g:'),
                            value = ifelse(demo, 9.00002, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecSample1'), label = ReqField('Masa del recipiente con disolución / g:'),
+                           ns('MasRecSolution1'), label = ReqField('Masa del recipiente con disolución / g:'),
                            value = ifelse(demo, 20.0000, 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaDisolucion')))),
     conditionalPanel('input.MolarMassOpt == "Otro"', ns = ns, tags$hr(), uiOutput(ns('ShowMolarMass'))),
@@ -76,8 +76,21 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
     # })
     
     observe({
-      req(balanza, analyst, input$DisolID, input$MasRec1, input$MasSample1, input$MasRecSample1, input$MasRec2, input$MasDis1, input$MasRecDis1)
-      if (input$MasRec1 * input$MasSample1 * input$MasRecSample1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
+      req(analyst, input$Nombre)
+      bolean <- TRUE
+      # if (input$DilutionOpt == 'Dil') {
+      #   bolean <- FALSE
+      #   req(balanza)
+      #   if (input$MasRec1 * input$MasSample1 * input$MasRecSample1 * input$MasRec2 * input$MasDis1 *
+      #       input$MasDisolv1 * input$MasRecSolution1 == 0) bolean <- FALSE
+      # }
+      # if (!isTruthy(balanza))
+      # if (input$MolarMassOpt == "Otro") {
+      #   if (input$MasRec1 * input$MasSample1 * input$MasRecSample1 * input$MasRec2 * input$MasDis1 *
+      #       input$MasDisolv1 * input$MasRecSolution1 == 0) bolean <- FALSE
+      # }
+      
+      if (bolean) enable('buttonCalc')
     })
     
     derMassSample <- reactive(input$MasRecSample1 - input$MasSample1 - input$MasRec1)
@@ -87,8 +100,16 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
     
     derMassSAMPLE <- reactive(input$MasRecSAMPLE1 - input$MasSAMPLE1 - input$MasRec1)
     masSAMPLE <- reactive(mean(input$MasSAMPLE1, input$MasRecSAMPLE1 - input$MasRec1))
-    derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
+    deriMasaDisolucion <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
     masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
+    
+    # Messages
+    deriMasaSAMPLE <- eventReactive(input$MasRecSAMPLE1, 
+                                 div(style = 'font-size:11px', 'Deriva en la medición de masa de la alicuota: ', signif(derMassSAMPLE() * 1000, 2), ' / mg'))
+    deriMasaDisSAMPLE <- eventReactive(input$MasRecDis1,
+                                    div(style = 'font-size:11px', 'Deriva en la medición de masa de la disolucion: ', signif(derMassDis() * 1000, 2), ' / mg'))
+    output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
+    output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     
     DisolDensi <- reactive(GetValueEstandUncert(req(DensiDisol())))
     airDensity <- reactive(GetValueEstandUncert(req(ambient()), 'Density'))
@@ -118,18 +139,11 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
       return(xx)
     })
     
-    # Messages
-    deriMasaSAMPLE <- eventReactive(input$MasRecSAMPLE1, 
-                                 div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassSAMPLE() * 1000, 2), ' / mg'))
-    deriMasaDisSAMPLE <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' / mg'))
-    output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
-    output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
       xmlObject <- initiateSolutionXML()
       AdminList <- list('mr:solutionType' = solutionType, 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
-      PropeList <- list('mr:substance' = Substances[reagForm])
+      # PropeList <- list('mr:substance' = Substances[reagForm])
       
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')
       addDataToMRXML(xmlObject, PropeList, node = 'mr:property')

@@ -59,7 +59,7 @@ BalanceCalibCertServer <- function(id, devMode, demo) {
       pickerInput(
         session$ns("balanzasShowData"), label = 'Seleccione una balanza',
         choices = input$balanzasElected, width = '100%',# inline = FALSE,
-        multiple = TRUE, selected = NULL,
+        multiple = TRUE, selected = ifelse(demo(), 'Mettler Toledo XPE 205 (2023-07-18)', ''),
         options = list(
           `max-options` = 1,
           `none-selected-text` = "(Revise la vigencia del certificado de calibración - fecha)"))

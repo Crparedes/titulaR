@@ -30,9 +30,9 @@ PreparaDisolucioUI <- function(id) {
         # tags$h4(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
         tags$div(
           id = "inline", style = 'font-size:12px; margin-left:60px;',
-          ),
-        balanzasPickerUI(ns('SolPrep')), AnalystPickerUI(ns('analyst')), Nlns(1),
-        tabBox(title = NULL, id = ns('NewSolutions'), width = 12, side = 'right')))
+          ), #Nlns(1),
+        tabBox(title = NULL, id = ns('NewSolutions'), width = 12, side = 'right',
+               tags$div(balanzasPickerUI(ns('SolPrep')), AnalystPickerUI(ns('analyst')), tags$hr()))))
   )
 }
 

@@ -18,8 +18,8 @@ library(FrF2)
 library(purrr) # map-like functional programing (?)
 library(units)
 library(masscor)
-library(CIAAWconsensus)
-# 
+# library(CIAAWconsensus)
+# install.packages("devtools")
 library(xml2)
 # library(XML) # to use XML::xmlCleanNamespaces()
 library(dplyr)
@@ -52,7 +52,6 @@ server <- function(input, output, session) {
   # shinyalert(title = 'Advertencia', text = , "Este aplicativo está en desarrollo", showConfirmButton = FALSE,
   #            closeOnEsc = TRUE, closeOnClickOutside = TRUE, html = TRUE, type = "info", timer = 7500)
   # 
-  
   devMode <- reactive(input$Desarrollador)
   observeEvent(input$brwz, browser())
   
@@ -60,8 +59,9 @@ server <- function(input, output, session) {
   
   fecha <- reactive(input$fecha)
   
+  
   BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo)
-  MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode)
+  MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode, demo = demo)
   DisolInfoPC <- PreparaDisolucioServer(
     'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo)
   

@@ -5,10 +5,10 @@ MaterialesRefereUI <- function(id) {
       width = 6, style = 'margin-left: 80px;', Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: -20px;',
               tags$b('Materiales de referencia para la preparacion de disoluciones')),
-      tags$b("Ver o descargar la información de un material de referencia"),
-      radioButtons(ns('MrXmlViewType'), label = NULL, 
-                   choices = list('Para titular disoluciones calibrantes' = 'forCalibrantes',
-                                  'Para titular EDTA' = 'forEDTA')),
+      # tags$b("Ver o descargar la información de un material de referencia"),
+      radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA',
+                   choices = list('Para caracterizar disoluciones calibrantes monoelementales' = 'forCalibrantes',
+                                  'Para caracterizar sal de EDTA' = 'forEDTA')),
       uiOutput(ns('SelectMRC')),
       box(
         title = NULL, width = 12, status = 'primary', collapsible = FALSE,
@@ -32,7 +32,7 @@ MaterialesRefereUI <- function(id) {
 }
 
 
-MaterialesRefereServer <- function(id, devMode) {
+MaterialesRefereServer <- function(id, devMode, demo) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
@@ -54,7 +54,7 @@ MaterialesRefereServer <- function(id, devMode) {
       pickerInput(
         session$ns("MRCtoView"), width = "100%", label = NULL,
         choices = lapply(ReferenceMaterials[[input$MrXmlViewType]], function(x) {as_list(x)[[1]]$administrativeData$name[[1]]}),
-        selected = NULL, multiple = TRUE,
+        multiple = !demo(),
         options = list(`max-options` = 1, `none-selected-text` = "Seleccione un MRC"))))
     output$SelectMRC <- renderUI(SelectMRC())
     
