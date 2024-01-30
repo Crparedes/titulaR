@@ -1,167 +1,159 @@
-SolidSampleUI <- function(id, reagent, reagKey, explan, nu = FALSE) {
+CalibSampleUI <- function(id, demo, title, fecha, nu = FALSE) {
   ns <- NS(id)
-  box(title = div(style = 'font-size:18px;valign="bottom"', tags$b('Muestra de ', reagent)), 
-      width = 12, status = 'primary', collapsible = TRUE, collapsed = FALSE,
-      h5(explan),
-      radioButtons(ns('SourceOption'), label = '¿Qué desea hacer?', 
-                   choices = list('Crear disolución nueva a partir del reactivo solido' = 'daCapo',
-                                  "Subir un archivo '.dis' generado anteriormente" = 'archivo'), 
-                   selected = 'archivo'),
-      tags$hr(),
+  tabPanel(
+    title = tags$b(title), uiOutput(ns('brwz')),
+    tags$b(paste0('Nueva disolucion calibrante monoelemental.')), Nlns(), #explan, tags$br(), tags$br(),
+    tags$div(
+      id = 'inline', style = 'font-size:12px; margin-left:25px',
+      textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 4))), width = '300px',
+                value = paste(gsub('-', '', fecha), title, sep = '_')),
+      textInput(ns('Nombre'), label = h5(tags$b(ReqField('Nombre', 4))), width = '300px',
+                value = ifelse(demo, 'MRC-INM-023-1', ''), placeholder = '(e.g. código MRC, unidad, lote)')),
+    tags$div(
+      id = 'inline', style = 'font-size:12px; margin-left:25px',
+      pickerInput(ns('Elemento'), label = h5(tags$b(ReqField('Elemento', 3, 6))), multiple = FALSE, inline = TRUE, width = 'fit',
+                  choices = list('Plomo' = 'Pb', 'Cadmio' = 'Cd',  'Calcio' = 'Ca')),
+      pickerInput(ns('DilutionOpt'), label = NULL, multiple = FALSE,  inline = TRUE, width = 'fit',
+                  choices = list('Calibrante sin diluír' = 'noDil', 'Dilución gravimétrica' = 'Dil')),
+      pickerInput(ns('MolarMassOpt'), label = NULL, multiple = FALSE,  inline = TRUE, width = 'fit',
+                  choices = list('Peso atómico estándar' = 'IUPAC', 'Ingresar peso atómico manualmente' = 'Otro'))),
+      
       conditionalPanel(
-        condition = 'input.SourceOption == "daCapo"', ns = ns,
-        column(12, tags$div(
-          id = "inline", style = 'font-size:12px', 
-          textInput(ns('IDMuestra'), label = 'Identificación muestra: .', value = paste0('Muestra_', reagKey), width = '100%'),
-          textInput(ns('dscrMuestra'), label = 'Observaciones:  .', placeholder = '(Información adiciónal)', width = '100%')), 
-          tags$hr()),
-          box(title = div(style = 'font-size:14px', 'Preparacion de la disolucion'), 
-              width = 12, collapsible = TRUE, collapsed = TRUE, status = 'primary',
-              tags$b('Condiciones ambientales'),
-              tags$div(id = "inline", style = 'font-size:12px',
-                       splitLayout(cellWidths = c("75%", "25%"),
-                                   numericInput(ns('Temp1'), label = 'Temperatura [$^o$C]: .', value = 18),
-                                   numericInput(ns('u_Temp1'), label = '\u00B1', value = 1.8)),
-                       splitLayout(cellWidths = c("75%", "25%"),
-                                   numericInput(ns('BarPres1'), label = 'Presion [hPa]: .', value = 750),
-                                   numericInput(ns('u_BarPres1'), label = '\u00B1', value = 2)),
-                       splitLayout(cellWidths = c("75%", "25%"),
-                                   numericInput(ns('relHum1'), label = 'Humedad relativa [%]: .', value = 45),
-                                   numericInput(ns('u_relHum1'), label = '\u00B1', value = 3))),
-              uiOutput(ns("NiceDensitAir")), tags$hr(),
-              tags$b('Masa del reactivo sólido'),
-              tags$div(id = "inline", style = 'font-size:12px', 
-                       pickerInput(ns("CalibCertSample"), label = 'Balanza utilizada: .',
-                                   choices = CalibCertShow, width = '100%', selected = 'MT XPE 205', multiple = FALSE)),
-              tags$div(id = "inline", style = 'font-size:12px',
-                       numericInput(ns('MasRec1'), label = 'Masa del recipiente [g]: .', value = 0),
-                       numericInput(ns('MasSAMPLE1'), label = 'Masa del Reactivo sólido [g]: .', value = 0),
-                       numericInput(ns('MasRecSAMPLE1'), label = 'Masa conjunta [g]: .', value = 0),
-                       uiOutput(ns('deriMasaSAMPLE'))), tags$hr(),
-              tags$b('Masa final de la disolucion'),
-              uiOutput(ns('CalibCertDis')),
-              tags$div(id = "inline", style = 'font-size:12px',
-                       numericInput(ns('MasRec2'), label = 'Masa del recipiente [g]: .', value = 0),
-                       numericInput(ns('MasDis1'), label = 'Masa final disolucion [g]: .', value = 0),
-                       numericInput(ns('MasRecDis1'), label = 'Masa conjunta [g]: .', value = 0),
-                       splitLayout(cellWidths = c("75%", "25%"),
-                                   numericInput(ns('DensitDis'), label = 'Densidad disolucion [g cm$^{-3}$]: .', value = 1.000),
-                                   numericInput(ns('u_DensitDis'), label = '\u00B1', value = 0.004)),
-                       uiOutput(ns('deriMasaDisSAMPLE'))))),
-      conditionalPanel(
-        condition = 'input.SourceOption == "archivo"', ns = ns,
-        fileInput(ns('DisFile'), label = 'Escoja el archivo', multiple = FALSE, accept = '.dis')),
-      tags$hr(), tags$hr(), 
-      uiOutput(ns('buttonCalc')), uiOutput(ns('brwz')), tags$br(), #tags$br(),
-      uiOutput(ns('InfoDisBox'))
-  )
+        'input.DilutionOpt == "Dil"', ns = ns, tags$hr(), tags$b('Dilución gravimétrica de la muestra:', style = 'margin-left:20px'),
+        tags$div(
+          id = "inline", style = 'margin-left:45px; font-size:12px;', 
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                           ns('MasRec1'), label = ReqField('Masa del recipiente / g:'),
+                           value = ifelse(demo, 10.00000, 0), align = 'left', minimumValue = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
+                           ns('MasSample1'), label = ReqField('Masa del calibrante / g:'),
+                           value = ifelse(demo, 1.00006, 0), align = 'left', minimumValue = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                           ns('MasRecSample1'), label = ReqField('Masa del recipiente con calibrante / g:'),
+                           value = ifelse(demo, 11.00001, 0), align = 'left', minimumValue = 0),
+          uiOutput(ns('deriMasaSAMPLE')), tags$hr(),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                           ns('MasDisolv1'), label = ReqField('Masa del disolvente / g:'),
+                           value = ifelse(demo, 9.00002, 0), align = 'left', minimumValue = 0),
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                           ns('MasRecSolution1'), label = ReqField('Masa del recipiente con disolución / g:'),
+                           value = ifelse(demo, 20.0000, 0), align = 'left', minimumValue = 0),
+          uiOutput(ns('deriMasaDisSAMPLE')), tags$hr(),
+          uiOutput(ns('showFactorDilucion')))),
+    conditionalPanel('input.MolarMassOpt == "Otro"', ns = ns, tags$hr(), uiOutput(ns('ShowMolarMass'))),
+    tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución', style = 'margin-left:45px')), Nlns(3),
+    
+    fluidRow(
+        column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
+        column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra')),
+               Nlns(2), htmlOutput(ns('InfoDisXML'))))
+    )
 }
 
-SolidSampleServer <- function(input, output, session, reagKey, IDUsuario, DensitSAMPLE, molarWeight, devMode, fecha) {
-  output$brwz <- renderUI(
-    if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
-  observeEvent(input$brwz, browser())
-  
-  DensitAir <- reactive(c(airDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1),
-                          uncertAirDensity(Temp = input$Temp1, p = input$BarPres1, h = input$relHum1, 
-                                           u_Temp = input$u_Temp1, u_p = input$u_BarPres1, u_h = input$u_relHum1, printRelSD = FALSE)))
-  
-  derMassSAMPLE <- reactive(input$MasRecSAMPLE1 - input$MasSAMPLE1 - input$MasRec1)
-  masSAMPLE <- reactive(mean(input$MasSAMPLE1, input$MasRecSAMPLE1 - input$MasRec1))
-  derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
-  masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
-  CalibCertDis <- reactive(tags$div(id = "inline", style = 'font-size:12px', 
-                                    pickerInput(session$ns("CalibCertDis"), 
-                                                label = 'Balanza utilizada: .',
-                                                choices = CalibCertShow, selected = input$CalibCertSample, width = '100%', multiple = FALSE)))
-  
-  convMassSAMPLE <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertSample]], reading = masSAMPLE(), units = 'g'),
-                            uncertConvMass(calibCert = CalibCertList[[input$CalibCertSample]], reading = masSAMPLE(), units = 'g')))
-  BuoySAMPLE <- reactive(c(MABC(rho = DensitSAMPLE[1], rho_air = DensitAir()[1]),
-                        uncertMABC(rho = DensitSAMPLE[1], rho_air = DensitAir()[1], 
-                                   u_rho = DensitSAMPLE[2], u_rho_air = DensitAir()[2], printRelSD = FALSE)))
-  
-  convMassDis <- reactive(c(convMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g'),
-                            uncertConvMass(calibCert = CalibCertList[[input$CalibCertDis]], reading = masDis(), units = 'g')))
-  BuoyDis <- reactive(c(MABC(rho = input$DensitDis, rho_air = DensitAir()[1]),
-                        uncertMABC(rho = input$DensitDis, rho_air = DensitAir()[1], 
-                                   u_rho = input$u_DensitDis, u_rho_air = DensitAir()[2], printRelSD = FALSE)))
-  
-  factorDilucion <- reactive({
-    propagate(expr = expression((convMassDis * BuoyDis) / (convMassSAMPLE * BuoySAMPLE)),
-              data = cbind(convMassSAMPLE = convMassSAMPLE(), BuoySAMPLE = BuoySAMPLE(), 
-                           convMassDis = convMassDis(), BuoyDis = BuoyDis()),
-              do.sim = FALSE)
-  })
-  
-  AppMolConc <- reactive(convMassSAMPLE()[1] / molarWeight[1] / convMassDis()[1] * 1000000)
-  
-  infoDisSAMPLE <- eventReactive(input$buttonCalc, {
-    if (input$SourceOption == "daCapo") {
-      if (!is.na(factorDilucion()$prop[[1]] > 0) && !is.na(factorDilucion()$prop[[3]] > 0)) {
-        return(list('Muestra' = reagKey,
-                    'ID_Disolucion' = input$IDMuestra,
-                    'Descripcion' = input$descrMuestra,
-                    'Conc.Aprox [mmol/kg]' = AppMolConc(),
-                    'Factor de dilucion 1:' = signif(factorDilucion()$prop[[1]], 7),
-                    'Incertidumbre FD' = signif(factorDilucion()$prop[[3]], 4),
-                    'Peso molar' = molarWeight,
-                    'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
-                                                       Correo = IDUsuario()[2]),
-                    'Fecha de preparacion' = fecha(),
-                    'PropagateCompleto' = factorDilucion()))
-      } else {
-        return('Los datos ingresados no son validos!')
+CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambient, solutionType) {
+  moduleServer(id, function(input, output, session) {
+    output$brwz <- renderUI(
+      if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
+    observeEvent(input$brwz, browser())
+    
+    InitMolarMass <- reactive(IUPAC2019AW[[input$Elemento]])
+    
+    ShowMolarMass <- reactive({
+      if (input$MolarMassOpt == 'Otro') {
+        MasaMolarInputUI <- SiRealInputUI(session$ns('MasaMolar'),
+                                          name = tags$h5(tags$b('Peso atómico del elemento'), style = 'margin-left:20px'),
+                                          colWid = c(2, 2, 3, 4),
+                                          x0 = InitMolarMass()[1], u0 = InitMolarMass()[2], units = '\\gram\\mole\\tothe{-1}')
+        return(MasaMolarInputUI)
       }
-    } else {
-      dataFile <- readRDS(input$DisFile$datapath)
-      if (names(dataFile)[1] != 'Muestra' || dataFile['Muestra'] != reagKey) {
-        
-        return(rbind('ERROR!!! ERROR!!! ERROR!!!', '',
-                     'Asegurese de que está ingresando una disolución de una muestra',
-                     'Por favor ingrese una disolucion de muestra de la especie apropiada'))
+    })
+    output$ShowMolarMass <- renderUI(ShowMolarMass())
+    otroMolarMass <- SiRealInputServer(id = 'MasaMolar', devMode = devMode, quantityTypeQUDT = 'MolarMass')
+    
+    MolarMass <- reactive({
+      if(input$MolarMassOpt == 'Otro') return(otroMolarMass())
+      return(SiRealXML(quantityTypeQUDT = 'MolarMass', value = InitMolarMass()[1], units = '\\gram\\mole\\tothe{-1}',
+                       uncert = InitMolarMass()[2], covFac = 1, distribution = 'normal'))
+    })
+    
+
+    observe({
+      req(analyst, input$Nombre)
+      bolean <- TRUE
+      if (bolean) enable('buttonCalc')
+    })
+    
+    derMassSample <- reactive(input$MasRecSample1 - input$MasSample1 - input$MasRec1)
+    masSample <- reactive(mean(input$MasSample1, input$MasRecSample1 - input$MasRec1))
+    derMassDis <- reactive(input$MasRecSolution1 - input$MasDisolv1 - input$MasSample1 - input$MasRec1)
+    masDis <- reactive(mean(input$MasRecSolution1 - input$MasRec1, input$MasSample1 + input$MasDisolv1))
+    
+    # Messages
+    deriMasaSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva en la medición de masa de la alicuota: ', signif(derMassSample() * 1000, 2), ' / mg'))
+    deriMasaDisSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva en la medición de masa de la disolucion: ', signif(derMassDis() * 1000, 2), ' / mg'))
+    output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
+    output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
+    
+    convMassSample <- reactive(c(convMass(calibCert = balanza(), reading = masSample(), units = 'g'),
+                              uncertConvMass(calibCert = balanza(), reading = masSample(), units = 'g')))
+    
+    convMassDis <- reactive(c(convMass(calibCert = balanza(), reading = masDis(), units = 'g'),
+                              uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')))
+    
+    
+    
+    
+    
+    factorDilucion <- eventReactive(input$buttonCalc, {
+      if (input$DilutionOpt == "Dil") {
+        xx <- propagate(
+          expr = expression(convMassSample / convMassDis),
+          data = cbind(convMassDis = convMassDis(), convMassSample = convMassSample()),
+          do.sim = FALSE)
+        xx <- SiRealXML(quantityTypeQUDT = 'MassRatio', value = signif(xx$prop[[1]], 8),
+                        units = '\\gram\\gram\\tothe{-1}', uncert =  signif(xx$prop[[3]], 5), covFac = 1)
       } else {
-        return(dataFile)
+        xx <- SiRealXML(quantityTypeQUDT = 'MassRatio', value = 1, units = '\\gram\\gram\\tothe{-1}', uncert =  0, covFac = 1)
       }
+      return(xx)
+    })
+    
+    showFactorDilucion <- reactive(tags$div(tags$b(paste0(
+      'Factor de dilución 1:', signif((input$MasSample1 + input$MasDisolv1) / input$MasSample1, 1)))))
+    
+    output$showFactorDilucion <- renderUI(showFactorDilucion())
+    
+    
+    DisolucionXML <- eventReactive(input$buttonCalc, {
+      xmlObject <- initiateSolutionXML()
+      AdminList <- list('mr:solutionType' = solutionType, 
+                        'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+      PropeList <- list('mr:substance' = Substances[[input$Elemento]])
       
-    }})
-  #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
-  
-  
-  InfoDisBox <- eventReactive(input$buttonCalc, {
-    trigger <- TRUE
-    #printedStuff <- ifelse()
-    box(title = div(style = 'font-size:14px', tags$b('Informacion de la disolución:')),
-        width = 12, collapsible = TRUE, collapsed = FALSE,
-        status = 'primary',#ifelse(trigger, 'success', 'danger'),
-        renderPrint(tryCatch(infoDisSAMPLE(),
-                             error = function(cond) {'Los datos ingresados no son validos!'})),
-        if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
+      addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')
+      addDataToMRXML(xmlObject, PropeList, node = 'mr:property')
+      xml_child(xmlObject, search = 'mr:coreData') %>% xml_add_child(., .value = analyst())
+      xml_child(xmlObject, search = 'mr:property') %>% {
+        xml_add_child(., .value = MolarMass())
+        xml_add_child(., .value = factorDilucion())}
+      return(xmlObject)
+    })
+    
+    observeEvent(input$buttonCalc, {
+      enable('downlXMLlink')
+      withCallingHandlers({
+        shinyjs::html("InfoDisXML", "")
+        message(DisolucionXML())},
+        message = function(m) {
+          shinyjs::html(id = "InfoDisXML",
+                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
+                                      m$message, '</textarea>'), add = FALSE)})
+      
+      output$downlXMLlink <-  downloadHandler(
+        filename = function() {paste0(gsub(pattern = ' ', replacement = '_', input$DisolID, fixed = FALSE), ".xml")},
+        content = function(file) {write_xml(DisolucionXML(), file)})
+    })
+    
+    return(DisolucionXML)
   })
-  
-  buttonCalc <- reactive(
-    actionButton(session$ns('buttonCalc'), 
-                 label = tags$b(ifelse(input$SourceOption == "daCapo", 'Crear disolución', 'Cargar disolucion'))))
-  output$buttonCalc <- renderUI(buttonCalc())
-  output$InfoDisBox <- renderUI(InfoDisBox())
-  output$CalibCertDis <- renderUI(CalibCertDis())
-  output$DwnlDisFile <- downloadHandler(
-    filename = function() {paste0("Dis_MUESTRA_", reagKey, "_", input$IDMuestra, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
-    content = function(file) {saveRDS(infoDisSAMPLE(), file = file)}, contentType = NULL)
-  
-  # Messages
-  NiceDensitAir <- eventReactive(input$buttonCalc,
-                                 tags$div(style = 'font-size:11px',
-                                          'La densidad local del aire calculada con la ecuacion CIMP2007 es ', 
-                                          signif(DensitAir()[1], 7), ' \u00B1 ', signif(DensitAir()[2], 3), '[g cm^{-3}]'))
-  deriMasaSAMPLE <- eventReactive(input$MasRecSAMPLE1, 
-                               div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassSAMPLE() * 1000, 2), ' [mg]'))
-  deriMasaDisSAMPLE <- eventReactive(input$MasRecDis1,
-                                  div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' [mg]'))
-  
-  output$NiceDensitAir <- renderUI(NiceDensitAir())
-  output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
-  output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
-  
-  return(list('infoDisSAMPLE' = infoDisSAMPLE))
 }

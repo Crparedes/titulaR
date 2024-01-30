@@ -28,7 +28,12 @@ library(stringr)
 library(propagate)
 # library(shinyTime)
 
-library(shinydashboardPlus)
+# library(shinydashboardPlus)
+
+# library(shiny.i18n)
+# i18n <- Translator$new(translation_json_path = "translation.json")
+# i18n$set_translation_language("es") # here you select the default translation to display
+
 
 source('D_SI_xml/0_createMRXML.R')
 
@@ -41,12 +46,12 @@ sapply(c(functiFiles, titRatFiles, moduleFiles, layoutFiles), source)
 
 numInput <- function(...) {autonumericInput(..., digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE)}
 
-ui <- function(request) {
-  withMathJax()
+ui <- fluidPage(
+  # shiny.i18n::usei18n(i18n),
+  
   dashboardPage(header = customHeader, sidebar = customSidebar, body = customBody,
                   title = "titulaR - Instituto Nacional de Metrología") #customStuff in ./Layouts
-    
-}
+)
 
 server <- function(input, output, session) {
   # shinyalert(title = 'Advertencia', text = , "Este aplicativo está en desarrollo", showConfirmButton = FALSE,
@@ -54,6 +59,11 @@ server <- function(input, output, session) {
   # 
   devMode <- reactive(input$Desarrollador)
   observeEvent(input$brwz, browser())
+  
+  # observeEvent(input$selected_language, {
+  #   print(paste("Language change!", input$selected_language))
+  #   shiny.i18n::update_lang(input$selected_language)
+  # })
   
   demo <- reactive(input$Demo)
   

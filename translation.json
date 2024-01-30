@@ -1,0 +1,22 @@
+{
+  "cultural_date_format": "%Y-%m-%d",
+  "languages": ["en", "es"],
+  "translation": [
+      {"en": "Start", "es": "Inicio"},
+      {"en": "Languaje:", "es": "Lenguaje:"},
+      {"en": "Introduction", "es": "Introducción"},
+      {"en": "Number of bins:", "es": "Liczba podziałek"},
+      {
+        "en": "This is description of the plot.",
+        "es": "To jest opis obrazka."
+      },
+      {
+        "en": "Histogram of x",
+        "es": "Histogram x"
+      },
+      {
+        "en": "Frequency",
+        "es": "Częstotliwość"
+      }
+    ]
+}

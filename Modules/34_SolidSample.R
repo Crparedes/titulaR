@@ -21,7 +21,7 @@ SolidSampleUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu =
                            ns('MasSample1'), label = ReqField('Masa del reactivo / g:'), value = ifelse(demo, 0.30042, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
                            ns('MasRecSample1'), label = ReqField('Masa conjunta / g:'), value = ifelse(demo, 1.27705, 0), align = 'left', minimumValue = 0),
-          uiOutput(ns('deriMasaSample'))),
+          uiOutput(ns('deriMasaSAMPLE'))),
         tags$div(),
         tags$div(
           id = "inline",
@@ -32,7 +32,7 @@ SolidSampleUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu =
                            ns('MasDis1'), label = ReqField('Masa final disolución / g:'), value = ifelse(demo, 80.02288, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
                            ns('MasRecDis1'), label = ReqField('Masa conjunta / g:'), value = ifelse(demo, 96.79455, 0), align = 'left', minimumValue = 0),
-          uiOutput(ns('deriMasaDisSample')))),
+          uiOutput(ns('deriMasaDisSAMPLE')))),
       tags$hr(),
       SiRealInputUI(ns('DensiDisol'), name = ReqField('Densidad de la disolución'),
                     x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
@@ -91,16 +91,16 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
         data = cbind(convMassSample = convMassSample(), BuoySample = BuoySample(), 
                      convMassDis = convMassDis(), BuoyDis = BuoyDis()),
         do.sim = FALSE)
-      xx <- SiRealXML(quantityTypeQUDT = 'MassFraction', value = signif(xx$prop[[1]], 8),
+      xx <- SiRealXML(quantityTypeQUDT = 'MassRatio', value = signif(xx$prop[[1]], 8),
                       units = '\\gram\\gram\\tothe{-1}', uncert =  signif(xx$prop[[3]], 5), covFac = 1)
       return(xx)
     })
     
     # Messages
     deriMasaSAMPLE <- eventReactive(input$MasRecSAMPLE1, 
-                                 div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassSAMPLE() * 1000, 2), ' / mg'))
+                                 div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassSAMPLE() * 1000, 2), ' / mg'))
     deriMasaDisSAMPLE <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'La deriva en la medición de masa es ', signif(derMassDis() * 1000, 2), ' / mg'))
+                                    div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassDis() * 1000, 2), ' / mg'))
     output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
     output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     

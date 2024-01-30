@@ -1,3 +1,6 @@
+# i18n <- Translator$new(translation_json_path = "translation.json")
+# i18n$set_translation_language("es") # here you select the default translation to display
+
 customBody <- dashboardBody(
   useShinyjs(), 
   withMathJax(),
@@ -24,10 +27,13 @@ customBody <- dashboardBody(
   
   tags$script(HTML("$('body').addClass('fixed');")),
   
+  
   chooseSliderSkin(skin = "Flat", color = BackHeaderButtons),
   
   tags$head(
-    tags$style(HTML('.wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
+    tags$style(HTML('
+    .content-wrapper, .right-side, .main-footer {margin-left: 300px;}
+    .wrapper {height: auto !important; position:relative; overflow-x:hidden; overflow-y:hidden}
                      .shiny-notification {position:fixed; top: calc(50% - 150px); left: calc(50% - 150px); 
                                          height: auto !important; opacity:0.98; margin-right:500px}
                      .btn-box-tool {color: #001848; font-size: 15px}')),
@@ -64,6 +70,8 @@ customBody <- dashboardBody(
                       background-color: #3f4e4f; border-color: #3f4e4f;}'))
   ),
   customTheme,
+  # div(id = 'inline', style = "float: right;", Nlns(2) ,
+      # selectInput('selected_language', NonReqField(i18n$t("Lenguaje:")), choices = i18n$get_languages(), selected = i18n$get_key_translation())),
   tabItems(
     tabItem(tabName = "tabsInicio", inicioLy),
     tabItem(tabName = "tabsCertMass", BalanceCalibCertUI('Balanzas')),

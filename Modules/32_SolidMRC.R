@@ -110,68 +110,9 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     })
     
     
-    # infoDisMRC <- eventReactive(input$buttonCalc, {
-    #   if (input$SourceOption == "daCapo") {
-    #     if (!is.na(DisConc()$prop[[1]] > 0) && !is.na(DisConc()$prop[[3]] > 0)) {
-    #       return(list('MRC empleado' = input$MRCElected,
-    #                   'Fecha de vencimiento MRC' = dateMRC(),
-    #                   'Especie ' = reagKey,
-    #                   'Concentración [mmol/kg]' = signif(DisConc()$prop[[1]], 7),
-    #                   'Incertidumbre [mmol/kg]' = signif(DisConc()$prop[[3]], 4),
-    #                   'Persona responsable' = data.frame(Nombre = IDUsuario()[1],
-    #                                                      Correo = IDUsuario()[2]),
-    #                   'Fecha de preparación' = fecha(),
-    #                   'PropagateCompleto' = DisConc()))
-    #     } else {
-    #       return('Los datos ingresados no son validos!')
-    #     }
-    #   } else {
-    #     dataFile <- readRDS(input$DisFile$datapath)
-    #     if (dataFile['Especie '] != reagKey) {
-    #       return(rbind('ERROR!!! ERROR!!! ERROR!!!', 
-    #                    'Por favor ingrese una disolución de la especie apropiada' ))
-    #     } else {
-    #       return(dataFile)
-    #     }
-    #     
-    #   }})
-    #paste0(signif(DisConc()$prop[1], 5), signif(DisConc()$prop[3], 3), collapse = ' \u00b1 '))})
-    
-    
-    # InfoMrcBox <- reactive({
-    #   box(title = div(style = 'font-size:14px', 
-    #                   ifelse(dateMRC() > fecha(), 'Resumen de información del MRC (vigente):', 'Resumen de información del MRC (VENCIDO):')), 
-    #       width = 12, collapsible = TRUE, collapsed = TRUE,
-    #       status = ifelse(dateMRC() > fecha(), 'success', 'danger'),
-    #       div(style = 'font-size:12px',
-    #           tags$b('Fecha de vencimiento:'), dateMRC(), tags$br(),
-    #           tags$b('Fracción masica de ', reagKey, ':'), MassFrMRC()[1], '\u00B1', MassFrMRC()[2], tags$br(),
-    #           tags$b('Masa molar de ', reagKey, ':'), MolWeiMRC()[1], '\u00B1', MolWeiMRC()[2], 'g mol', tags$sup('-1'),tags$br(),
-    #           tags$b('Densidad estimada del MRC:'), DensitMRC()[1], '\u00B1', DensitMRC()[2], 'g cm', tags$sup('-3')))
-    # })
-    # 
-    # InfoDisBox <- eventReactive(input$buttonCalc, {
-    #   trigger <- TRUE
-    #   #printedStuff <- ifelse()
-    #   box(title = div(style = 'font-size:14px', 'Información de la disolución:'),
-    #       width = 12, collapsible = TRUE, collapsed = FALSE,
-    #       status = 'primary',#ifelse(trigger, 'success', 'danger'),
-    #       renderPrint(tryCatch(infoDisMRC(),
-    #                            error = function(cond) {'Los datos ingresados no son validos!'})),
-    #       if(input$SourceOption == "daCapo") {downloadButton(session$ns('DwnlDisFile'), 'Descargar archivo .dis')})
-    # })
-    # 
-    # output$MRC_CertiFile <- renderUI(fileDwnHTML())
-    # output$InfoMrcBox <- renderUI(InfoMrcBox())
-    # output$InfoDisBox <- renderUI(InfoDisBox())
-    # output$CalibCertDis <- renderUI(CalibCertDis())
-    # output$DwnlDisFile <- downloadHandler(
-    #   filename = function() {paste0("Disolucion_MRC_", reagKey, "_", paste0(fecha(), format(Sys.time(), '_%H-%M')), ".dis")}, 
-    #   content = function(file) {saveRDS(infoDisMRC(), file = file)}, contentType = NULL)
-    
     # Messages
-    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassMRC() * 1000, 2), ' / mg'))
-    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'La deriva en la medición de masa es ', round(derMassDis() * 1000, 2), ' / mg'))
+    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', round(derMassMRC() * 1000, 2), ' / mg'))
+    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', round(derMassDis() * 1000, 2), ' / mg'))
     
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())

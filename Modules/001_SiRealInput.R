@@ -36,7 +36,7 @@ SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3, colWid = c
 SiRealInputServer <- function(id, devMode, quantityTypeQUDT = '') {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
-      tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa subsubmodulo')), tags$hr())})
+      tags$div(tags$hr(), actionButton(session$ns('brwzInsideModule'), tags$b('Pausa ingreso datos D-SI')))})
     observeEvent(input$brwzInsideModule, browser())
     
     covProp <- reactive({

@@ -23,7 +23,8 @@ PreparaDisolucioUI <- function(id) {
       ),
     column(
       width = 6, style = 'margin-left: 100px;',
-      shinydashboardPlus::box(status = 'black', title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'), id = ns('condAmbiBox'),
+      # shinydashboardPlus::
+        box(id = ns('condAmbiBox'), status = 'primary', title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'),
                               width = 12, collapsible = TRUE, collapsed = FALSE, AmbiDensAireUI(ns('AmbiDensAireSolutions'))),
       conditionalPanel(
         'input.NewEDTAStdSol > 0 || input.NewCaliSamSol > 0 || input.NewLeadStdSol > 0 || input.NewEDTASamSol > 0', ns = ns,  
@@ -66,9 +67,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
           id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
           explan = 'calibrantes monoelementales.'))
       
-      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
-        updateBox('condAmbiBox', action = 'toggle')
-      } 
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) js$collapse(session$ns("condAmbiBox")) 
     })
     ### Disoluci'on calibrante monoelemental
     observeEvent(input$NewCaliSamSol, {
@@ -86,9 +85,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
           # explan = 'Para asignar valor de fracción másica en el reactivo sólido.'
       ))
       
-      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
-        updateBox('condAmbiBox', action = 'toggle')
-      } 
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) js$collapse(session$ns("condAmbiBox"))
     })
 
     observeEvent(input$NewLeadStdSol, {
@@ -107,9 +104,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
           id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'Pb', reagKey = 'Pb',
           explan = 'disoluciones de EDTA.'))
       
-      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
-        updateBox('condAmbiBox', action = 'toggle')
-      } 
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) js$collapse(session$ns("condAmbiBox")) 
     })
     
     observeEvent(input$NewEDTASamSol, {
@@ -127,13 +122,11 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
           id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
           explan = 'Para asignar valor de fracción másica en el reactivo sólido.'))
       
-      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) {
-        updateBox('condAmbiBox', action = 'toggle')
-      } 
+      if(sum(c(input$NewEDTAStdSol, input$NewCaliSamSol, input$NewLeadStdSol, input$NewEDTASamSol)) == 1) js$collapse(session$ns("condAmbiBox"))
     })
     
 
     
   })
-  return()
+  return(reactive(StandardSampleSolutions))
 }

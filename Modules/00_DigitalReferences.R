@@ -18,16 +18,24 @@ Substances <- list(
     'mr:name' = 'Lead nitrate',
     'mr:InChI' = c('1S/2NO3.Pb/c2*2-1(3)4;/q2*-1;+2', version = '1.0.6'),
     'mr:InChiKey' = c('RLJMLMKIBZAXJO-UHFFFAOYSA-N', version = '1.0.6')),
-  PbII = list(
-    'mr:name' = 'lead(2+)',
-    'mr:InChI' = c('1S/Pb/q+2', version = '1.0.6'),
-    'mr:InChiKey' = c('RVPVRDXYQKGNMQ-UHFFFAOYSA-N', version = '1.0.6'))
+  Pb = list(
+    'mr:name' = 'lead',
+    'mr:InChI' = c('1S/Pb', version = '1.0.6'),
+    'mr:InChiKey' = c('WABPQHHGFIMREM-UHFFFAOYSA-N', version = '1.0.6')),
+  Cd = list(
+    'mr:name' = 'cadmium',
+    'mr:InChI' = c('1S/Cd', version = '1.0.6'),
+    'mr:InChiKey' = c('BDOSMKKIYDKNTQ-UHFFFAOYSA-N', version = '1.0.6')),
+  Ca = list(
+    'mr:name' = 'calcium',
+    'mr:InChI' = c('1S/Ca', version = '1.0.6'),
+    'mr:InChiKey' = c('OYPRJOBELJOOCE-UHFFFAOYSA-N', version = '1.0.6'))
 )
 
 IUPAC2019AW <- list(
-  CaII = c(40.078, signif(0.004 / sqrt(3), 2)),
-  CdII = c(112.414, signif(0.004 / sqrt(3), 2)),
-  PbII = c(mean(c(206.14, 207.94)), signif(diff(c(206.14, 207.94)) / 2 / sqrt(3), 2))
+  Ca = c(40.078, signif(0.004 / sqrt(3), 2)),
+  Cd = c(112.414, signif(0.004 / sqrt(3), 2)),
+  Pb = c(mean(c(206.14, 207.94)), signif(diff(c(206.14, 207.94)) / 2 / sqrt(3), 2))
 )
 # https://www.degruyter.com/document/doi/10.1515/pac-2019-0603/html
 
