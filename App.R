@@ -68,12 +68,28 @@ server <- function(input, output, session) {
   demo <- reactive(input$Demo)
   
   fecha <- reactive(input$fecha)
-  
+  StandardSampleSolutions <- reactiveValues(solutions = list())
   
   BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo)
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode, demo = demo)
   DisolInfoPC <- PreparaDisolucioServer(
-    'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo)
+    'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo,
+    StandardSampleSolutions = StandardSampleSolutions)
+  
+  
+  SolOrder <- reactive({
+    solTypes = sapply(StandardSampleSolutions$solutions, function(x) {
+      if(!is.error(x())) {
+        return(xml_text(xml_find_all(x(), xpath = '//mr:solutionType')))
+      } else {return(NULL)}
+    })
+    
+    list(EstandarEDTA = which(solTypes == 'EstandarEDTA'), MuestraCalib = which(solTypes == 'MuestraCalib'),
+         EstandarPlomo = which(solTypes == 'EstandarPlomo'), MuestraEDTA = which(solTypes == 'MuestraEDTA'))})
+  
+  # Browse[1]> StandardSampleSolutions$solutions[[c(3, 12)]]
+  # Warning: Error in [[: subíndice fuera de  los límites
+  #                     1: runApp
   
   TitMonoelem <- TitularMonoelemtServer(
     'MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC, fecha = fecha, demo = demo)

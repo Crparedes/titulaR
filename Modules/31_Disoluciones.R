@@ -38,7 +38,7 @@ PreparaDisolucioUI <- function(id) {
 }
 
 
-PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fecha) {
+PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fecha, StandardSampleSolutions) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
@@ -50,7 +50,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     
     AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode, fecha = fecha)
     
-    StandardSampleSolutions <- reactiveValues(solutions = list())
+    # StandardSampleSolutions <- reactiveValues(solutions = list())
     
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)
@@ -128,5 +128,5 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
 
     
   })
-  return(reactive(StandardSampleSolutions))
+  # return(reactive(lapply(StandardSampleSolutions$solutions, function(x) return(x()))))
 }

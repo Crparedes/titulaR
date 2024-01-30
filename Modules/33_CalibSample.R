@@ -89,8 +89,8 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
     masDis <- reactive(mean(input$MasRecSolution1 - input$MasRec1, input$MasSample1 + input$MasDisolv1))
     
     # Messages
-    deriMasaSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva en la medición de masa de la alicuota: ', signif(derMassSample() * 1000, 2), ' / mg'))
-    deriMasaDisSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva en la medición de masa de la disolucion: ', signif(derMassDis() * 1000, 2), ' / mg'))
+    deriMasaSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', signif(derMassSample() * 1000, 2), ' mg'))
+    deriMasaDisSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', signif(derMassDis() * 1000, 2), ' mg'))
     output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
     output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     

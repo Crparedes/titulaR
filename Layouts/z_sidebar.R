@@ -32,5 +32,6 @@ customSidebar <- dashboardSidebar(
                      actionButton('brwz', label = tags$b('Pausar aplicativo'), width = '70%')),
     splitLayout(
       materialSwitch('Demo', 'Demo', value = TRUE, status = 'primary'),
-      disabled(materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary')))
+      # disabled
+      (materialSwitch('Desarrollador', 'Devel', value = TRUE, status = 'primary')))
   ))

@@ -111,8 +111,8 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     
     # Messages
-    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', round(derMassMRC() * 1000, 2), ' / mg'))
-    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', round(derMassDis() * 1000, 2), ' / mg'))
+    deriMasaMRC <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', round(derMassMRC() * 1000, 2), ' mg'))
+    deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', round(derMassDis() * 1000, 2), ' mg'))
     
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())

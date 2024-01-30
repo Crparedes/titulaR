@@ -98,9 +98,9 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
     
     # Messages
     deriMasaSAMPLE <- eventReactive(input$MasRecSAMPLE1, 
-                                 div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassSAMPLE() * 1000, 2), ' / mg'))
+                                 div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassSAMPLE() * 1000, 2), ' mg'))
     deriMasaDisSAMPLE <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassDis() * 1000, 2), ' / mg'))
+                                    div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassDis() * 1000, 2), ' mg'))
     output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
     output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     
