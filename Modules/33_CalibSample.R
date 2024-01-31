@@ -7,7 +7,7 @@ CalibSampleUI <- function(id, demo, title, fecha, nu = FALSE) {
       id = 'inline', style = 'font-size:12px; margin-left:25px',
       textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 4))), width = '300px',
                 value = paste(gsub('-', '', fecha), title, sep = '_')),
-      textInput(ns('Nombre'), label = h5(tags$b(ReqField('Nombre', 4))), width = '300px',
+      textInput(ns('solutionSource'), label = h5(tags$b(ReqField('Material de partida', 4))), width = '300px',
                 value = ifelse(demo, 'MRC-INM-023-1', ''), placeholder = '(e.g. código MRC, unidad, lote)')),
     tags$div(
       id = 'inline', style = 'font-size:12px; margin-left:25px',
@@ -41,11 +41,11 @@ CalibSampleUI <- function(id, demo, title, fecha, nu = FALSE) {
           uiOutput(ns('deriMasaDisSAMPLE')), tags$hr(),
           uiOutput(ns('showFactorDilucion')))),
     conditionalPanel('input.MolarMassOpt == "Otro"', ns = ns, tags$hr(), uiOutput(ns('ShowMolarMass'))),
-    tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución', style = 'margin-left:45px')), Nlns(3),
+    tags$hr(), actionButton(ns('buttonCalc'), label = 'Crear disolución', style = 'margin-left:45px'), Nlns(3),
     
     fluidRow(
         column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
-        column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra')),
+        column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra'),
                Nlns(2), htmlOutput(ns('InfoDisXML'))))
     )
 }
@@ -126,7 +126,9 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
       xmlObject <- initiateSolutionXML()
-      AdminList <- list('mr:solutionType' = solutionType, 
+      AdminList <- list('mr:solutionType' = solutionType,
+                        'mr:solutionID' = input$DisolID,
+                        'mr:solutionSource' = input$solutionSource,
                         'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[[input$Elemento]])
       

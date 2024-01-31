@@ -41,7 +41,7 @@ SolidSampleUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu =
       tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
     fluidRow(
       column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
-      column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra')),
+      column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra'),
              Nlns(2), htmlOutput(ns('InfoDisXML'))))
   )
 }
@@ -106,7 +106,9 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
       xmlObject <- initiateSolutionXML()
-      AdminList <- list('mr:solutionType' = solutionType, 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+      AdminList <- list('mr:solutionType' = solutionType, 
+                        'mr:solutionID' = input$DisolID,
+                        'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[reagForm])
       
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')

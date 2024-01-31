@@ -31,11 +31,7 @@ TitularMonoelemtUI <- function(id) {
   )
 }
 
-TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha,
-                                        Elemento = NULL, LeadAM = NULL, u_LeadAM = NULL,
-                                        sampleID = NULL, dscrMuestraMonoelemTit = NULL,
-                                        BalanzaMonoelemTit = NULL,
-                                        DisEDTA_MRC = NULL, IDUsuario = NULL, number = NULL) {
+TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha, EstandarEDTA, MuestraCalib) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
       if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
@@ -45,9 +41,19 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
     Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo, showData = FALSE, inline = FALSE, width = '300px')
     
     StanDisol <- reactive({
+      if(length(EstandarEDTA()) == 0) {
+        return(div(
+          tags$b(ReqField('Disolución estándar de EDTA')), tags$br(),
+          tags$div(style = 'color:red;', 'Vaya al módulo de', icon('fill-drip'), tags$b('Preparación disoluciones,'),
+                   'y genere o cargue información de una disolución estándar de EDTA.', tags$br(), tags$br())
+        ))
+      }
+      solNames <- sapply(EstandarEDTA(), function(x) {return(xml_text(xml_find_all(x(), xpath = '//mr:solutionID')))})
+      solPosit <- 1:length(solNames)
+      names(solPosit) <- solNames
       pickerInput(
         session$ns("StanDisol"), label = ReqField('Disolución estándar de EDTA', 9), inline = FALSE, width = '300px',
-        choices = paste0('Disolución dummy ', 1:3), multiple = TRUE, selected = NULL,
+        choices = solPosit, multiple = TRUE, selected = NULL,
         options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
     })
     output$StanDisol <- renderUI(StanDisol())

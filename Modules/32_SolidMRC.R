@@ -119,7 +119,10 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     DisolucionXML <- eventReactive(input$buttonCalc, {
       xmlObject <- initiateSolutionXML()
-      AdminList <- list('mr:solutionType' = solutionType, 'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+      AdminList <- list('mr:solutionType' = solutionType,
+                        'mr:solutionID' = input$DisolID,
+                        'mr:CRM' = input$MRCtoUse,
+                        'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[[reagForm]])
 
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')

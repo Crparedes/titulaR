@@ -76,14 +76,12 @@ server <- function(input, output, session) {
     'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo,
     StandardSampleSolutions = StandardSampleSolutions)
   
-  
   SolOrder <- reactive({
     solTypes = sapply(StandardSampleSolutions$solutions, function(x) {
       if(!is.error(x())) {
         return(xml_text(xml_find_all(x(), xpath = '//mr:solutionType')))
       } else {return(NULL)}
     })
-    
     list(EstandarEDTA = which(solTypes == 'EstandarEDTA'), MuestraCalib = which(solTypes == 'MuestraCalib'),
          EstandarPlomo = which(solTypes == 'EstandarPlomo'), MuestraEDTA = which(solTypes == 'MuestraEDTA'))})
   
@@ -92,7 +90,9 @@ server <- function(input, output, session) {
   #                     1: runApp
   
   TitMonoelem <- TitularMonoelemtServer(
-    'MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC, fecha = fecha, demo = demo)
+    'MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC, fecha = fecha, demo = demo,
+    EstandarEDTA = reactive(StandardSampleSolutions$solutions[SolOrder()$EstandarEDTA]),
+    MuestraCalib = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraCalib]))
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))
   observeEvent(input$tabsCertMRCs, updateTabItems(session, "tabs", 'tabsCertMRCs'))
