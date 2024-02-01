@@ -6,7 +6,7 @@ TitularMonoelemtUI <- function(id) {
     column(
       width = 3, style = 'margin-left: 80px;',
       balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst')), tags$br(),
-      uiOutput(ns('StanDisol')), tags$br(), uiOutput(ns('SampDisol')), tags$hr(),
+      solutionPickerUI(ns('StanDisol')), tags$br(), uiOutput(ns('SampDisol')), tags$hr(),
       disabled(actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;'))),
     conditionalPanel('input.NewTit > 0', ns = ns,
                      column(width = 8, Nlns(), tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'right')))
@@ -40,23 +40,9 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
     balanzaUsed <- balanzasPickerServer(id = 'TitMonoelem', devMode = devMode, demo = demo, balanzas = balanzas, inline = FALSE, width = '300px')
     Analyst <- AnalystPickerServer('Analyst', devMode = devMode, demo = demo, showData = FALSE, inline = FALSE, width = '300px')
     
-    StanDisol <- reactive({
-      if(length(EstandarEDTA()) == 0) {
-        return(div(
-          tags$b(ReqField('Disolución estándar de EDTA')), tags$br(),
-          tags$div(style = 'color:red;', 'Vaya al módulo de', icon('fill-drip'), tags$b('Preparación disoluciones,'),
-                   'y genere o cargue información de una disolución estándar de EDTA.', tags$br(), tags$br())
-        ))
-      }
-      solNames <- sapply(EstandarEDTA(), function(x) {return(xml_text(xml_find_all(x(), xpath = '//mr:solutionID')))})
-      solPosit <- 1:length(solNames)
-      names(solPosit) <- solNames
-      pickerInput(
-        session$ns("StanDisol"), label = ReqField('Disolución estándar de EDTA', 9), inline = FALSE, width = '300px',
-        choices = solPosit, multiple = TRUE, selected = NULL,
-        options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
-    })
-    output$StanDisol <- renderUI(StanDisol())
+    StanDisol <- solutionPickerServer('StanDisol', devMode = devMode, demo = demo, solutions = EstandarEDTA,
+                                      label = 'Disolución estándar de EDTA')
+    
     
     SampDisol <- reactive({
       pickerInput(
