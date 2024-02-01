@@ -9,10 +9,11 @@ TitIndividualUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu
         tags$div(
           id = 'inline', style = 'font-size:12px; margin-left:25px', 
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasaAlic'), label = ReqField('Masa de la alícuota [g]'), value = 0),
+                           ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, 10.0552, 0)),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante [g]'), value = 0),
-          conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, tags$hr(), rHandsontableOutput(ns("TitData"), width = '100%')))),
+                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g'), value = 0),
+          conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, tags$hr(),
+                           rHandsontableOutput(ns("TitData"), width = '100%')))),
       column(
         6, tags$b('Curva de titulación:'),
         fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'))), tags$br(),
@@ -31,7 +32,8 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
     horaInicio <- eventReactive(input$MasaAlic, paste0(fecha(), format(Sys.time(), '_%H-%M')))
     horaFinal  <- eventReactive(input$TermTit, paste0(fecha(), format(Sys.time(), '_%H-%M')))
     
-    TableDat_0  <- reactiveValues(hot = data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29))))
+    TblDt_0 <- reactive(if(demo()) return(demoData) else return(voidData))
+    TableDat_0  <- reactiveValues(hot = TblDt_0())
     TableData <- reactive({
       DT <- NULL
       

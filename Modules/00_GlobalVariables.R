@@ -55,3 +55,12 @@ names(authPersons) <- sapply(authPersons, function (x) as_list(x)$respPerson$dat
 
 
 DummyNumber <- c(0, 0.1234567899999999999)
+demoData <- data.frame('Titrant' = c(4.5186, 4.5608, 4.5781, 4.5865, 4.5887, 4.5930, 4.5970,
+                                     4.6009, 4.6046, 4.6097, 4.6143, 4.6180, 4.6268, 4.6357),
+                       'Signal' = c(-187.7, -194.5, -199.8, -203.5, -204.9, -207.8, -211.4,
+                                    -216.8, -224.3, -237.5, -246.2, -247.8, -249.5, -250.0),
+                       'DerAppr' = 0)
+
+voidData <- data.frame('Titrant' = c(0.0001, rep(NA, 29)),  'Signal' = c(0.1, rep(NA, 29)), 'DerAppr' = c(0.1, rep(NA, 29)))
+
+  
