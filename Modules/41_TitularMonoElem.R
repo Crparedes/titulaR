@@ -6,8 +6,8 @@ TitularMonoelemtUI <- function(id) {
     column(
       width = 3, style = 'margin-left: 80px;',
       balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst')), tags$br(),
-      solutionPickerUI(ns('StanDisol')), tags$br(), uiOutput(ns('SampDisol')), tags$hr(),
-      disabled(actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;'))),
+      solutionPickerUI(ns('StanDisol')), tags$br(), solutionPickerUI(ns('SampDisol')), tags$hr(),
+      actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;')),
     conditionalPanel('input.NewTit > 0', ns = ns,
                      column(width = 8, Nlns(), tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'right')))
     
@@ -42,18 +42,11 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
     
     StanDisol <- solutionPickerServer('StanDisol', devMode = devMode, demo = demo, solutions = EstandarEDTA,
                                       label = 'Disolución estándar de EDTA')
-    
-    
-    SampDisol <- reactive({
-      pickerInput(
-        session$ns("SampDisol"), label = ReqField('Muestra: disolución monoelemental', 2), inline = FALSE, width = '300px',
-        choices = paste0('Disolución dummy ', 1:3), multiple = TRUE, selected = NULL,
-        options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
-    })
-    output$SampDisol <- renderUI(SampDisol())
+    SampDisol <- solutionPickerServer('SampDisol', devMode = devMode, demo = demo, solutions = MuestraCalib,
+                                      label = 'Muestra disolución monoelemental')
     
     observe({
-      req(balanzaUsed(), Analyst(), input$StanDisol, input$SampDisol)
+      req(balanzaUsed(), Analyst(), StanDisol(), SampDisol())
       enable('NewTit')
     })
     
