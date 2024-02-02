@@ -77,7 +77,7 @@ server <- function(input, output, session) {
     StandardSampleSolutions = StandardSampleSolutions)
   
   SolOrder <- reactive({
-    solTypes = sapply(StandardSampleSolutions$solutions, function(x) {
+    solTypes <- sapply(StandardSampleSolutions$solutions, function(x) {
       if(!is.error(x())) {
         return(xml_text(xml_find_all(x(), xpath = '//mr:solutionType')))
       } else {return(NULL)}

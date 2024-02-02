@@ -4,14 +4,14 @@ MaterialesRefereUI <- function(id) {
     column(
       width = 6, style = 'margin-left: 80px;', Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: -20px;',
-              tags$b('Materiales de referencia para la preparacion de disoluciones')),
+              tags$b('Materiales de referencia para la preparacion de disoluciones')), tags$br(),
       # tags$b("Ver o descargar la información de un material de referencia"),
       radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA',
-                   choices = list('Para caracterizar disoluciones calibrantes monoelementales' = 'forCalibrantes',
-                                  'Para caracterizar sal de EDTA' = 'forEDTA')),
+                   choices = list('Para caracterizar disoluciones monoelementales' = 'forCalibrantes',
+                                  'Para caracterizar sales de EDTA' = 'forEDTA')),
       uiOutput(ns('SelectMRC')),
       box(
-        title = NULL, width = 12, status = 'primary', collapsible = FALSE,
+        title = tags$b('Visualizador'), width = 12, status = 'primary', collapsible = FALSE,
         fluidRow(
           column(width = 2, SI_unit_nice('mole', width = "100%")),
           column(width = 10, disabled(downloadLink(ns('DescMrXml'), label = "Descargar archivo XML de material de referencia")),
@@ -21,10 +21,14 @@ MaterialesRefereUI <- function(id) {
     ),
     
     column(
-      4, style = 'margin-left: 120px;', Nlns(6), 
-      tags$b('Cargar información de nuevos materiales de referencia.'), tags$br(),
-      'Seleccione un archivo XML con la información de un material de referencia faltante, 
-      indique el uso que tiene el material y opima el botón', tags$b('Cargar.'), Nlns(),
+      4, style = 'margin-left: 120px;', Nlns(9), 
+      tags$b('Cargar archivos XML de materiales faltantes.'), tags$br(),
+      tags$div(
+        style = 'margin-left: 40px;',
+        'Se requiere que indique el uso que tiene cada material para completar la carga al aplicativo.',
+        fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...', multiple = FALSE, accept = '.xml', width = '100%'),
+        uiOutput(ns('UsoMrXml')),
+        '(Verifique que los nuevos materiales aparecen en el recuadro de visualización)'),
       uiOutput(ns('NewMrXml')),
       uiOutput(ns('CargarMrXml'))
     )
@@ -38,12 +42,7 @@ MaterialesRefereServer <- function(id, devMode, demo) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    NewMrXml <- reactive({
-      input$CargarMrXml
-      fileInput(session$ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...',#placeholder = '',
-                multiple = FALSE, accept = '.xml', width = '90%')
-    })
-    output$NewMrXml <- renderUI(NewMrXml())
+    
     
     
     ReferenceMaterials <- reactiveValues(
@@ -77,7 +76,7 @@ MaterialesRefereServer <- function(id, devMode, demo) {
         content = function(file) {write_xml(ReferenceMaterials[[input$MrXmlViewType]][[index]], file)})
     })
     
-    CargarMrXml <- eventReactive(input$NewMrXml, ignoreInit = TRUE, {
+    UsoMrXml <- eventReactive(input$NewMrXml, ignoreInit = TRUE, {
       if (!grepl('.xml', input$NewMrXml$name, fixed = TRUE)) {
         return(tags$div(style = 'color:red;', tags$b('Escoja un archivo XML válido!')))
       } else {
@@ -86,11 +85,10 @@ MaterialesRefereServer <- function(id, devMode, demo) {
           tags$b('Archivo:'), input$NewMrXml$name,
           radioButtons(session$ns('MrXmlUploadType'), label = 'Uso del MRC:', 
                        choices = list('Para titular disoluciones calibrantes' = 'forCalibrantes',
-                                      'Para titular EDTA' = 'forEDTA')),
-          actionButton(session$ns('CargarMrXml'), label = 'Cargar')))
+                                      'Para titular EDTA' = 'forEDTA'))))
       }
     })
-    output$CargarMrXml <- renderUI(CargarMrXml())
+    output$UsoMrXml <- renderUI(UsoMrXml())
     
     observeEvent(input$CargarMrXml, {
       ReferenceMaterials[[input$MrXmlUploadType]] <- append(ReferenceMaterials[[input$MrXmlUploadType]], values = list(read_xml(input$NewMrXml$datapath)))

@@ -9,30 +9,25 @@ BalanceCalibCertUI <- function(id) {
         column(width = 4, SI_unit_nice('kilogram', width = "90%")),
         column(8, uiOutput(ns('balanzasElected')))),
       tags$hr(),
-      tags$b('Cargue los archivos con los certificados que le hagan falta.'), tags$br(),
-      'Estos archivos se crean con el ',
-      tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.', target = '_blank'),
-      tags$br(),
-      'Suba los archivos individualmente en las siguientes cajas y asegurese de opimir el botón',
-      tags$u('Cargar'),
-      'y que la información de sus balanzas se puede visualizar correctamente', Nlns(),
-      splitLayout(
-        fileInput(ns('NewDCC1'), label = NULL, multiple = FALSE, accept = '.rds', width = '90%'),
-        uiOutput(ns('CargarDCC1'))),
-      splitLayout(
-        fileInput(ns('NewDCC2'), label = NULL, multiple = FALSE, accept = '.rds', width = '90%'),
-        uiOutput(ns('CargarDCC2')))
+      tags$b('Cargue los archivos con los certificados que le hagan falta.'), Nlns(),
+      tags$div(
+        style = 'margin-left: 40px;',
+        'El botón', tags$b('Cargar'), 'se habilita solo si sube archivos compatibles.', tags$br(),
+        'Por el momento, titulaR solo puede procesar archivos RDS creados con el',
+        tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.', target = '_blank'), Nlns(),
+        fileInput(ns('NewDCC1'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.rds', width = '100%'),  
+        '(Verifique de los nuevos certificados aparecen en el recuadro de visualización)')
     ),
     
     column(
       6,  style = 'margin-left: 80px;', Nlns(7), 
       box(
         title = tags$b('Visualizador'), width = 12, status = 'primary', collapsible = FALSE,
-        uiOutput(ns('balanzasPicker')),
+        uiOutput(ns('balanzasPicker')), tags$br(),
         splitLayout(
-          materialSwitch(ns('ShallprintThebalanzas'), label = 'Información del certificado de calibración',
+          materialSwitch(ns('ShallprintThebalanzas'), label = 'Ver información del certificado', right = TRUE,
                          value = FALSE, status = "primary"),
-          materialSwitch(ns('ShallplotThebalanzas'), label = 'Gráfico de error de indicación', 
+          materialSwitch(ns('ShallplotThebalanzas'), label = 'Gráfico de error de indicación', right = TRUE,
                          value = TRUE, status = "primary")),
         tags$hr(),
         plotOutput(ns('plotThebalanzas'), width = '95%'),

@@ -13,13 +13,16 @@ PreparaDisolucioUI <- function(id) {
       spcs(10), actionLink(ns('NewLeadStdSol'), icon = icon("fill-drip"), 'Crear disolución estándar de plomo'), tags$br(),
       spcs(10), actionLink(ns('NewEDTASamSol'), icon = icon("fill-drip"), 'Crear disolución muestra de EDTA'),
       tags$hr(), Nlns(),
-      tags$b('Disoluciones preparadas en el pasado'),
+      tags$b('Disoluciones preparadas previamente'), Nlns(),
       tags$div(
-        style = 'margin-left: 60px;',
-        'Cargue los archivos XML con la información de un material de referencia faltante, 
-        indique el uso que tiene el material y opima el botón', tags$u('Cargar.'), Nlns(),
-        fileInput(ns('NewMrXml'), label = NULL, multiple = FALSE, accept = '.xml', width = '90%'),
-        uiOutput(ns('CargarMrXml')))
+        style = 'margin-left: 40px;',
+        # 'El botón', tags$b('Cargar'), 'se habilita solo si sube archivos compatibles.',
+        # splitLayout(
+          # cellWidths = c('70%', '30%'),
+          fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '90%')#,
+          # disabled(actionButton(ns('cargarXML'), 'Cargar'))
+        ),
+        uiOutput(ns('CargarMrXml'))
       ),
     column(
       width = 6, style = 'margin-left: 100px;',
@@ -51,6 +54,32 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode, fecha = fecha)
     
     # StandardSampleSolutions <- reactiveValues(solutions = list())
+    
+    observeEvent(input$NewMrXml, {
+      if (!all(input$NewMrXml$type == 'text/xml') || is.error(lapply(input$NewMrXml$datapath, function(x) read_xml(x)))) {
+        shinyalert(title = 'Error!', text = 'Todos los archivos deben ser formato XML.', type = 'error',
+                   timer = 3000, showConfirmButton = FALSE)
+      } else {
+        uploadedFiles <- lapply((input$NewMrXml$datapath), function(x) read_xml(x))
+        solTypes <- sapply(uploadedFiles, function(x) xml_text(xml_find_all(x, xpath = '//mr:solutionType')))
+        if (!all(solTypes %in% c('EstandarEDTA', 'MuestraCalib', 'EstandarPlomo', 'MuestraEDTA'))) {
+          shinyalert(title = 'Error!', text = 'Parece que al menos un archivo XML no es de disoluciones creadas en la App.', type = 'error',
+                     timer = 3000, showConfirmButton = FALSE)
+        } else {
+          StandardSampleSolutions$solutions <- append(StandardSampleSolutions$solutions, uploadedFiles)
+          shinyalert(
+            title = NULL, type = 'success', html = TRUE, timer = 7000, showConfirmButton = FALSE,
+            text = paste0(
+              'Se cargó la información de las siguientes disoluciones:<br><br><p align = "left"><ul>',
+              paste0(sapply(uploadedFiles, function(x) {
+                return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:solutionType')), ':</b> ',
+                              xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
+              }), collapse = ''),
+              '</ul></p>'))
+          
+        }
+      }
+    })
     
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)

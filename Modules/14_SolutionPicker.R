@@ -29,7 +29,7 @@ solutionPickerServer <- function(id, devMode, demo, solutions, label, inline = F
     
     solution <- reactive({
       req(input$solution)
-      solutions()[[input$solution]]
+      solutions()[[as.numeric(input$solution)]]()
     })
     return(solution)
   })
