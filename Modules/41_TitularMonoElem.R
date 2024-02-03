@@ -56,8 +56,8 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
       
       tabName <- isolate(paste0('Titulación_', input$NewTit))
       element <- xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name'))
-      isolate(TitIndividualServer(id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzasUse, fecha = fecha,
-                                  StanDisol, SampDisol))
+      isolate(TitIndividualServer(id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha,
+                                  StanDisol = StanDisol, SampDisol = SampDisol))
       appendTab(
         inputId = 'Titrations', select = TRUE, 
         tab = TitIndividualUI(

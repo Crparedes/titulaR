@@ -73,9 +73,9 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
     
-    MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MassFraction', node = 'mr:additionalValues'))
-    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'MolarMass', node = 'mr:additionalValues'))
-    DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), 'Density', node = 'mr:additionalValues'))
+    MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'MassFraction', node = 'mr:additionalValues'))
+    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'MolarMass', node = 'mr:additionalValues'))
+    DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'Density', node = 'mr:additionalValues'))
     
     derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
     masMRC <- reactive(mean(input$MasMRC1, input$MasRecMRC1 - input$MasRec1))

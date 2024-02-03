@@ -15,13 +15,13 @@ TitIndividualUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
           conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, tags$hr(),
                            rHandsontableOutput(ns("TitData"), width = '100%')))),
       column(
-        6, tags$b('Curva de titulación:'),
-        fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'))), tags$br(),
-        disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$br(),
-        infoBoxOutput(ns("summary")),
+        6, #tags$b('Curva de titulación:'),
         fluidRow(
-          column(width = 1, SI_unit_nice('kilogram', width = "97%")),
-          column(width = 11, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la titulación'),
+          column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'), tags$br()),
+          column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$br()),
+          column(12, infoBoxOutput(ns("summary")), tags$hr()),
+          column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
+          column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado'),
                  Nlns(2), htmlOutput(ns('InfoTitXML')))),
         uiOutput(ns('TitulTerminada')))
     )
@@ -41,7 +41,6 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
     TableDat_0  <- reactiveValues(hot = TblDt_0())
     TableData <- reactive({
       DT <- NULL
-      
       if (!is.null(input$TitData)) {
         DT <- setDT(hot_to_r(input$TitData))
         TableDat_0[["hot"]]  <-  DT
@@ -87,7 +86,6 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
     #   }
     # })
   
-    
     TitCurvePlot <- reactive(
       tryCatch(
         expr = {
@@ -111,7 +109,7 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
     
     TitulTerminada <- eventReactive(input$TermTit, {
       if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
-        tags$b('No se puede terminar la titulación con menos de 7 datos!')
+        tags$b('No se puede terminar la titulación con menos de 7 datos.')
       } else {
         tags$div(
           tags$hr(),
@@ -126,20 +124,22 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
         )
       }
     })
+    
     MasaEquiv <- eventReactive(input$TermTit, {try(EP.1stDer(curve = CleanDf()))})
-    MasAtoElem <- reactive(ifelse(Elemento == 'Pb', LeadAM, ElementsAtomicMass[[Elemento]][1]))
-    u_MasAtoElem <- reactive(ifelse(Elemento == 'Pb', u_LeadAM, ElementsAtomicMass[[Elemento]][2]))
-    ResParcial <- reactive(MasaEquiv() * DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]` / input$MasaAlic * MasAtoElem())
+    ConcStanSolut <- reactive(GetValueEstandUncert(StanDisol(),  property = 'AmountOfSubstancePerUnitMass'))
+    AtMasSampElem <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MolarMass', node = 'mr:property'))
+    
+    
+    # SampDisol
+    ResParcial <- reactive(MasaEquiv() * ConcStanSolut()$ValUnc[1] / input$MasaAlic * AtMasSampElem()$ValUnc[1])
     ResParcUnc <- reactive(propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
-                                     data = cbind(Meq = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv()),
-                                                          sqrt(2) * uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = MasaEquiv(), 
-                                                                                   d = 0.1, d.units = 'mg')),
+                                     data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()),
+                                                          sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg')),
                                                   Mbln = c(0, 0.0028/(2*sqrt(3))),
-                                                  Cedta = c(DisEDTA_MRC$infoDisMRC()$`Concentración [mmol/kg]`,
-                                                            DisEDTA_MRC$infoDisMRC()$`Incertidumbre [mmol/kg]`),
-                                                  Mali = c(convMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic),
-                                                           uncertConvMass(CalibCertList[[BalanzaMonoelemTit]], reading = input$MasaAlic)),
-                                                  Mato = c(MasAtoElem(), u_MasAtoElem())),
+                                                  Cedta = ConcStanSolut()$ValUnc,
+                                                  Mali = c(convMass(balanza(), reading = input$MasaAlic),
+                                                           uncertConvMass(balanza(), reading = input$MasaAlic)),
+                                                  Mato = AtMasSampElem()$ValUnc),
                                      second.order = FALSE, do.sim = FALSE
     ))
     

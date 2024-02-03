@@ -27,7 +27,7 @@ PreparaDisolucioUI <- function(id) {
     column(
       width = 6, style = 'margin-left: 100px;',
       # shinydashboardPlus::
-        box(id = ns('condAmbiBox'), status = 'primary', title = tags$b(style = 'font-size: 13px;', 'Condiciones ambientales'),
+        box(id = ns('condAmbiBox'), status = 'primary', title = tags$b(style = 'font-size: 14px;', 'Condiciones ambientales'),
                               width = 12, collapsible = TRUE, collapsed = FALSE, AmbiDensAireUI(ns('AmbiDensAireSolutions'))),
       conditionalPanel(
         'input.NewEDTAStdSol > 0 || input.NewCaliSamSol > 0 || input.NewLeadStdSol > 0 || input.NewEDTASamSol > 0', ns = ns,  

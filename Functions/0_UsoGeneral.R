@@ -24,20 +24,5 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
   }
 }
 
-GetValueEstandUncert <- function(MrcXml, property = NULL, node = NULL) {
-  if (!missing(node)) MrcXml <- xml_child(MrcXml, search = node)
-  if (!missing(property)) {
-    QUDTnodes <- xml_find_all(MrcXml, '//si:quantityTypeQUDT')
-    PropNode <- gsub(pattern = '/si:real/si:quantityTypeQUDT', replacement = '', 
-                     xml_path(QUDTnodes[which(sapply(QUDTnodes, function(x) {as_list(x)[[1]]}) == property)]))
-    GetValueEstandUncert(xml_find_all(xml_find_all(MrcXml, xpath = PropNode), 'si:real'))
-  } else {
-    value <- xml_double(xml_find_all(MrcXml, xpath = 'si:value'))
-    unitV <- xml_text(xml_find_all(MrcXml, xpath = 'si:unit'))
-    kFact <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:coverageFactor'))
-    stUnc <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
-    return(list(ValUnc = c(value, stUnc), Units = unitV))
-  }
-}
 
 
