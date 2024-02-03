@@ -53,7 +53,7 @@ AmbiDensAireServer <- function(id, devMode, fecha) {
     output$NiceDensitAir <- renderUI(NiceDensitAir())
     
     AmbientCondInfo <- reactive({
-      ambientXML <- read_xml(genericHeading('mr:ambiente ID = "idAmbiente"'))
+      ambientXML <- read_xml(genericHeading('mr:ambiente'))
       ambientXML %>% {
         xml_add_child(., 'mr:airDensity') %>% xml_add_child(., .value = DensitAir()) 
         xml_add_child(., 'mr:ambientConditions') %>% {

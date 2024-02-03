@@ -20,6 +20,7 @@ DensityUnits <- list('g/cm^3' = '\\gram\\centi\\meter\\tothe{-3}')
 CobertureFactors <- list('(k = 1)' = 1, '(k = 1.96)' = 1.96, '(k = 2)' = 2)
 Distributions <- list('Normal')
 
+elemEspa <- list(lead = 'plomo', camdmium = 'cadmio', calcium = 'calcio')
 
 ## MRCs
 namesMR_MRCs <-

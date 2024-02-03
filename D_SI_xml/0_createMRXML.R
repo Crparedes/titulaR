@@ -19,13 +19,8 @@ genericHeading <- function(x, inclVerEnc = FALSE) {
 initiateMRXML <- function(name) {
   heading <- str_replace(genericHeading('mr:MRXML', TRUE), 'MRXML', name)
   xmlObject <- read_xml(heading) 
-  xmlObject %>% {
-    xml_add_child(., 'mr:administrativeData')
-    xml_add_child(., 'mr:certifiedValues')
-    xml_add_child(., 'mr:additionalValues')
-  }
-  return(xmlObject)
-}
+  xmlObject %>% {xml_add_child(., 'mr:administrativeData'); xml_add_child(., 'mr:certifiedValues'); xml_add_child(., 'mr:additionalValues')}
+  return(xmlObject)}
 
 addDataToMRXML <- function(xmlObject, fields, node = NULL) {
   if(missing(node)) {x <- xmlObject} else {x <- xml_child(xmlObject, node)}
@@ -50,8 +45,7 @@ addPropToMRXML <- function(xmlObject, fields, node) {
   x <- xml_child(xmlObject, node)
   lapply(seq_along(fields), function (y) {
     x <- xml_add_child(.x = x, .value = 'mr:property', id = names(fields)[y])
-    addDataToMRXML(xmlObject = x, fields = fields[[y]])
-  })
+    addDataToMRXML(xmlObject = x, fields = fields[[y]])})
   return(xmlObject)
 }
 
@@ -62,22 +56,20 @@ initiatePersonXML <- function(name) {
   headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
   <respPerson/>'
   xmlObject <- read_xml('<respPerson/>') 
-  xmlObject %>% {
-    xml_add_child(., 'data')
-    xml_add_child(., 'inst')
-  }
+  xmlObject %>% {xml_add_child(., 'data'); xml_add_child(., 'inst')}
   return(xmlObject)
 }
-
-
 
 ############## Disoluciones
 initiateSolutionXML <- function() {
   xmlObject <- read_xml(genericHeading('mr:standardSolution', TRUE))
-  xmlObject %>% {
-    xml_add_child(., 'mr:property')
-    xml_add_child(., 'mr:coreData')
-  }
+  xmlObject %>% {xml_add_child(., 'mr:property'); xml_add_child(., 'mr:coreData')}
   return(xmlObject)
 }
 
+##### Resultados titulaciones
+initiateTitrationXML <- function(name) {
+  xmlObject <- read_xml(genericHeading('mr:singleTitration', TRUE)) 
+  xmlObject %>% {xml_add_child(., 'mr:titrationResult'); xml_add_child(., 'mr:additionalInfo')}
+  return(xmlObject)
+}

@@ -6,7 +6,7 @@ MaterialesRefereUI <- function(id) {
       tags$h4(style = 'margin-left: -20px;',
               tags$b('Materiales de referencia para la preparacion de disoluciones')), tags$br(),
       # tags$b("Ver o descargar la información de un material de referencia"),
-      radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA',
+      radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA', width = '100%', inline = TRUE, 
                    choices = list('Para caracterizar disoluciones monoelementales' = 'forCalibrantes',
                                   'Para caracterizar sales de EDTA' = 'forEDTA')),
       uiOutput(ns('SelectMRC')),

@@ -1,15 +1,13 @@
 TitularMonoelemtUI <- function(id) {
   ns <- NS(id)
   fluidRow(
-    column(12, Nlns(4), uiOutput(ns('brwz')),
-           tags$h4(style = 'margin-left: 60px;', tags$b('Titulación de disoluciones calibrantes monoelementales'))),
+    column(12, Nlns(4), uiOutput(ns('brwz')), tags$h4(style = 'margin-left: 60px;', tags$b('Titulación de disoluciones calibrantes monoelementales'))),
     column(
       width = 3, style = 'margin-left: 80px;',
       balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst')), tags$br(),
       solutionPickerUI(ns('StanDisol')), tags$br(), solutionPickerUI(ns('SampDisol')), tags$hr(),
       actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;')),
-    conditionalPanel('input.NewTit > 0', ns = ns,
-                     column(width = 8, Nlns(), tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'right')))
+    column(width = 8, conditionalPanel('input.NewTit > 0', ns = ns, tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'left')))
     
     # )
   
@@ -62,7 +60,7 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
         inputId = 'Titrations', select = TRUE, 
         tab = TitIndividualUI(
           id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()),
-          explan = tagList('disolución monoelemental: ', tags$em(element))))
+          explan = tagList('disolución monoelemental: ', elemEspa[[element]])))
     })
     
     

@@ -37,7 +37,7 @@ BalanceCalibCertUI <- function(id) {
   )
 }
 
-BalanceCalibCertServer <- function(id, devMode, demo) {
+BalanceCalibCertServer <- function(id, devMode, demo, BalanzasReVa) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(if(devMode()) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
@@ -75,6 +75,8 @@ BalanceCalibCertServer <- function(id, devMode, demo) {
       }
     })
     
-    return(reactive(lapply(input$balanzasElected, function(x) balanzasList[[x]])))
+    observeEvent(input$balanzasElected, {BalanzasReVa$DCC <- lapply(input$balanzasElected, function(x) balanzasList[[x]])})
+    
+    # return(reactive(lapply(input$balanzasElected, function(x) balanzasList[[x]])))
   })
 }

@@ -2,28 +2,29 @@ TitIndividualUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
-    tags$b('Titulación de ', explan), tags$hr(), Nlns(1),
+    tags$b('Titulación de ', explan), Nlns(2),
     fluidRow(
       column(
-        6,
+        5,
         tags$div(
           id = 'inline', style = 'font-size:12px; margin-left:25px', 
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
                            ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, 10.0552, 0)),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 4), value = 0),
-          conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, tags$hr(),
+                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 5), value = 0),
+          conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, Nlns(),
                            rHandsontableOutput(ns("TitData"), width = '100%')))),
       column(
-        6, #tags$b('Curva de titulación:'),
+        7, #tags$b('Curva de titulación:'),
         fluidRow(
+          column(12, uiOutput(ns('SummaryIndivTitr'))),
           column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'), tags$br()),
-          column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$br()),
-          column(12, infoBoxOutput(ns("summary")), tags$hr()),
+          column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$hr()),
           column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
-          column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado'),
+          column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado individual'), tags$br(),
+                 '(El resultado de medición se obtiene combinando resultados individuales)',
                  Nlns(2), htmlOutput(ns('InfoTitXML')))),
-        uiOutput(ns('TitulTerminada')))
+        )
     )
   )
 }
@@ -36,6 +37,7 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
     
     horaInicio <- eventReactive(input$MasaAlic, iso8601(fecha = fecha()))
     horaFinal  <- eventReactive(input$TermTit, iso8601(fecha = fecha()))
+    element <- reactive(xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name')))
     
     TblDt_0 <- reactive(if(demo()) return(demoData) else return(voidData))
     TableDat_0  <- reactiveValues(hot = TblDt_0())
@@ -106,66 +108,93 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
                cex = 1.6, col = "black")
         })
     )
-    
-    TitulTerminada <- eventReactive(input$TermTit, {
-      if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
-        tags$b('No se puede terminar la titulación con menos de 7 datos.')
-      } else {
-        tags$div(
-          tags$hr(),
-          tags$b('Resultados de la titulación:'), tags$br(),
-          tags$div(style = 'font-size:12px', 
-                   infoBox(
-                     width = 12, title = tags$b('Fracción másica del elemento en la alícuota: '), icon = icon("vials"), color = 'black', 
-                     value = tags$div(tags$b(round(ResParcial(), 3), ' [mg/kg]')#, renderPrint(summaryTitration())
-                     ), 
-                     subtitle = 'Exporte y guarde el archivo de resultados individuales.´'), tags$br(), tags$br(),
-                   downloadButton(session$ns('DwnlResFile'), label = tags$b('Descargar archivo .tit')), tags$br(), tags$br())
-        )
-      }
-    })
+    output$TitCurvePlot <- renderPlot(TitCurvePlot())
     
     MasaEquiv <- eventReactive(input$TermTit, {try(EP.1stDer(curve = CleanDf()))})
     ConcStanSolut <- reactive(GetValueEstandUncert(StanDisol(),  property = 'AmountOfSubstancePerUnitMass'))
     AtMasSampElem <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MolarMass', node = 'mr:property'))
+    MassRatioSamp <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MassRatio', node = 'mr:property'))
     
     
     # SampDisol
     ResParcial <- reactive(MasaEquiv() * ConcStanSolut()$ValUnc[1] / input$MasaAlic * AtMasSampElem()$ValUnc[1])
-    ResParcUnc <- reactive(propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
-                                     data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()),
-                                                          sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg')),
-                                                  Mbln = c(0, 0.0028/(2*sqrt(3))),
-                                                  Cedta = ConcStanSolut()$ValUnc,
-                                                  Mali = c(convMass(balanza(), reading = input$MasaAlic),
-                                                           uncertConvMass(balanza(), reading = input$MasaAlic)),
-                                                  Mato = AtMasSampElem()$ValUnc),
-                                     second.order = FALSE, do.sim = FALSE
-    ))
+    ResParcUnc <- reactive(
+      propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
+                data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()),
+                                     sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg')),
+                             Mbln = c(0, 0.0028/(2*sqrt(3))),
+                             Cedta = ConcStanSolut()$ValUnc,
+                             Mali = c(convMass(balanza(), reading = input$MasaAlic),
+                                      uncertConvMass(balanza(), reading = input$MasaAlic)),
+                             Mato = AtMasSampElem()$ValUnc),
+                second.order = FALSE, do.sim = FALSE))
     
-    summaryTitration <- reactive(
-      list(Muestra = sampleID, Elemento = Elemento, MasaAlicuota = input$MasaAlic, 
-           MasaEquiv = MasaEquiv(), 'Fracción másica [mg/kg]' = ResParcial(), 'Incertidumbre estandar' = ResParcUnc(), 
-           'Disolución titulante' = DisEDTA_MRC$infoDisMRC(),
-           'Certificado calibración balanza' = CalibCertList[[BalanzaMonoelemTit]],
-           Analista = IDUsuario(),#[1], correoAnalista = IDUsuario()[2],
-           TitCurvDat = TitCurvDat()[complete.cases(TitCurvDat()), ],
-           dscripMuestra = dscrMuestraMonoelemTit, 
-           MasAtoElem = c(MasAtoElem(), u_MasAtoElem()),
-           Inicio = horaInicio(),
-           Final = horaFinal()
-      ))
+    ResParcialSource <- reactive(MasaEquiv() * ConcStanSolut()$ValUnc[1] / input$MasaAlic * AtMasSampElem()$ValUnc[1] / MassRatioSamp()$ValUnc[1])
+    ResParcUncSource <- reactive(
+      propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato / MassRatioSamp),
+                data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()),
+                                     sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg')),
+                             Mbln = c(0, 0.0028/(2*sqrt(3))),
+                             Cedta = ConcStanSolut()$ValUnc,
+                             Mali = c(convMass(balanza(), reading = input$MasaAlic),
+                                      uncertConvMass(balanza(), reading = input$MasaAlic)),
+                             Mato = AtMasSampElem()$ValUnc,
+                             MassRatioSamp = MassRatioSamp()$ValUnc),
+                second.order = FALSE, do.sim = FALSE))
     
-    output$DwnlResFile <- downloadHandler(
-      filename = function() {paste0(Elemento, "_", sampleID, ".", number, "_", isolate(horaInicio()), ".tit")},
-      content = function(file) {saveRDS(summaryTitration(), file = file)}, contentType = NULL)
+    InfoTitXML <- eventReactive(MasaEquiv(), {
+      xmlObject <- initiateTitrationXML()
+      titResList <- list()
+      addInfList <- list('mr:timeISO8601start' = horaInicio(),
+                         'mr:timeISO8601end' = horaFinal())
+      
+      xml_child(xmlObject, search = 'mr:titrationResult') %>% {
+        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
+        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionSource'))
+        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:property//mr:substance'))
+      }
+      xml_child(xmlObject, search = 'mr:additionalInfo') %>% xml_add_child(., .value = analyst())
+      
+      addDataToMRXML(xmlObject, titResList, node = 'mr:titrationResult')
+      addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
+      return(xmlObject)
+    })
     
-    output$TitCurvePlot <- renderPlot(TitCurvePlot())
-    output$TitulTerminada <- renderUI(TitulTerminada())
+    observeEvent(req(InfoTitXML()), {
+      enable('downlXMLlink')
+      withCallingHandlers({
+        shinyjs::html("InfoTitXML", "")
+        message(InfoTitXML())},
+        message = function(m) {
+          shinyjs::html(id = "InfoTitXML",
+                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
+                                      m$message, '</textarea>'), add = FALSE)})
+      
+      output$downlXMLlink <-  downloadHandler(
+        filename = function() {paste0(gsub(pattern = ' ', replacement = '_', 'NAME', fixed = FALSE), ".xml")},
+        content = function(file) {write_xml(InfoTitXML(), file)})
+    })
+
+    
+    SummaryIndivTitr <- eventReactive(input$TermTit, {
+      if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
+        tags$b('No se puede terminar la titulación con menos de 7 datos.')
+      } else {
+        infoBox(
+          width = 12, title = tags$b(style = 'font-size:13px', 'Resultado individual (parcial)'),
+          icon = icon("vials"), color = 'black', fill = FALSE,
+          subtitle = tags$div(
+            style = 'font-size:12px',
+            'Fracción de', elemEspa[[element()]], 'en la disolución titulada:',
+            tags$b(style = 'margin-left:1px;', round(ResParcial(), 3), '\u00B1', signif(ResParcUnc()$prop[3], 3), ' mg/kg (k=1)'), Nlns(1), 
+            'Fracción de', elemEspa[[element()]], 'en la muestra original:',
+            tags$b(style = 'margin-left:1px;', round(ResParcialSource(), 3), '\u00B1', signif(ResParcUncSource()$prop[3], 3), ' mg/kg (k=1)')))
+      }
+    })
+    output$SummaryIndivTitr <- renderUI(SummaryIndivTitr())
     output$DescaResu <- renderUI(DescaResu())
-    return(list('Titulación' = summaryTitration#, 
-                #'Exito' = !is.null(is.numeric(ResParcial()))
-    ))
+    
+    
     
     # return(list('infoDisMRC' = infoDisMRC))
   })

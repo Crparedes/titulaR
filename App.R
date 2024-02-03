@@ -75,12 +75,14 @@ server <- function(input, output, session) {
         StandardSampleSolutions$solutions, lapply(list.files('www/DemoFiles/Solutions/', full.names = TRUE), function(x) reactive(read_xml(x))))
   }})
   
+  BalanzasReVa <- reactiveValues(DCC = list())
+  observeEvent(demo(), {if(demo()) {BalanzasReVa$DCC <- append(BalanzasReVa$DCC, list(balanzasList[[4]]))}})
   
-  BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo)
+  BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo, BalanzasReVa = BalanzasReVa)
   
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode, demo = demo)
-  DisolInfoPC <- PreparaDisolucioServer(
-    'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo,
+  PreparaDisolucioServer(
+    'Solution', devMode = devMode, balanzas = BalanzasReVa, materiales = MateReferDC, fecha = fecha, demo = demo,
     StandardSampleSolutions = StandardSampleSolutions)
   
   SolOrder <- reactive({
@@ -97,7 +99,7 @@ server <- function(input, output, session) {
   #                     1: runApp
   
   TitMonoelem <- TitularMonoelemtServer(
-    'MonoElem', devMode = devMode, balanzas = BalanzasDCC, solutions = DisolInfoPC, fecha = fecha, demo = demo,
+    'MonoElem', devMode = devMode, balanzas = BalanzasReVa, solutions = DisolInfoPC, fecha = fecha, demo = demo,
     EstandarEDTA = reactive(StandardSampleSolutions$solutions[SolOrder()$EstandarEDTA]),
     MuestraCalib = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraCalib]))
   
