@@ -31,9 +31,9 @@
   </mr:property>
   <mr:coreData>
     <mr:solutionType>MuestraCalib</mr:solutionType>
-    <mr:solutionID>20240202_MuestraCalib_1</mr:solutionID>
+    <mr:solutionID>DEMO_MuestraCalibPlomo</mr:solutionID>
     <mr:solutionSource>MRC-INM-023-1</mr:solutionSource>
-    <mr:timeISO8601>2024-02-02T20:00:23-05:00</mr:timeISO8601>
+    <mr:timeISO8601>2024-02-02T21:19:37-05:00</mr:timeISO8601>
     <respPerson>
       <data>
         <name>Cristhian Paredes</name>

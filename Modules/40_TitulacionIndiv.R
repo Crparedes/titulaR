@@ -1,8 +1,8 @@
-TitIndividualUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FALSE) {
+TitIndividualUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
-    tags$b(paste0('Titulación de ', explan)), tags$hr(), Nlns(1),
+    tags$b('Titulación de ', explan), tags$hr(), Nlns(1),
     fluidRow(
       column(
         6,
@@ -11,26 +11,31 @@ TitIndividualUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
                            ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, 10.0552, 0)),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g'), value = 0),
+                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 4), value = 0),
           conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, tags$hr(),
                            rHandsontableOutput(ns("TitData"), width = '100%')))),
       column(
         6, tags$b('Curva de titulación:'),
         fluidRow(column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'))), tags$br(),
         disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$br(),
+        infoBoxOutput(ns("summary")),
+        fluidRow(
+          column(width = 1, SI_unit_nice('kilogram', width = "97%")),
+          column(width = 11, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la titulación'),
+                 Nlns(2), htmlOutput(ns('InfoTitXML')))),
         uiOutput(ns('TitulTerminada')))
     )
   )
 }
 
-TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha) {
+TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha, StanDisol, SampDisol, type = 'calibrante') {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
     observeEvent(input$brwz, browser())
     
-    horaInicio <- eventReactive(input$MasaAlic, paste0(fecha(), format(Sys.time(), '_%H-%M')))
-    horaFinal  <- eventReactive(input$TermTit, paste0(fecha(), format(Sys.time(), '_%H-%M')))
+    horaInicio <- eventReactive(input$MasaAlic, iso8601(fecha = fecha()))
+    horaFinal  <- eventReactive(input$TermTit, iso8601(fecha = fecha()))
     
     TblDt_0 <- reactive(if(demo()) return(demoData) else return(voidData))
     TableDat_0  <- reactiveValues(hot = TblDt_0())

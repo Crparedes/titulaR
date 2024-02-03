@@ -55,13 +55,14 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
       req(input$NewTit > 0)
       
       tabName <- isolate(paste0('Titulación_', input$NewTit))
-      element <- 'ELEMENTO'
-      isolate(TitIndividualServer(id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzasUse, fecha = fecha))
+      element <- xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name'))
+      isolate(TitIndividualServer(id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzasUse, fecha = fecha,
+                                  StanDisol, SampDisol))
       appendTab(
         inputId = 'Titrations', select = TRUE, 
         tab = TitIndividualUI(
-          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()), reagent = 'EDTA', reagKey = 'EDTA',
-          explan = paste0('disolución calibrante monoelemental de ', element)))
+          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()),
+          explan = tagList('disolución monoelemental: ', tags$em(element))))
     })
     
     

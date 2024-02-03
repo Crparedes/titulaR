@@ -20,9 +20,9 @@
   </mr:property>
   <mr:coreData>
     <mr:solutionType>EstandarEDTA</mr:solutionType>
-    <mr:solutionID>20240202_EstandarEDTA_1</mr:solutionID>
+    <mr:solutionID>DEMO_EstandarEDTA</mr:solutionID>
     <mr:CRM>InHouse GSO 2960-84</mr:CRM>
-    <mr:timeISO8601>2024-02-02T19:59:57-05:00</mr:timeISO8601>
+    <mr:timeISO8601>2024-02-02T21:18:17-05:00</mr:timeISO8601>
     <respPerson>
       <data>
         <name>Cristhian Paredes</name>
