@@ -16,7 +16,9 @@ inicioLy <- fluidRow(
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
        fluidRow(
-         column(2, SI_unit_nice(width = '75%')),
+         column(2, tags$a(href = 'https://www.bipm.org/en/liaison/digital-transformation', 
+                          img(src = "SI_units.png", width = '75%', alt = 'SI units digital reference'),
+                          target = '_blank')),
          column(
            8, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
@@ -31,25 +33,36 @@ inicioLy <- fluidRow(
              tags$li(tags$i(tags$b('A', .noWS = c('after')), 'ccessability'), spcs(2), '(Datos accesibles)'),
              tags$li(tags$i(tags$b('I', .noWS = c('after')), 'nteroperability'), '(Datos interoperables)'),
              tags$li(tags$i(tags$b('R', .noWS = c('after')), 'eusability'), spcs(5), '(Datos reusables)')),
-           Nlns(),
-           'El aplicativo utiliza la ',
-           tags$a(href = 'http://qudt.org/', style = 'color:#00428c;',
-                  tags$html(tags$b('Ontología'), img(src = "QUDT.png", height = '14px')), target = '_blank'),
-           'para describir tipos de cantidades.', tags$br(),
-           'Las sustancias químicas se  describen utilizando el',
-           tags$a(href = 'https://www.inchi-trust.org/', style = 'color:#14602f;',
-                  tags$html(tags$b('Identificador Químico Internacional'), img(src = "InChI.png", height = '27px')), target = '_blank'),
+           Nlns(), tags$hr(), Nlns(),
+           'El aplicativo utiliza las siguientes referencias adicionales: ', Nlns(),
+           tags$ul(
+             tags$li(
+               tags$a(href = 'http://qudt.org/', style = 'color:#00428c;',
+                      tags$html(img(src = "QUDT.png", height = '17px'),
+                                tags$b('- Quantities, Units, Dimensions, and Types Ontology,')), target = '_blank'),
+               'para describir tipos de cantidades.', 
+               tags$div(style = 'font-size:8px', '(De acuerdo con el',
+                        tags$a(href = 'https://gitlab1.ptb.de/d-ptb/d-si/xsd-d-si/-/issues/35', 'tema de discusión en GitLab',
+                               target = '_blank', .noWS = 'after'), ')')),
+             tags$br(),
+             tags$li(
+               tags$a(href = 'https://www.inchi-trust.org/', style = 'color:#14602f;',
+                      tags$html(img(src = "InChI.png", height = '27px'),
+                                tags$b('- IUPAC International Chemical Identifier,')), target = '_blank'),
+               'para relacionar sustancias químicas'),
+             tags$br(),
+             tags$li(
+               tags$a(href = 'https://orcid.org/', style = 'color:#a6ce39;',
+                      tags$html(img(src = "ORCIDLong.png", height = '18px'),
+                                tags$b('- Open Researcher and Contributor ID,')), target = '_blank'),
+               'para relacionar las personas responsables de ejecutar los análisis.')),
            tags$br(),
-           
-           # tags$div(style = 'font-size:8px', '(Ver tema de discusión en ',
-           #          tags$a(href = 'https://gitlab1.ptb.de/d-ptb/d-si/xsd-d-si/-/issues/35', 'Repositorio GitLab',
-           #                 target = '_blank', .noWS = 'after'), ')')
        )),
-       tags$hr(), Nlns(3),
+       tags$hr(), 
        conditionalPanel('input.partesAplicativo == 0', actionLink('partesAplicativo', 'Descripción de módulos del aplicativo...')),
        conditionalPanel(
          'input.partesAplicativo > 0',               
-         'El aplicativo tiene por los siguientes módulos:',
+         tags$b('El aplicativo tiene por los siguientes módulos:'),
          tags$ul(
            tags$br(),
            # tags$li("Diligencie la información general en el recuadro que se muestra abajo a la derecha."), tags$br(),

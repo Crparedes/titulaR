@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <respPerson>
-  <data>
-    <name>Analista2</name>
-    <email>contacto@inm.gov.co</email>
-    <orcid>https://orcid.org/</orcid>
-  </data>
-  <inst>
-    <name lang="ES">Instituto Nacional de Metrología de Colombia</name>
-    <shortName>INM</shortName>
-    <country>CO</country>
-    <alternativeName lang="EN">National Metrology Institute of Colombia</alternativeName>
-    <ror>https://ror.org/028s91538</ror>
-    <url>https://inm.gov.co</url>
-  </inst>
+  <name>Analista2</name>
+  <email>contacto@inm.gov.co</email>
+  <orcid>https://orcid.org/</orcid>
 </respPerson>

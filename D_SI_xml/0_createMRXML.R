@@ -53,11 +53,11 @@ addPropToMRXML <- function(xmlObject, fields, node) {
 ############ Personal
 
 initiatePersonXML <- function(name) {
-  headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
-  <respPerson/>'
-  xmlObject <- read_xml('<respPerson/>') 
-  xmlObject %>% {xml_add_child(., 'data'); xml_add_child(., 'inst')}
-  return(xmlObject)
+  # headingPerson <- '<?xml version="1.0" encoding="UTF-8"?>
+  # <respPerson/>'
+  # xmlObject <-  
+  # xmlObject %>% {xml_add_child(., 'data'); xml_add_child(., 'inst')}
+  return(read_xml('<respPerson/>'))
 }
 
 ############## Disoluciones

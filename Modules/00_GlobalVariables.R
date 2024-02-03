@@ -50,7 +50,8 @@ ElementsAtomicMass <- list(Cd = c(112.414, 0.004/sqrt(3)),
 ## Personal
 files <- gsub('', '', list.files(path = 'www/Personal/', pattern = 'xml', full.names = TRUE))
 authPersons <- lapply(files, function (x) read_xml(x))
-names(authPersons) <- sapply(authPersons, function (x) as_list(x)$respPerson$data$name)
+names(authPersons) <- sapply(authPersons, function (x) as_list(x)$respPerson$name)
+names(authPersons) <- sapply(authPersons, function (x) xml_text(xml_child(x, search = './/name')))
 
 
 

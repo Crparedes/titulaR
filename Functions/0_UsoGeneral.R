@@ -23,6 +23,3 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
     return(tm_iso8601)
   }
 }
-
-
-

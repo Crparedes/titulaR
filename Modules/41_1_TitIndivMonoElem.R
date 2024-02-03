@@ -1,4 +1,4 @@
-TitIndividualUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
+TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
@@ -8,9 +8,9 @@ TitIndividualUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
         5,
         tags$div(
           id = 'inline', style = 'font-size:12px; margin-left:25px', 
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
                            ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, 10.0552, 0)),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
                            ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 5), value = 0),
           conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, Nlns(),
                            rHandsontableOutput(ns("TitData"), width = '100%')))),
@@ -19,17 +19,18 @@ TitIndividualUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
         fluidRow(
           column(12, uiOutput(ns('SummaryIndivTitr'))),
           column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'), tags$br()),
-          column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación')), tags$hr()),
+          column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación'))),
+          column(12, tags$hr()),
           column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
           column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado individual'), tags$br(),
-                 '(El resultado de medición se obtiene combinando resultados individuales)',
-                 Nlns(2), htmlOutput(ns('InfoTitXML')))),
+                 tags$div(style = 'font-size:11px;', '(Un resultado de medición se obtiene combinando resultados individuales)'), tags$br(),
+                 tags$div(style = 'font-size:12px;', htmlOutput(ns('InfoTitXML')))))
         )
     )
   )
 }
 
-TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha, StanDisol, SampDisol, type = 'calibrante') {
+TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha, StanDisol, SampDisol, type = 'calibrante') {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
@@ -187,7 +188,7 @@ TitIndividualServer <- function(id, devMode, demo, reagKey, analyst, balanza, fe
             style = 'font-size:12px',
             'Fracción de', elemEspa[[element()]], 'en la disolución titulada:',
             tags$b(style = 'margin-left:1px;', round(ResParcial(), 3), '\u00B1', signif(ResParcUnc()$prop[3], 3), ' mg/kg (k=1)'), Nlns(1), 
-            'Fracción de', elemEspa[[element()]], 'en la muestra original:',
+            'Fracción de', elemEspa[[element()]], 'en la muestra original:', spcs(3),
             tags$b(style = 'margin-left:1px;', round(ResParcialSource(), 3), '\u00B1', signif(ResParcUncSource()$prop[3], 3), ' mg/kg (k=1)')))
       }
     })
