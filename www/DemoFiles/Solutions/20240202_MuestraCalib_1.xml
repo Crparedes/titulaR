@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mr:standardSolution xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+  <mr:property>
+    <mr:substance>
+      <mr:name>lead</mr:name>
+      <mr:InChI version="1.0.6">1S/Pb</mr:InChI>
+      <mr:InChiKey version="1.0.6">WABPQHHGFIMREM-UHFFFAOYSA-N</mr:InChiKey>
+    </mr:substance>
+    <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <si:quantityTypeQUDT>MolarMass</si:quantityTypeQUDT>
+      <si:value>207.04</si:value>
+      <si:unit>\gram\mole\tothe{-1}</si:unit>
+      <si:expandedUnc>
+        <si:uncertainty>0.52</si:uncertainty>
+        <si:coverageFactor>1</si:coverageFactor>
+        <si:coverageProbability>0.683</si:coverageProbability>
+        <si:distribution>normal</si:distribution>
+      </si:expandedUnc>
+    </si:real>
+    <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <si:quantityTypeQUDT>MassRatio</si:quantityTypeQUDT>
+      <si:value>1</si:value>
+      <si:unit>\gram\gram\tothe{-1}</si:unit>
+      <si:expandedUnc>
+        <si:uncertainty>0</si:uncertainty>
+        <si:coverageFactor>1</si:coverageFactor>
+        <si:coverageProbability>0.683</si:coverageProbability>
+        <si:distribution>normal</si:distribution>
+      </si:expandedUnc>
+    </si:real>
+  </mr:property>
+  <mr:coreData>
+    <mr:solutionType>MuestraCalib</mr:solutionType>
+    <mr:solutionID>20240202_MuestraCalib_1</mr:solutionID>
+    <mr:solutionSource>MRC-INM-023-1</mr:solutionSource>
+    <mr:timeISO8601>2024-02-02T20:00:23-05:00</mr:timeISO8601>
+    <respPerson>
+      <data>
+        <name>Cristhian Paredes</name>
+        <email>caparedes@inm.gov.co</email>
+        <orcid>https://orcid.org/0000-0001-7049-9597</orcid>
+      </data>
+      <inst>
+        <name lang="ES">Instituto Nacional de Metrología de Colombia</name>
+        <shortName>INM</shortName>
+        <country>CO</country>
+        <alternativeName lang="EN">National Metrology Institute of Colombia</alternativeName>
+        <ror>https://ror.org/028s91538</ror>
+        <url>https://inm.gov.co</url>
+      </inst>
+    </respPerson>
+  </mr:coreData>
+</mr:standardSolution>

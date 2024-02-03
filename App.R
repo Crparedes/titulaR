@@ -69,8 +69,15 @@ server <- function(input, output, session) {
   
   fecha <- reactive(input$fecha)
   StandardSampleSolutions <- reactiveValues(solutions = list())
+  observeEvent(demo(), {
+    if(demo()) {
+      StandardSampleSolutions$solutions <- append(
+        StandardSampleSolutions$solutions, lapply(list.files('www/DemoFiles/Solutions/', full.names = TRUE), function(x) reactive(read_xml(x))))
+  }})
+  
   
   BalanzasDCC <- BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo)
+  
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode, demo = demo)
   DisolInfoPC <- PreparaDisolucioServer(
     'Solution', devMode = devMode, balanzas = BalanzasDCC, materiales = MateReferDC, fecha = fecha, demo = demo,

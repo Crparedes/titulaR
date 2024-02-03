@@ -19,7 +19,7 @@ PreparaDisolucioUI <- function(id) {
         # 'El botón', tags$b('Cargar'), 'se habilita solo si sube archivos compatibles.',
         # splitLayout(
           # cellWidths = c('70%', '30%'),
-          fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '90%')#,
+          fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '90%')#,
           # disabled(actionButton(ns('cargarXML'), 'Cargar'))
         ),
         uiOutput(ns('CargarMrXml'))
@@ -55,28 +55,29 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     
     # StandardSampleSolutions <- reactiveValues(solutions = list())
     
-    observeEvent(input$NewMrXml, {
-      if (!all(input$NewMrXml$type == 'text/xml') || is.error(lapply(input$NewMrXml$datapath, function(x) read_xml(x)))) {
+    observeEvent(input$NewXML, {
+      # browser()
+      if (!all(input$NewXML$type == 'text/xml') || is.error(lapply(input$NewXML$datapath, function(x) read_xml(x)))) {
         shinyalert(title = 'Error!', text = 'Todos los archivos deben ser formato XML.', type = 'error',
                    timer = 3000, showConfirmButton = FALSE)
       } else {
-        uploadedFiles <- lapply((input$NewMrXml$datapath), function(x) read_xml(x))
+        uploadedFiles <- lapply((input$NewXML$datapath), function(x) read_xml(x))
         solTypes <- sapply(uploadedFiles, function(x) xml_text(xml_find_all(x, xpath = '//mr:solutionType')))
         if (!all(solTypes %in% c('EstandarEDTA', 'MuestraCalib', 'EstandarPlomo', 'MuestraEDTA'))) {
           shinyalert(title = 'Error!', text = 'Parece que al menos un archivo XML no es de disoluciones creadas en la App.', type = 'error',
                      timer = 3000, showConfirmButton = FALSE)
         } else {
-          StandardSampleSolutions$solutions <- append(StandardSampleSolutions$solutions, uploadedFiles)
+          StandardSampleSolutions$solutions <- append(StandardSampleSolutions$solutions, 
+                                                      lapply(uploadedFiles, function(x) {return(reactive(x))}))
           shinyalert(
-            title = NULL, type = 'success', html = TRUE, timer = 7000, showConfirmButton = FALSE,
+            title = NULL, type = 'success', html = TRUE, timer = 1e4, showConfirmButton = FALSE,
             text = paste0(
               'Se cargó la información de las siguientes disoluciones:<br><br><p align = "left"><ul>',
               paste0(sapply(uploadedFiles, function(x) {
                 return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:solutionType')), ':</b> ',
                               xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
               }), collapse = ''),
-              '</ul></p>'))
-          
+              '</ul><br><br>Presione <b>ESC</b> para cerrar el recuadro.</p>'))
         }
       }
     })
@@ -90,6 +91,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
         list(isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O', materiales = materiales$forCalibrantes,
                                     demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire,
                                     solutionType = solutionType))))
+      
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
