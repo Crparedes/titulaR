@@ -4,11 +4,23 @@ CombinaResultadosUI <- function(id) {
     column(12, Nlns(4), uiOutput(ns('brwz')),
            tags$h4(style = 'margin-left: 60px;', tags$b('Combinación de resultados individuales de titulación'))),
     column(
-      width = 3, style = 'margin-left: 80px;',
-      balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst')), tags$br(),
-      solutionPickerUI(ns('StanDisol')), tags$br(), solutionPickerUI(ns('SampDisol')), tags$hr(),
-      actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;')),
-    # column(width = 8, conditionalPanel('input.NewTit > 0', ns = ns, tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'left'))),
+      width = 3, style = 'margin-left: 80px;', tags$br(),
+      # fluidRow(
+        # column(width = 3, SI_unit_nice('mole', width = "110%"), SI_unit_nice('kilogram', width = "110%")),
+        # column(
+          # width = 9,
+          # tags$hr(),
+      tags$b('Importe archivos XML con resultados individuales:'), Nlns(),
+      tags$div(
+        style = 'margin-left: 40px;',
+        fileInput(ns('imported'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%')),
+      tags$br(),
+      tags$b('Seleccione los resultados de titulación que quiere combinar (deben tener la misma especie).'), Nlns(),
+      tags$div(style = 'margin-left: 40px;', rHandsontableOutput(ns("resultFiles"))),
+        # )),
+      tags$hr(),
+      actionButton(ns('CombinArchivos'), label = tags$b('Calcular resultado combinado'), style = 'margin-left:40px;')),
+   { # column(width = 8, conditionalPanel('input.NewTit > 0', ns = ns, tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'left'))),
     # column(12, tags$hr(),tags$hr(),tags$hr(),tags$hr(),tags$hr()),
     # 
     # column(3, 
@@ -43,14 +55,48 @@ CombinaResultadosUI <- function(id) {
     #                         column(5, uiOutput(ns('resIndiv'))))#,
     #        #uiOutput(ns('Cajas'))
     # )
+   }
   )
 }
 
-CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTitrationResultsIDUsuario) {
+CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTitrationResults) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
       if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
     observeEvent(input$brwz, browser())
+    
+    values <- reactiveValues()
+    # sapply(PartialTitrationResults$results, function (x) {return(xml_text(xml_child(x(), search = 'mr:titrationResult/mr:solutionSource')))})
+    # sapply(PartialTitrationResults$results, function (x) {return(xml_text(xml_child(x(), search = 'mr:additionalResult/mr:intermediateSolution')))})
+    # DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
+    #                    Date = seq(from = Sys.Date(), by = "days", length.out = 10),
+    #                    stringsAsFactors = FALSE)
+    ( DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
+                       Date = seq(from = Sys.Date(), by = "days", length.out = 10),
+                       stringsAsFactors = FALSE) )
+    ## Handsontable
+    observe({
+      if (!is.null(input$resultFiles)) {
+        DF = hot_to_r(input$resultFiles)
+      } else {
+        if (is.null(values[["DF"]]))
+          DF <- DF
+        else
+          DF <- values[["DF"]]
+      }
+      values[["DF"]] <- DF
+    })
+    
+    output$resultFiles <- renderRHandsontable({
+      DF <- values[["DF"]]
+      if (!is.null(DF))
+        rhandsontable(DF, useTypes = as.logical(input$useType), stretchH = "all")
+    })
+    
+    ResultadosElect <- reactive({
+      
+    })
+    output$ResultadosElect <- renderUI(ResultadosElect())
     
     # FileNames <- reactive(input$TitFiles$name)
     # 

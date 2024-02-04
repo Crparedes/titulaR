@@ -77,7 +77,8 @@ print.xml_document <- print.xml_node <- function (x) message(x)
       StandardSampleSolutions$solutions <- append(
         StandardSampleSolutions$solutions, lapply(list.files('www/DemoFiles/Solutions/', full.names = TRUE), function(x) reactive(read_xml(x))))
       BalanzasReVa$DCC <- append(BalanzasReVa$DCC, list(balanzasList[[4]]))
-      # PartialTitrationResults$results <- append(PartialTitrationResults$results, lapp...
+      PartialTitrationResults$results <- append(
+        PartialTitrationResults$results, lapply(list.files('www/DemoFiles/Results/', full.names = TRUE), function(x) reactive(read_xml(x))))
   }})
   
   
@@ -103,7 +104,7 @@ print.xml_document <- print.xml_node <- function (x) message(x)
     MuestraCalib = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraCalib]),
     PartialTitrationResults = PartialTitrationResults)
   
-  CombinaResultadosServer('Combina', devMode = devMode, demo = demo, fecha = fecha, PartialTitrationResults)
+  CombinaResultadosServer('Combina', devMode = devMode, demo = demo, fecha = fecha, PartialTitrationResults = PartialTitrationResults)
   
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))

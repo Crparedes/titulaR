@@ -63,13 +63,13 @@ initiatePersonXML <- function(name) {
 ############## Disoluciones
 initiateSolutionXML <- function() {
   xmlObject <- read_xml(genericHeading('mr:standardSolution', TRUE))
-  xmlObject %>% {xml_add_child(., 'mr:property'); xml_add_child(., 'mr:coreData')}
+  xmlObject %>% {xml_add_child(., 'mr:coreData'); xml_add_child(., 'mr:property')}
   return(xmlObject)
 }
 
 ##### Resultados titulaciones
 initiateTitrationXML <- function(name) {
   xmlObject <- read_xml(genericHeading('mr:singleTitration', TRUE)) 
-  xmlObject %>% {xml_add_child(., 'mr:titrationResult'); xml_add_child(., 'mr:additionalInfo')}
+  xmlObject %>% {xml_add_child(., 'mr:coreData'); xml_add_child(., 'mr:titrationResult'); xml_add_child(., 'mr:additionalInfo')}
   return(xmlObject)
 }

@@ -6,8 +6,8 @@ BalanceCalibCertUI <- function(id) {
       tags$h4(style = 'margin-left: -20px;', tags$b('Informacion de calibracion de balanzas')),
        tags$br(),
       fluidRow(
-        column(width = 4, SI_unit_nice('kilogram', width = "90%")),
-        column(8, uiOutput(ns('balanzasElected')))),
+        column(3, SI_unit_nice('kilogram', width = "110%")),
+        column(9, uiOutput(ns('balanzasElected')))),
       tags$hr(),
       tags$b('Cargue los archivos con los certificados que le hagan falta.'), Nlns(),
       tags$div(

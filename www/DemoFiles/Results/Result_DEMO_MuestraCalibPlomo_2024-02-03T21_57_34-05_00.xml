@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mr:singleTitration xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+  <mr:coreData>
+    <mr:resultID>Result_DEMO_MuestraCalibPlomo_2024-02-03T21:57:34-05:00</mr:resultID>
+    <mr:solutionSource xmlns:mr="https://inm.gov.co/mr">MRC-INM-023-1</mr:solutionSource>
+    <respPerson>
+      <name>Cristhian Paredes</name>
+      <email>caparedes@inm.gov.co</email>
+      <orcid>https://orcid.org/0000-0001-7049-9597</orcid>
+    </respPerson>
+    <mr:titrationStart>2024-02-03T21:57:34-05:00</mr:titrationStart>
+    <mr:titrationEnd>2024-02-03T21:57:34-05:00</mr:titrationEnd>
+  </mr:coreData>
+  <mr:titrationResult>
+    <mr:substance xmlns:mr="https://inm.gov.co/mr">
+      <mr:name>lead</mr:name>
+      <mr:InChI version="1.0.6">1S/Pb</mr:InChI>
+      <mr:InChiKey version="1.0.6">WABPQHHGFIMREM-UHFFFAOYSA-N</mr:InChiKey>
+    </mr:substance>
+    <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <si:quantityTypeQUDT>massFraction</si:quantityTypeQUDT>
+      <si:value>956.721227107419</si:value>
+      <si:unit>\milli\gram\kilo\gram\tothe{-1}</si:unit>
+      <si:expandedUnc>
+        <si:uncertainty>2.43668933280186</si:uncertainty>
+        <si:coverageFactor>1</si:coverageFactor>
+        <si:coverageProbability>0.683</si:coverageProbability>
+        <si:distribution>normal</si:distribution>
+      </si:expandedUnc>
+    </si:real>
+  </mr:titrationResult>
+  <mr:additionalInfo>
+    <mr:intermediateSolution>
+      <mr:solutionID xmlns:mr="https://inm.gov.co/mr">DEMO_MuestraCalibPlomo</mr:solutionID>
+      <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <si:quantityTypeQUDT>MassRatio</si:quantityTypeQUDT>
+        <si:value>1</si:value>
+        <si:unit>\gram\gram\tothe{-1}</si:unit>
+        <si:expandedUnc>
+          <si:uncertainty>0</si:uncertainty>
+          <si:coverageFactor>1</si:coverageFactor>
+          <si:coverageProbability>0.683</si:coverageProbability>
+          <si:distribution>normal</si:distribution>
+        </si:expandedUnc>
+      </si:real>
+      <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <si:quantityTypeQUDT>massFraction</si:quantityTypeQUDT>
+        <si:value>956.721227107419</si:value>
+        <si:unit>\milli\gram\kilo\gram\tothe{-1}</si:unit>
+        <si:expandedUnc>
+          <si:uncertainty>2.43668933276429</si:uncertainty>
+          <si:coverageFactor>1</si:coverageFactor>
+          <si:coverageProbability>0.683</si:coverageProbability>
+          <si:distribution>normal</si:distribution>
+        </si:expandedUnc>
+      </si:real>
+      <mr:timeISO8601 xmlns:mr="https://inm.gov.co/mr">2024-02-02T21:19:37-05:00</mr:timeISO8601>
+    </mr:intermediateSolution>
+    <mr:referenceSolution>
+      <mr:solutionID xmlns:mr="https://inm.gov.co/mr">DEMO_EstandarEDTA</mr:solutionID>
+      <mr:CRM xmlns:mr="https://inm.gov.co/mr">InHouse GSO 2960-84</mr:CRM>
+      <mr:substance xmlns:mr="https://inm.gov.co/mr">
+        <mr:name>EDTA disodium salt dihydrate</mr:name>
+        <mr:InChI version="1.0.6">1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2</mr:InChI>
+        <mr:InChiKey version="1.0.6">FXKZPKBFTQUJBA-UHFFFAOYSA-N</mr:InChiKey>
+      </mr:substance>
+      <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <si:quantityTypeQUDT>AmountOfSubstancePerUnitMass</si:quantityTypeQUDT>
+        <si:value>10.074529</si:value>
+        <si:unit>\milli\mole\kilo\gram\tothe{-1}</si:unit>
+        <si:expandedUnc>
+          <si:uncertainty>0.00387</si:uncertainty>
+          <si:coverageFactor>1</si:coverageFactor>
+          <si:coverageProbability>0.683</si:coverageProbability>
+          <si:distribution>normal</si:distribution>
+        </si:expandedUnc>
+      </si:real>
+      <mr:timeISO8601 xmlns:mr="https://inm.gov.co/mr">2024-02-02T21:19:37-05:00</mr:timeISO8601>
+    </mr:referenceSolution>
+  </mr:additionalInfo>
+</mr:singleTitration>

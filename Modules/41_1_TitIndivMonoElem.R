@@ -38,6 +38,8 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     observeEvent(input$brwz, browser())
     
     horaInicio <- eventReactive(input$MasaAlic, iso8601(fecha = fecha()))
+    resultID <- reactive(paste0('Result_', xml_text(xml_child(SampDisol(), 'mr:coreData/mr:solutionID')), '_', horaInicio()))
+    
     horaFinal  <- eventReactive(input$TermTit, iso8601(fecha = fecha()))
     element <- reactive(xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name')))
     
@@ -146,36 +148,44 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     
     InfoTitXML <- eventReactive(MasaEquiv(), {
       xmlObject <- initiateTitrationXML()
-      addInfList <- list('mr:titrationStart' = horaInicio(),
-                         'mr:titrationEnd' = horaFinal())
       
-      xml_child(xmlObject, search = 'mr:titrationResult') %>% {
+      addDataToMRXML(xmlObject, list('mr:resultID' = resultID()), node = 'mr:coreData')
+      xml_child(xmlObject, search = 'mr:coreData') %>% {
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionSource'))
+        xml_add_child(., .value = analyst())
+      }
+      addDataToMRXML(xmlObject, list('mr:titrationStart' = horaInicio(), 'mr:titrationEnd' = horaFinal()), node = 'mr:coreData')
+    
+      xml_child(xmlObject, search = 'mr:titrationResult') %>% {
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:property//mr:substance'))
         xml_add_child(., .value = SiRealXML(
           quantityTypeQUDT = 'massFraction', value = ResParcUncSource()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
           uncert = ResParcUncSource()$prop[[3]], covFac = 1))
       }
       xml_child(xmlObject, search = 'mr:additionalInfo') %>% {
-        xml_add_child(., .value = analyst())
-        xml_add_child(., .value = 'mr:intermediateSolution') %>% 
+        xml_add_child(., .value = 'mr:intermediateSolution')
         xml_add_child(., .value = 'mr:referenceSolution')
       }
       xml_child(xmlObject, search = 'mr:additionalInfo//mr:intermediateSolution') %>% {
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
-        # xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio', as.char = FALSE))
+        xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
         xml_add_child(., .value = SiRealXML(
           quantityTypeQUDT = 'massFraction', value = ResParcUnc()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
           uncert = ResParcUnc()$prop[[3]], covFac = 1))
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
       }
+      xml_child(xmlObject, search = 'mr:additionalInfo//mr:referenceSolution') %>% {
+        xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:solutionID'))
+        xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:CRM'))
+        xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:property//mr:substance'))
+        xml_add_child(., .value = CopySiRealFromXML(StanDisol(), 'AmountOfSubstancePerUnitMass'))
+        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
+      }
       
-      xml_add_child(xml_child(xmlObject, search = 'mr:additionalInfo//mr:intermediateSolution'),
-                    .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
       message(xmlObject)
       
       
-      addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
+      # addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
       return(xmlObject)
     })
     
@@ -190,7 +200,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
                                       m$message, '</textarea>'), add = FALSE)})
       
       output$downlXMLlink <-  downloadHandler(
-        filename = function() {paste0(gsub(pattern = ' ', replacement = '_', 'NAME', fixed = FALSE), ".xml")},
+        filename = function() {paste0(gsub(' ', '_', resultID(), fixed = FALSE), ".xml")},
         content = function(file) {write_xml(InfoTitXML(), file)})
     })
 
