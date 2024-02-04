@@ -17,7 +17,7 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
   if (niceHTML) {
     niceDIV <- tags$div(style = 'font-size:12px;', spcs(5),
                         tags$a(href = 'https://www.iso.org/iso-8601-date-and-time-format.html', tags$b('ISO 8601: '), target = '_blank'),
-                        tm_iso8601)
+                        tags$div(style = 'font-size:13px;display:inline;', tm_iso8601))
     return(niceDIV)
   } else {
     return(tm_iso8601)

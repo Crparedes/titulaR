@@ -1,5 +1,5 @@
 BackHeaderButtons <- rgb(0, 0, 0, maxColorValue = 255)
-BackSidebar <- rgb(70, 70, 70, maxColorValue = 255)
+BackSidebar <- '#c7c7c7'#rgb(70, 70, 70, maxColorValue = 255)
 BackBody <- rgb(238, 238, 238, maxColorValue = 255) #eeeeee
 
 customTheme <- shinyDashboardThemeDIY(
@@ -42,7 +42,7 @@ customTheme <- shinyDashboardThemeDIY(
   ,sidebarSearchIconColor = "rgb(153,153,153)"
   ,sidebarSearchBorderColor = "rgb(55,72,80)"
   
-  ,sidebarTabTextColor = "#ffffff"
+  ,sidebarTabTextColor = "#555555"
     ,sidebarTabTextSize = 14
   ,sidebarTabBorderStyle = "none none none none"
   ,sidebarTabBorderColor = "rgb(90,90,90)"
