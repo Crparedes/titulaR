@@ -10,13 +10,14 @@ CombinaResultadosUI <- function(id) {
         # column(
           # width = 9,
           # tags$hr(),
-      tags$b('Importe archivos XML con resultados individuales:'), Nlns(),
+      tags$b('Importe archivos XML con resultados individuales:'),
       tags$div(
-        style = 'margin-left: 40px;',
+        style = 'margin-left: 25px;',
         fileInput(ns('imported'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%')),
       tags$br(),
-      tags$b('Seleccione los resultados de titulación que quiere combinar (deben tener la misma especie).'), Nlns(),
-      tags$div(style = 'margin-left: 40px;', rHandsontableOutput(ns("resultFiles"))),
+      tags$b('Marque la columna', tags$b('Usar'), 'de las filas con los resultados de titulación que quiere combinar.', tags$br(),
+             'Los resultados deben ser la misma especie.'),
+      tags$div(style = 'margin-left: 25px;', rHandsontableOutput(ns("resultFiles"))),
         # )),
       tags$hr(),
       actionButton(ns('CombinArchivos'), label = tags$b('Calcular resultado combinado'), style = 'margin-left:40px;')),
@@ -66,31 +67,53 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     observeEvent(input$brwz, browser())
     
     values <- reactiveValues()
-    # sapply(PartialTitrationResults$results, function (x) {return(xml_text(xml_child(x(), search = 'mr:titrationResult/mr:solutionSource')))})
+    DF <- reactive({
+      n <- length(PartialTitrationResults$results)
+      if (n == 0) {
+        return(data.frame(Usar = FALSE, Material.partida = NA, Fecha = NA, Especie = NA, Fracc.masica = NA, Unidades = NA))
+      } else {
+        return(data.frame(
+          Usar = FALSE,
+          Material.partida = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))}),
+          Fecha = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:coreData/mr:titrationEnd')))}),
+          Especie = sapply(PartialTitrationResults$results, function (x) {
+            return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])}),
+          Fracc.masica = sapply(PartialTitrationResults$results, function (x) {
+            return(round(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')), 3))}),
+          Unidades = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:titrationResult/si:real/si:unit')))})))
+      }
+    })
+    
     # sapply(PartialTitrationResults$results, function (x) {return(xml_text(xml_child(x(), search = 'mr:additionalResult/mr:intermediateSolution')))})
     # DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
     #                    Date = seq(from = Sys.Date(), by = "days", length.out = 10),
     #                    stringsAsFactors = FALSE)
-    ( DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
-                       Date = seq(from = Sys.Date(), by = "days", length.out = 10),
-                       stringsAsFactors = FALSE) )
+    # ( DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
+    #                    Date = seq(from = Sys.Date(), by = "days", length.out = 10),
+    #                    stringsAsFactors = FALSE) )
     ## Handsontable
     observe({
       if (!is.null(input$resultFiles)) {
         DF = hot_to_r(input$resultFiles)
       } else {
         if (is.null(values[["DF"]]))
-          DF <- DF
+          DF <- DF()
         else
           DF <- values[["DF"]]
       }
-      values[["DF"]] <- DF
+      values[["DF"]] <- DF()
     })
     
     output$resultFiles <- renderRHandsontable({
       DF <- values[["DF"]]
       if (!is.null(DF))
-        rhandsontable(DF, useTypes = as.logical(input$useType), stretchH = "all")
+        rhandsontable(DF, useTypes = TRUE, stretchH = "all", rowHeaders = NULL, selectCallback = TRUE)%>%
+        hot_col(2:6, readOnly = TRUE) %>%
+        hot_cols(colWidths = c(50, 120, 130, 75, 100, 210)) %>%
+        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
     })
     
     ResultadosElect <- reactive({
