@@ -34,6 +34,7 @@ library(propagate)
 # i18n <- Translator$new(translation_json_path = "translation.json")
 # i18n$set_translation_language("es") # here you select the default translation to display
 
+# rm(print.xml_document, print.xml_node)
 
 source('D_SI_xml/0_createMRXML.R')
 
@@ -54,36 +55,38 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+print.xml_document <- print.xml_node <- function (x) message(x)
+
   # shinyalert(title = 'Advertencia', text = , "Este aplicativo está en desarrollo", showConfirmButton = FALSE,
   #            closeOnEsc = TRUE, closeOnClickOutside = TRUE, html = TRUE, type = "info", timer = 7500)
   # 
   devMode <- reactive(input$Desarrollador)
   observeEvent(input$brwz, browser())
   
-  # observeEvent(input$selected_language, {
-  #   print(paste("Language change!", input$selected_language))
-  #   shiny.i18n::update_lang(input$selected_language)
-  # })
-  
   demo <- reactive(input$Demo)
-  
   fecha <- reactive(input$fecha)
+  dateTimeISO8601 <- reactive({invalidateLater(1000); iso8601(fecha(), niceHTML = TRUE)})
+  output$dateTimeISO8601 <- renderUI(dateTimeISO8601())
+  
+  BalanzasReVa <- reactiveValues(DCC = list())
   StandardSampleSolutions <- reactiveValues(solutions = list())
+  PartialTitrationResults <- reactiveValues(results = list())
+  
   observeEvent(demo(), {
     if(demo()) {
       StandardSampleSolutions$solutions <- append(
         StandardSampleSolutions$solutions, lapply(list.files('www/DemoFiles/Solutions/', full.names = TRUE), function(x) reactive(read_xml(x))))
+      BalanzasReVa$DCC <- append(BalanzasReVa$DCC, list(balanzasList[[4]]))
+      # PartialTitrationResults$results <- append(PartialTitrationResults$results, lapp...
   }})
   
-  BalanzasReVa <- reactiveValues(DCC = list())
-  observeEvent(demo(), {if(demo()) {BalanzasReVa$DCC <- append(BalanzasReVa$DCC, list(balanzasList[[4]]))}})
   
   BalanceCalibCertServer('Balanzas', devMode = devMode, demo = demo, BalanzasReVa = BalanzasReVa)
-  
   MateReferDC <- MaterialesRefereServer('MateRefe', devMode = devMode, demo = demo)
   PreparaDisolucioServer(
     'Solution', devMode = devMode, balanzas = BalanzasReVa, materiales = MateReferDC, fecha = fecha, demo = demo,
     StandardSampleSolutions = StandardSampleSolutions)
+  
   
   SolOrder <- reactive({
     solTypes <- sapply(StandardSampleSolutions$solutions, function(x) {
@@ -94,14 +97,14 @@ server <- function(input, output, session) {
     list(EstandarEDTA = which(solTypes == 'EstandarEDTA'), MuestraCalib = which(solTypes == 'MuestraCalib'),
          EstandarPlomo = which(solTypes == 'EstandarPlomo'), MuestraEDTA = which(solTypes == 'MuestraEDTA'))})
   
-  # Browse[1]> StandardSampleSolutions$solutions[[c(3, 12)]]
-  # Warning: Error in [[: subíndice fuera de  los límites
-  #                     1: runApp
-  
   TitMonoelem <- TitularMonoelemtServer(
-    'MonoElem', devMode = devMode, balanzas = BalanzasReVa, solutions = DisolInfoPC, fecha = fecha, demo = demo,
+    'MonoElem', devMode = devMode,  demo = demo,  fecha = fecha, balanzas = BalanzasReVa,
     EstandarEDTA = reactive(StandardSampleSolutions$solutions[SolOrder()$EstandarEDTA]),
-    MuestraCalib = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraCalib]))
+    MuestraCalib = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraCalib]),
+    PartialTitrationResults = PartialTitrationResults)
+  
+  CombinaResultadosServer('Combina', devMode = devMode, demo = demo, fecha = fecha, PartialTitrationResults)
+  
   
   observeEvent(input$tabsCertMass, updateTabItems(session, "tabs", 'tabsCertMass'))
   observeEvent(input$tabsCertMRCs, updateTabItems(session, "tabs", 'tabsCertMRCs'))
@@ -109,10 +112,6 @@ server <- function(input, output, session) {
   observeEvent(input$tabsMonoElem, updateTabItems(session, "tabs", 'tabsMonoElem'))
   observeEvent(input$tabsEDTAsalt, updateTabItems(session, "tabs", 'tabsEDTAsalt'))
   observeEvent(input$tabsSummResu, updateTabItems(session, "tabs", 'tabsSummResu'))
-  
-  
-  dateTimeISO8601 <- reactive({invalidateLater(1000); iso8601(fecha(), niceHTML = TRUE)})
-  output$dateTimeISO8601 <- renderUI(dateTimeISO8601())
   
 }
 

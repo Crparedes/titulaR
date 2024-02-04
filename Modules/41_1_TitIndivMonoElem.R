@@ -23,9 +23,10 @@ TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
           column(12, tags$hr()),
           column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
           column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado individual'), tags$br(),
-                 tags$div(style = 'font-size:11px;', '(Un resultado de medición se obtiene combinando resultados individuales)'), tags$br(),
+                 tags$div(style = 'font-size:11px;', '(Combine varios resultados individuales para obtener un resultado de medición)', tags$br(),
                  tags$div(style = 'font-size:12px;', htmlOutput(ns('InfoTitXML')))))
         )
+      )
     )
   )
 }
@@ -145,18 +146,35 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     
     InfoTitXML <- eventReactive(MasaEquiv(), {
       xmlObject <- initiateTitrationXML()
-      titResList <- list()
-      addInfList <- list('mr:timeISO8601start' = horaInicio(),
-                         'mr:timeISO8601end' = horaFinal())
+      addInfList <- list('mr:titrationStart' = horaInicio(),
+                         'mr:titrationEnd' = horaFinal())
       
       xml_child(xmlObject, search = 'mr:titrationResult') %>% {
-        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionSource'))
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:property//mr:substance'))
+        xml_add_child(., .value = SiRealXML(
+          quantityTypeQUDT = 'massFraction', value = ResParcUncSource()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
+          uncert = ResParcUncSource()$prop[[3]], covFac = 1))
       }
-      xml_child(xmlObject, search = 'mr:additionalInfo') %>% xml_add_child(., .value = analyst())
+      xml_child(xmlObject, search = 'mr:additionalInfo') %>% {
+        xml_add_child(., .value = analyst())
+        xml_add_child(., .value = 'mr:intermediateSolution') %>% 
+        xml_add_child(., .value = 'mr:referenceSolution')
+      }
+      xml_child(xmlObject, search = 'mr:additionalInfo//mr:intermediateSolution') %>% {
+        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
+        # xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio', as.char = FALSE))
+        xml_add_child(., .value = SiRealXML(
+          quantityTypeQUDT = 'massFraction', value = ResParcUnc()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
+          uncert = ResParcUnc()$prop[[3]], covFac = 1))
+        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
+      }
       
-      addDataToMRXML(xmlObject, titResList, node = 'mr:titrationResult')
+      xml_add_child(xml_child(xmlObject, search = 'mr:additionalInfo//mr:intermediateSolution'),
+                    .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
+      message(xmlObject)
+      
+      
       addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
       return(xmlObject)
     })
@@ -168,7 +186,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
         message(InfoTitXML())},
         message = function(m) {
           shinyjs::html(id = "InfoTitXML",
-                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
+                        html = paste0('<textarea rows = 80 style = "width: 100%;">',
                                       m$message, '</textarea>'), add = FALSE)})
       
       output$downlXMLlink <-  downloadHandler(
@@ -187,17 +205,22 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
           subtitle = tags$div(
             style = 'font-size:12px',
             'Fracción de', elemEspa[[element()]], 'en la disolución titulada:',
-            tags$b(style = 'margin-left:1px;', round(ResParcial(), 3), '\u00B1', signif(ResParcUnc()$prop[3], 3), ' mg/kg (k=1)'), Nlns(1), 
-            'Fracción de', elemEspa[[element()]], 'en la muestra original:', spcs(3),
-            tags$b(style = 'margin-left:1px;', round(ResParcialSource(), 3), '\u00B1', signif(ResParcUncSource()$prop[3], 3), ' mg/kg (k=1)')))
+            tags$b(style = 'margin-left:1px;', round(ResParcial(), 3), '\u00B1',
+                   ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(1), 
+            'Fracción de', elemEspa[[element()]], 'en la muestra original:', spcs(2),
+            tags$b(style = 'margin-left:1px;', round(ResParcialSource(), 3), '\u00B1',
+                   ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), tags$br(), tags$br(),
+            tags$div(
+              style = 'font-size:11px',
+              ReqField('', 1),
+              'No incluye el error asociado a la determinación del punto final de titulación.
+              Este aporte es significativo y se estima con la repetibilidad de las mediciones (Incertidumbre tipo A).')))
       }
     })
     output$SummaryIndivTitr <- renderUI(SummaryIndivTitr())
     output$DescaResu <- renderUI(DescaResu())
     
-    
-    
-    # return(list('infoDisMRC' = infoDisMRC))
+    return(InfoTitXML)
   })
 }
                            

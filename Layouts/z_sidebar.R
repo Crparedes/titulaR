@@ -23,7 +23,7 @@ customSidebar <- dashboardSidebar(
     # menuItem("", tabName = "Acido1", icon = icon("bong")),
     
     menuItem(("Combinación de resultados"), tabName = "tabsSummResu", icon = icon("compass")),
-    menuItem("Curva de titulación genérica", tabName = "tabsGenerica", icon = icon("bong")),
+    # menuItem("Curva de titulación genérica", tabName = "tabsGenerica", icon = icon("bong")),
     Nlns(2), uiOutput('dateTimeISO8601'), Nlns(2),
     conditionalPanel('input.Desarrollador',
                      div(id = 'inline', style = 'font-size:12px;',

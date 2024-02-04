@@ -79,7 +79,7 @@ customBody <- dashboardBody(
     tabItem(tabName = "tabsSolution", PreparaDisolucioUI('Solution')),
     tabItem(tabName = "tabsMonoElem", TitularMonoelemtUI('MonoElem')),
     tabItem(tabName = "tabsEDTAsalt"),
-    tabItem(tabName = "tabsSummResu"),
+    tabItem(tabName = "tabsSummResu", CombinaResultadosUI('Combina')),
     tabItem(tabName = "tabsGenerica")
   )
 )

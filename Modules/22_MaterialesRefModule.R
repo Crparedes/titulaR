@@ -2,9 +2,9 @@ MaterialesRefereUI <- function(id) {
   ns <- NS(id)
   fluidRow(
     column(
-      width = 6, style = 'margin-left: 80px;', Nlns(4), uiOutput(ns('brwz')),
+      width = 7, style = 'margin-left: 80px;', Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: -20px;',
-              tags$b('Materiales de referencia para la preparacion de disoluciones')), tags$br(),
+              tags$b('Materiales de referencia para la preparacion de disoluciones')), 
       # tags$b("Ver o descargar la información de un material de referencia"),
       radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA', width = '100%', inline = TRUE, 
                    choices = list('Para caracterizar disoluciones monoelementales' = 'forCalibrantes',
@@ -15,20 +15,20 @@ MaterialesRefereUI <- function(id) {
         fluidRow(
           column(width = 2, SI_unit_nice('mole', width = "100%")),
           column(width = 10, disabled(downloadLink(ns('DescMrXml'), label = "Descargar archivo XML de material de referencia")),
-                 Nlns(2), htmlOutput(ns('printTheMrXML')))
+                 Nlns(2), tags$div(style = 'font-size:12px;', htmlOutput(ns('printTheMrXML'))))
         )
       )
     ),
     
     column(
-      4, style = 'margin-left: 120px;', Nlns(9), 
+      width = 4, style = 'margin-left: 10px;', Nlns(10), 
       tags$b('Cargar archivos XML de materiales faltantes.'), tags$br(),
       tags$div(
         style = 'margin-left: 40px;',
-        'Se requiere que indique el uso que tiene cada material para completar la carga al aplicativo.',
+        'Se requiere que indique el uso que tiene cada material para completar la carga de la información al aplicativo.',
         fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...', multiple = FALSE, accept = '.xml', width = '100%'),
         uiOutput(ns('UsoMrXml')),
-        '(Verifique que los nuevos materiales aparecen en el recuadro de visualización)'),
+        'Verifique que los archivos que cargue quedan disponibles en el recuadro de visualización.'),
       uiOutput(ns('NewMrXml')),
       uiOutput(ns('CargarMrXml'))
     )
@@ -69,7 +69,7 @@ MaterialesRefereServer <- function(id, devMode, demo) {
         message(ReferenceMaterials[[input$MrXmlViewType]][[index]])},
         message = function(m) {
           shinyjs::html(id = "printTheMrXML",
-                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
+                        html = paste0('<textarea rows = 100 style = "width: 100%;">',
                                       m$message, '</textarea>'), add = FALSE)})
       output$DescMrXml <-  downloadHandler(
         filename = function() {paste0(gsub(pattern = ' ', replacement = '_', input$MRCtoView, fixed = FALSE), ".xml")},

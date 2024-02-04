@@ -15,19 +15,22 @@ SiRealXML <- function(quantityTypeQUDT = NULL, value = NULL, units = NULL,
 }
 
 
-GetValueEstandUncert <- function(MrcXml, property = NULL, node = NULL) {
-  if (!missing(node)) MrcXml <- xml_child(MrcXml, search = node)
+CopySiRealFromXML <- function(xmlObject, property, node = NULL, as.char = TRUE) {
+  if (!missing(node)) xmlObject <- xml_child(xmlObject, search = node)
+  QUDTnodes <- xml_find_all(xmlObject, '//si:quantityTypeQUDT')
+  return(read_xml(as.character(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)]))))
+}
+
+GetValueEstandUncert <- function(xmlObject, property = NULL, node = NULL) {
+  if (!missing(node)) xmlObject <- xml_child(xmlObject, search = node)
   if (!missing(property)) {
-    QUDTnodes <- xml_find_all(MrcXml, '//si:quantityTypeQUDT')
-    PropNode <- gsub(pattern = '/si:quantityTypeQUDT', replacement = '', 
-                     xml_path(QUDTnodes[which(sapply(QUDTnodes, function(x) {as_list(x)[[1]]}) == property)]))
-    
-    GetValueEstandUncert(xml_find_all(MrcXml, xpath = PropNode))
+    QUDTnodes <- xml_find_all(xmlObject, '//si:quantityTypeQUDT')
+    GetValueEstandUncert(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)]))
   } else {
-    value <- xml_double(xml_find_all(MrcXml, xpath = 'si:value'))
-    unitV <- xml_text(xml_find_all(MrcXml, xpath = 'si:unit'))
-    kFact <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:coverageFactor'))
-    stUnc <- xml_double(xml_find_all(xml_child(MrcXml, search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
+    value <- xml_double(xml_find_all(xmlObject, xpath = 'si:value'))
+    unitV <- xml_text(xml_find_all(xmlObject, xpath = 'si:unit'))
+    kFact <- xml_double(xml_find_all(xml_child(xmlObject, search = 'si:expandedUnc'), xpath = 'si:coverageFactor'))
+    stUnc <- xml_double(xml_find_all(xml_child(xmlObject, search = 'si:expandedUnc'), xpath = 'si:uncertainty')) / kFact
     return(list(ValUnc = c(value, stUnc), Units = unitV))
   }
 }
@@ -46,7 +49,7 @@ SiRealInputUI <- function(id, name, x0, u0, units, decimalPlaces = 3, colWid = c
                                  inputId = ns('uncert'), label = NonReqField('\u00B1', 3), value = u0, decimalPlaces = decimalPlaces)),
       column(colWid[3], selectInput(ns('units'), label = NULL, choices = units)),
       column(colWid[4], autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, align = 'left', minimumValue = 0,
-                                 inputId = ns('covFac'), label = NonReqField('Factor k'), value = 1.96, decimalPlaces = 2),
+                                 inputId = ns('covFac'), label = NonReqField('Factor_k', 10), value = 1.96, decimalPlaces = 2),
              uiOutput(ns('covProp')),
              selectInput(ns('distribution'), label = NonReqField('Distribución'), choices = Distributions))),
   )
