@@ -10,17 +10,22 @@ CombinaResultadosUI <- function(id) {
         # column(
           # width = 9,
           # tags$hr(),
-      tags$b('Importe archivos XML con resultados individuales:'),
+      tags$b('Importe archivos de resultados de sesiones anteriores.'),
       tags$div(
-        style = 'margin-left: 25px;',
-        fileInput(ns('imported'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%')),
-      tags$br(),
-      tags$b('Marque la columna', tags$b('Usar'), 'de las filas con los resultados de titulación que quiere combinar.', tags$br(),
-             'Los resultados deben ser la misma especie.'),
-      tags$div(style = 'margin-left: 25px;', rHandsontableOutput(ns("resultFiles"))),
-        # )),
-      tags$hr(),
-      actionButton(ns('CombinArchivos'), label = tags$b('Calcular resultado combinado'), style = 'margin-left:40px;')),
+        style = 'margin-left: 25px; margin-top:0px;',
+        fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%'),
+        uiOutput(ns('XmlCargados')))),
+    column(
+      width = 7, style = 'margin-left: 50px;', tags$br(),
+      tags$b('Seleccione los resultados de titulación para combinar'), tags$br(),
+      box(
+        id = ns('FilesAvailable'), status = 'primary', title = tags$b('Archivos disponibles en el aplicativo'), width = 12, collapsible = TRUE, collapsed = FALSE,
+        tags$div(style = 'margin-left: 25px; margin-top:20px; border-style:groove;', rHandsontableOutput(ns("resultFiles"))),
+        '(Solo puede combinar resultados de la misma susbtancia)', Nlns(),
+        actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
+    column(12, hidden(tags$div(
+      id = ns('combinedResults'), tags$hr(), tags$h4(tags$b('Resultados combinados'))
+    ))),
    { # column(width = 8, conditionalPanel('input.NewTit > 0', ns = ns, tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'left'))),
     # column(12, tags$hr(),tags$hr(),tags$hr(),tags$hr(),tags$hr()),
     # 
@@ -66,34 +71,57 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar módulo'))))
     observeEvent(input$brwz, browser())
     
+    XmlCargados <- reactiveVal()
+    observeEvent(input$NewXML, {
+      if (!all(input$NewXML$type == 'text/xml') || is.error(lapply(input$NewXML$datapath, function(x) read_xml(x)))) {
+        shinyalert(title = 'Error!', text = 'Todos los archivos deben ser formato XML.', type = 'error',
+                   timer = 3000, showConfirmButton = FALSE)
+      } else {
+        uploadedFiles <- lapply((input$NewXML$datapath), function(x) read_xml(x))
+        # browser()
+        # solTypes <- sapply(uploadedFiles, function(x) xml_text(xml_find_all(x, xpath = '//mr:resultID')))
+        
+        if (FALSE){#!all(solTypes %in% c('EstandarEDTA', 'MuestraCalib', 'EstandarPlomo', 'MuestraEDTA'))) {
+        #   shinyalert(title = 'Error!', text = 'Al menos un archivo XML no contiene información de disoluciones.', type = 'error',
+        #              timer = 3000, showConfirmButton = FALSE)
+        } else {
+          PartialTitrationResults$results <- append(PartialTitrationResults$results, 
+                                                    lapply(uploadedFiles, function(x) {return(reactive(x))}))
+          XmlCargados(tags$div(
+            id = session$ns('filesCargados'),
+            HTML('Se cargó la información de los siguientes archivos de resultados:<p align = "left"><ul>',
+                           paste0(sapply(uploadedFiles, function(x) {
+                             return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:coreData/mr:solutionSource')), ':</b> ',
+                                           xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
+                           }), collapse = ''))))
+          shinyjs::show("filesCargados")}}
+    })
+    output$XmlCargados <- renderUI(XmlCargados())
+    
+    
     values <- reactiveValues()
     DF <- reactive({
       n <- length(PartialTitrationResults$results)
       if (n == 0) {
-        return(data.frame(Usar = FALSE, Material.partida = NA, Fecha = NA, Especie = NA, Fracc.masica = NA, Unidades = NA))
+        return(data.frame('.' = FALSE, Disolucion = '', Material = '', Fecha = '', Susbtancia = '', Valor = '', Unidades = ''))
       } else {
         return(data.frame(
-          Usar = FALSE,
-          Material.partida = sapply(PartialTitrationResults$results, function (x) {
+          '.' = FALSE,
+          Disolucion = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:additionalInfo/mr:intermediateSolution/mr:solutionID')))}),
+          Material = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))}),
           Fecha = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:coreData/mr:titrationEnd')))}),
-          Especie = sapply(PartialTitrationResults$results, function (x) {
+          Substancia = sapply(PartialTitrationResults$results, function (x) {
             return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])}),
-          Fracc.masica = sapply(PartialTitrationResults$results, function (x) {
+          Valor = sapply(PartialTitrationResults$results, function (x) {
             return(round(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')), 3))}),
           Unidades = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:titrationResult/si:real/si:unit')))})))
       }
     })
     
-    # sapply(PartialTitrationResults$results, function (x) {return(xml_text(xml_child(x(), search = 'mr:additionalResult/mr:intermediateSolution')))})
-    # DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
-    #                    Date = seq(from = Sys.Date(), by = "days", length.out = 10),
-    #                    stringsAsFactors = FALSE)
-    # ( DF <- data.frame(Value = 1:10, Status = TRUE, Name = LETTERS[1:10],
-    #                    Date = seq(from = Sys.Date(), by = "days", length.out = 10),
-    #                    stringsAsFactors = FALSE) )
     ## Handsontable
     observe({
       if (!is.null(input$resultFiles)) {
@@ -107,19 +135,47 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       values[["DF"]] <- DF()
     })
     
+    
     output$resultFiles <- renderRHandsontable({
       DF <- values[["DF"]]
       if (!is.null(DF))
         rhandsontable(DF, useTypes = TRUE, stretchH = "all", rowHeaders = NULL, selectCallback = TRUE)%>%
         hot_col(2:6, readOnly = TRUE) %>%
-        hot_cols(colWidths = c(50, 120, 130, 75, 100, 210)) %>%
+        hot_cols(colWidths = c(20, 150, 150, 150, 75, 75, 190)) %>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
     })
+    
+    files2Combine <- reactiveVal()
+    observeEvent(input$CombinArchivos, {
+      if (sum(hot_to_r(input$resultFiles)['.']) < 2) {
+        shinyalert(title = 'Error!', text = 'Seleccione al menos dos archivos de resultados para combinar.',
+                   type = 'error', timer = 3000, showConfirmButton = FALSE)
+      } else {
+        SelectedXMLs <- PartialTitrationResults$results[which(hot_to_r(input$resultFiles)['.'] == TRUE)]
+        Substances <- sapply(SelectedXMLs, function (x) {
+          return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])})
+        if (length(unique(Substances)) != 1) {
+          shinyalert(title = 'Error!', text = 'Solo se pueden combinar archivos de resultados de la misma especie química.',
+                     type = 'error', timer = 3000, showConfirmButton = FALSE)
+        } else {
+          js$collapse(session$ns("FilesAvailable"))
+          shinyjs::hide("filesCargados")
+          shinyjs::show("combinedResults")
+          files2Combine(SelectedXMLs)
+        }
+      }
+    })
+    
+    
+    
     
     ResultadosElect <- reactive({
       
     })
     output$ResultadosElect <- renderUI(ResultadosElect())
+    
+    
+    
     
     # FileNames <- reactive(input$TitFiles$name)
     # 

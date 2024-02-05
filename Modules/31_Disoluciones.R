@@ -3,32 +3,26 @@ PreparaDisolucioUI <- function(id) {
   fluidRow(
     column(
       12, Nlns(4), uiOutput(ns('brwz')),
-      tags$h4(style = 'margin-left: 60px;', tags$b('Disoluciones estandar y disoluciones muestra para las titulaciones'))),
+      tags$h4(style = 'margin-left: 60px;', tags$b('Disoluciones estandar y disoluciones muestra para las titulaciones')), tags$br()),
     column(
       width = 4, style = 'margin-left: 80px;',
-      tags$b('Titulacion de calibrantes monoelementales'), tags$br(),
-      spcs(10), actionLink(ns('NewEDTAStdSol'), icon = icon("fill-drip"), 'Crear disolución estándar de EDTA'), tags$br(),
-      spcs(10), actionLink(ns('NewCaliSamSol'), icon = icon("fill-drip"), 'Crear muestra de disolución monoelemental'), tags$br(), tags$br(),
-      tags$b('Titulacion de la sal de EDTA'), tags$br(),
-      spcs(10), actionLink(ns('NewLeadStdSol'), icon = icon("fill-drip"), 'Crear disolución estándar de plomo'), tags$br(),
-      spcs(10), actionLink(ns('NewEDTASamSol'), icon = icon("fill-drip"), 'Crear disolución muestra de EDTA'),
-      tags$hr(), Nlns(),
-      tags$b('Disoluciones preparadas previamente'), Nlns(),
+      tags$b('Crear archivos de disoluciones para la titulacion de calibrantes monoelementales'), Nlns(),
+      spcs(10), actionLink(ns('NewEDTAStdSol'), icon = icon("fill-drip"), 'Nueva disolución estándar de EDTA'), tags$br(),
+      spcs(10), actionLink(ns('NewCaliSamSol'), icon = icon("fill-drip"), 'Nueva muestra de disolución monoelemental'), Nlns(3),
+      tags$b('Crear archivos de disoluciones para la titulacion de la sal de EDTA'), Nlns(),
+      spcs(10), actionLink(ns('NewLeadStdSol'), icon = icon("fill-drip"), 'Nueva disolución estándar de plomo'), tags$br(),
+      spcs(10), actionLink(ns('NewEDTASamSol'), icon = icon("fill-drip"), 'Nueva disolución muestra de EDTA'), Nlns(3),
+      tags$b('Importar archivos de información de disoluciones (XML)'), Nlns(),
       tags$div(
         style = 'margin-left: 40px;',
-        # 'El botón', tags$b('Cargar'), 'se habilita solo si sube archivos compatibles.',
-        # splitLayout(
-          # cellWidths = c('70%', '30%'),
-          fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '90%')#,
-          # disabled(actionButton(ns('cargarXML'), 'Cargar'))
-        ),
-        uiOutput(ns('CargarMrXml'))
-      ),
+        fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '90%'),
+        uiOutput(ns('XmlCargados')))),
     column(
-      width = 6, style = 'margin-left: 100px;',
+      width = 7, style = 'margin-left: 50px;',
       # shinydashboardPlus::
-        box(id = ns('condAmbiBox'), status = 'primary', title = tags$b(style = 'font-size: 14px;', 'Condiciones ambientales'),
-                              width = 12, collapsible = TRUE, collapsed = FALSE, AmbiDensAireUI(ns('AmbiDensAireSolutions'))),
+        box(id = ns('condAmbiBox'), status = 'primary', 
+            title = tags$b(style = 'font-size: 14px;', 'Condiciones ambientales para la preparación de disoluciones'),
+            width = 12, collapsible = TRUE, collapsed = FALSE, AmbiDensAireUI(ns('AmbiDensAireSolutions'))),
       conditionalPanel(
         'input.NewEDTAStdSol > 0 || input.NewCaliSamSol > 0 || input.NewLeadStdSol > 0 || input.NewEDTASamSol > 0', ns = ns,  
         # tags$h4(tags$b('Nuevas disoluciones'), style = 'margin-left: -40px;'),
@@ -54,7 +48,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     AmbiDensAire <- AmbiDensAireServer('AmbiDensAireSolutions', devMode = devMode, fecha = fecha)
     
     # StandardSampleSolutions <- reactiveValues(solutions = list())
-    
+    XmlCargados <- reactiveVal()
     observeEvent(input$NewXML, {
       # browser()
       if (!all(input$NewXML$type == 'text/xml') || is.error(lapply(input$NewXML$datapath, function(x) read_xml(x)))) {
@@ -64,23 +58,29 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
         uploadedFiles <- lapply((input$NewXML$datapath), function(x) read_xml(x))
         solTypes <- sapply(uploadedFiles, function(x) xml_text(xml_find_all(x, xpath = '//mr:solutionType')))
         if (!all(solTypes %in% c('EstandarEDTA', 'MuestraCalib', 'EstandarPlomo', 'MuestraEDTA'))) {
-          shinyalert(title = 'Error!', text = 'Parece que al menos un archivo XML no es de disoluciones creadas en la App.', type = 'error',
+          shinyalert(title = 'Error!', text = 'Al menos un archivo XML no contiene información de disoluciones.', type = 'error',
                      timer = 3000, showConfirmButton = FALSE)
         } else {
           StandardSampleSolutions$solutions <- append(StandardSampleSolutions$solutions, 
                                                       lapply(uploadedFiles, function(x) {return(reactive(x))}))
-          shinyalert(
-            title = NULL, type = 'success', html = TRUE, timer = 1e4, showConfirmButton = FALSE,
-            text = paste0(
-              'Se cargó la información de las siguientes disoluciones:<br><br><p align = "left"><ul>',
-              paste0(sapply(uploadedFiles, function(x) {
-                return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:solutionType')), ':</b> ',
-                              xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
-              }), collapse = ''),
-              '</ul><br><br>Presione <b>ESC</b> para cerrar el recuadro.</p>'))
+          XmlCargados(HTML('Se cargó la información de las siguientes disoluciones:<p align = "left"><ul>',
+                           paste0(sapply(uploadedFiles, function(x) {
+                             return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:solutionType')), ':</b> ',
+                                           xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
+                           }), collapse = '')))
+          # shinyalert(
+          #   title = NULL, type = 'success', html = TRUE, timer = 1e4, showConfirmButton = FALSE,
+          #   text = paste0(
+          #     'Se cargó la información de las siguientes disoluciones:<br><br><p align = "left"><ul>',
+          #     paste0(sapply(uploadedFiles, function(x) {
+          #       return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:solutionType')), ':</b> ',
+          #                     xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
+          #     }), collapse = ''),
+          #     '</ul><br><br>Presione <b>ESC</b> para cerrar el recuadro.</p>'))
         }
       }
     })
+    output$XmlCargados <- renderUI(XmlCargados())
     
     observeEvent(input$NewEDTAStdSol, {
       req(input$NewEDTAStdSol > 0)

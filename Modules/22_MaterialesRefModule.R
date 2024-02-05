@@ -1,11 +1,25 @@
 MaterialesRefereUI <- function(id) {
   ns <- NS(id)
   fluidRow(
+    
     column(
-      width = 7, style = 'margin-left: 80px;', Nlns(4), uiOutput(ns('brwz')),
-      tags$h4(style = 'margin-left: -20px;',
-              tags$b('Materiales de referencia para la preparacion de disoluciones')), 
-      # tags$b("Ver o descargar la información de un material de referencia"),
+      12, Nlns(4), uiOutput(ns('brwz')),
+      tags$h4(style = 'margin-left: 60px;', tags$b('Materiales de referencia para la preparacion de disoluciones')), tags$br()),
+    column(
+      width = 4, style = 'margin-left: 80px', #Nlns(10), 
+      tags$b('Cargar archivos XML de materiales de referencia'), Nlns(),
+      tags$div(
+        style = 'margin-left: 40px;',
+        'Indique el uso que tiene cada material y presione el botón para cargar la información al aplicativo.',
+        fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...', multiple = FALSE, accept = '.xml', width = '100%'),
+        uiOutput(ns('UsoMrXml')),
+        'Verifique que los archivos quedan disponibles en el recuadro de visualización.'),
+      uiOutput(ns('NewMrXml')),
+      uiOutput(ns('CargarMrXml'))
+    ),
+    column(
+      width = 7, style = 'margin-left: 40px;', 
+      tags$b("Materiales de referencia cargados en el aplicativo"), Nlns(),
       radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA', width = '100%', inline = TRUE, 
                    choices = list('Para caracterizar disoluciones monoelementales' = 'forCalibrantes',
                                   'Para caracterizar sales de EDTA' = 'forEDTA')),
@@ -18,20 +32,9 @@ MaterialesRefereUI <- function(id) {
                  Nlns(2), tags$div(style = 'font-size:12px;', htmlOutput(ns('printTheMrXML'))))
         )
       )
-    ),
-    
-    column(
-      width = 4, style = 'margin-left: 10px;', Nlns(10), 
-      tags$b('Cargar archivos XML de materiales faltantes.'), tags$br(),
-      tags$div(
-        style = 'margin-left: 40px;',
-        'Se requiere que indique el uso que tiene cada material para completar la carga de la información al aplicativo.',
-        fileInput(ns('NewMrXml'), label = NULL, buttonLabel = 'Examinar...', multiple = FALSE, accept = '.xml', width = '100%'),
-        uiOutput(ns('UsoMrXml')),
-        'Verifique que los archivos que cargue quedan disponibles en el recuadro de visualización.'),
-      uiOutput(ns('NewMrXml')),
-      uiOutput(ns('CargarMrXml'))
     )
+    
+    
   )
 }
 

@@ -16,8 +16,8 @@ inicioLy <- fluidRow(
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
        fluidRow(
-         column(2, tags$a(href = 'https://www.bipm.org/en/liaison/digital-transformation', 
-                          img(src = "SI_units.png", width = '75%', alt = 'SI units digital reference'),
+         column(2, tags$a(href = 'https://www.bipm.org/en/publications/si-brochure', 
+                          img(src = "SI_units.png", width = '85%', alt = 'SI brochure'),
                           target = '_blank')),
          column(
            8, 'Este aplicativo utiliza el',

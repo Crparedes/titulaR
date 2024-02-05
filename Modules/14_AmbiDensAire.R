@@ -20,11 +20,11 @@ AmbiDensAireServer <- function(id, devMode, fecha) {
     observeEvent(input$brwzInsideModule, browser())
     
     Temperatura <- SiRealInputServer('Temperatura', devMode = devMode, quantityTypeQUDT = 'Temperature',
-                                     SIdigRef = TRUE, unit = 'kelvin', SIalign = 'left', width = '330%', SIcol = 1)
+                                     SIdigRef = TRUE, unit = 'kelvin', SIalign = 'left', width = '220%', SIcol = 1)
     PressionBar <- SiRealInputServer('PressionBar', devMode = devMode, quantityTypeQUDT = 'AmbientPressure',
-                                     SIdigRef = TRUE, unit = 'pascal', derived = TRUE, SIalign = 'left', width = '330%', SIcol = 1)
+                                     SIdigRef = TRUE, unit = 'pascal', derived = TRUE, SIalign = 'left', width = '220%', SIcol = 1)
     HumedadRela <- SiRealInputServer('HumedadRela', devMode = devMode, quantityTypeQUDT = 'RelativeHumidity',
-                                     SIdigRef = TRUE, unit = 'mole', SIalign = 'left', width = '330%', SIcol = 1)
+                                     SIdigRef = TRUE, unit = 'mole', SIalign = 'left', width = '220%', SIcol = 1)
     
     DensitAir <- reactive({
       Temp <- GetValueEstandUncert(Temperatura())

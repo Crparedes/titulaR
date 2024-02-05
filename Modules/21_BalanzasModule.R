@@ -6,21 +6,21 @@ BalanceCalibCertUI <- function(id) {
       tags$h4(style = 'margin-left: -20px;', tags$b('Informacion de calibracion de balanzas')),
        tags$br(),
       fluidRow(
+        column(12, tags$b('Seleccione los certificados de calibración de las balanzas que usará:'), Nlns()),
         column(3, SI_unit_nice('kilogram', width = "110%")),
         column(9, uiOutput(ns('balanzasElected')))),
       tags$hr(),
       tags$b('Cargue los archivos con los certificados que le hagan falta.'), Nlns(),
       tags$div(
         style = 'margin-left: 40px;',
-        'El botón', tags$b('Cargar'), 'se habilita solo si sube archivos compatibles.', tags$br(),
-        'Por el momento, titulaR solo puede procesar archivos RDS creados con el',
+        'Por el momento, titulaR solo admite archivos RDS creados con el',
         tags$a(href = 'https://crparedes.shinyapps.io/masscor/', 'aplicativo del paquete masscor.', target = '_blank'), Nlns(),
         fileInput(ns('NewDCC1'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.rds', width = '100%'),  
-        '(Verifique de los nuevos certificados aparecen en el recuadro de visualización)')
+        '(Verifique que los nuevos certificados aparecen en el recuadro de visualización)')
     ),
     
     column(
-      6,  style = 'margin-left: 80px;', Nlns(7), 
+      7, Nlns(7), 
       box(
         title = tags$b('Visualizador'), width = 12, status = 'primary', collapsible = FALSE,
         uiOutput(ns('balanzasPicker')), tags$br(),
@@ -45,8 +45,7 @@ BalanceCalibCertServer <- function(id, devMode, demo, BalanzasReVa) {
     
     balanzasElected <- reactive(checkboxGroupInput(
       session$ns("balanzasElected"), width = '100%', selected = ifelse(demo(), 'Mettler Toledo XPE 205 (2023-07-18)', ''),
-      label = tags$b('Seleccione los certificados de calibración de las balanzas que necesita:'),
-      choices = balanzasShow))
+      label = NULL, choices = balanzasShow))
     output$balanzasElected <- renderUI(balanzasElected())
     
     balanzasPicker <- reactive({
