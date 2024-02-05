@@ -23,45 +23,17 @@ CombinaResultadosUI <- function(id) {
         tags$div(style = 'margin-left: 25px; margin-top:20px; border-style:groove;', rHandsontableOutput(ns("resultFiles"))),
         '(Solo puede combinar resultados de la misma susbtancia)', Nlns(),
         actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
-    column(12, hidden(tags$div(
-      id = ns('combinedResults'), tags$hr(), tags$h4(tags$b('Resultados combinados'))
+    column(11, hidden(tags$div(style = 'margin-left: 80px;', 
+      id = ns('combinedResults'), tags$hr(), tags$h4(tags$b('Resultados combinados')), Nlns(2),
+      fluidRow(
+        column(7, plotOutput(ns('plotCombinados'), width = '100%')),
+        column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
+                      tableOutput(ns('resultadosCombi'))), tags$br(),
+               uiOutput(ns('DescDigit.SIBttn')), tags$hr(),
+               uiOutput(ns('DescMatDarBttn')), uiOutput(ns('DescMatExcelBttn'))), tags$hr(), tags$br(), tags$hr(),
+        column(12, uiOutput(ns('TablasPorDia'))))
     ))),
-   { # column(width = 8, conditionalPanel('input.NewTit > 0', ns = ns, tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'left'))),
-    # column(12, tags$hr(),tags$hr(),tags$hr(),tags$hr(),tags$hr()),
-    # 
-    # column(3, 
-    #        tags$b('Importar archivos .tit de resultados individuales'),
-    #        fileInput(ns('TitFiles'), width = '100%', 
-    #                  label = NULL, multiple = TRUE, accept = '.tit'),
-    #        uiOutput(ns('buttonUpload')), uiOutput(ns('brwz')), tags$hr(),
-    #        uiOutput(ns('visualizacion')),
-    #        conditionalPanel(condition = 'input.visualizacion == "Comb"', ns = ns, uiOutput(ns('titFilesSelectComb'))),
-    #        conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, uiOutput(ns('titFilesSelectIndi'))), 
-    #        conditionalPanel(condition = 'input.buttonUpload > 0', ns = ns, 
-    #                         uiOutput(ns('Calcular'))),
-    #        tags$hr(),
-    #        #radioButtons(ns('independCriteria'), label = 'Criterio de independiencia', 
-    #        #             choices = list('Diferente dia' = 'dia', 'Diferente disolucion titulante' = 'DifDisTit'), 
-    #        #             inline = TRUE, selected = 'DifDisTit'),
-    #        verbatimTextOutput(ns('printed'))
-    #        ),
-    # column(9, 
-    #        conditionalPanel(condition = 'input.visualizacion == "Comb"', ns = ns, 
-    #                         tags$b('Combinación de resultados'), tags$br(),
-    #                         column(7, plotOutput(ns('plotCombinados'), width = '100%')),
-    #                         column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
-    #                                       tableOutput(ns('resultadosCombi'))), tags$br(),
-    #                                uiOutput(ns('DescDigit.SIBttn')), tags$hr(), 
-    #                                uiOutput(ns('DescMatDarBttn')), uiOutput(ns('DescMatExcelBttn'))), tags$hr(), tags$br(), tags$hr(), 
-    #                         column(12, uiOutput(ns('TablasPorDia'))),
-    #                         tags$hr()),
-    #        conditionalPanel(condition = 'input.visualizacion == "Indi"', ns = ns, 
-    #                         tags$b('Visualizacion de resultado individual'), tags$hr(),
-    #                         column(7, plotOutput(ns('plotIndiv'), width = '100%')),
-    #                         column(5, uiOutput(ns('resIndiv'))))#,
-    #        #uiOutput(ns('Cajas'))
-    # )
-   }
+    
   )
 }
 
