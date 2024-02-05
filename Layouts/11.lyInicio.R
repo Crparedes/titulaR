@@ -5,13 +5,14 @@ inicioLy <- fluidRow(
     tags$h4(style = 'margin-left: -20px;',
             tags$b('Introducción')),
     h5("Esta aplicación automatiza el tratamiento de los datos de medición para la caracterización de Materiales de Referencia
-       Certificados (MRC) por medio de titulaciones gravimétricas, utilizando los siguientes protocolos de medicion:",
+       Certificados (MRC) por medio de titulaciones gravimétricas complejométricas.", tags$br(),
+       "Procedimientos de medición implementados:",
        Nlns(),
        tags$ul(
-         tags$li(tags$b("M-03-L-14-P-007"), tags$br(),
+         tags$li(tags$b("M-03-L-14-P-007: "), #tags$br(),
                  "Determinación de Fracción Másica (Pureza) de la Sal Disódica Dihidratada del
-                     Ácido Etilendiaminotetracético por Titulación Complejométrica Gravimétrica"),
-         tags$li(tags$b("M-03-L-14-P-008"), tags$br(),
+                     Ácido Etilendiaminotetracético por Titulación Complejométrica Gravimétrica"), tags$br(),
+         tags$li(tags$b("M-03-L-14-P-008"), #tags$br(),
                  "Determinación de Fracción Másica de Iones Plomo, Cadmio y Calcio, en Disoluciones
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
@@ -22,9 +23,9 @@ inicioLy <- fluidRow(
          column(
            8, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
-           'para el manejo de datos metrológicos utilizando archivos en formato XML para el almacenamiento y la transferencia
+           'para el manejo de datos metrológicos, utilizando archivos en formato XML para el almacenamiento y la transferencia
            de la información.', Nlns(),
-           'El', tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
+           'El', tags$b('Esquema del SI Digital (D-SI)'),# tags$a(href = 'https://zenodo.org/records/10230771', '', target = '_blank')
            'busca que la información metrológica cumpla con los ',
            tags$b(tags$a(href = 'https://www.go-fair.org/fair-principles/', 'Principios FAIR:', target = '_blank')),
            Nlns(),
@@ -34,7 +35,7 @@ inicioLy <- fluidRow(
              tags$li(tags$i(tags$b('I', .noWS = c('after')), 'nteroperability'), '(Datos interoperables)'),
              tags$li(tags$i(tags$b('R', .noWS = c('after')), 'eusability'), spcs(5), '(Datos reusables)')),
            Nlns(), tags$hr(), Nlns(),
-           'El aplicativo utiliza las siguientes referencias adicionales: ', Nlns(),
+           'La información metrológica generada en la app incorpora además los siguientes identificadores digitales: ', Nlns(),
            tags$ul(
              tags$li(
                tags$a(href = 'http://qudt.org/', style = 'color:#00428c;',
@@ -55,7 +56,7 @@ inicioLy <- fluidRow(
                tags$a(href = 'https://orcid.org/', style = 'color:#a6ce39;',
                       tags$html(img(src = "ORCIDLong.png", height = '18px'),
                                 tags$b('- Open Researcher and Contributor ID,')), target = '_blank'),
-               'para relacionar las personas responsables de ejecutar los análisis.')),
+               'para relacionar personas responsables de ejecutar una etapa del análisis.')),
            tags$br(),
        )),
        tags$hr(), 
