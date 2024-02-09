@@ -87,13 +87,15 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     
     convMassMRC <- reactive(c(convMass(calibCert = balanza(), reading = masMRC(), units = 'g'),
-                              uncertConvMass(calibCert = balanza(), reading = masMRC(), units = 'g')))
+                              sqrt(uncertConvMass(calibCert = balanza(), reading = masMRC(), units = 'g')^2 +
+                                     (derMassMRC()/sqrt(12))^2)))
     BuoyMRC <- reactive(c(MABC(rho = DensitMRC()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
                           uncertMABC(rho = DensitMRC()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
                                      u_rho = DensitMRC()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE, plot = FALSE)))
     
     convMassDis <- reactive(c(convMass(calibCert = balanza(), reading = masDis(), units = 'g'),
-                              uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')))
+                              sqrt(uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')^2 +
+                                     (derMassDis()/sqrt(12))^2)))
     BuoyDis <- reactive(c(MABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
                           uncertMABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
                                      u_rho = DisolDensi()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE)))
