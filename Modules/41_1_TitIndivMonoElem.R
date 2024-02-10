@@ -210,22 +210,24 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
       if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
         tags$b('No se puede terminar la titulación con menos de 7 datos.')
       } else {
-        infoBox(
+        d1 <- decimals(signif(ResParcUnc()$prop[3], 3))
+        d2 <- decimals(signif(ResParcUncSource()$prop[3], 3))
+        return(infoBox(
           width = 12, title = tags$b(style = 'font-size:13px', 'Resultado individual (parcial)'),
           icon = icon("vials"), color = 'black', fill = FALSE,
           subtitle = tags$div(
             style = 'font-size:12px',
             'Fracción de', elemEspa[[element()]], 'en la disolución titulada:',
-            tags$b(style = 'margin-left:1px;', round(ResParcial(), 3), '\u00B1',
+            tags$b(style = 'margin-left:1px;', round(ResParcial(), d1), '\u00B1',
                    ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(1), 
             'Fracción de', elemEspa[[element()]], 'en la muestra original:', spcs(2),
-            tags$b(style = 'margin-left:1px;', round(ResParcialSource(), 3), '\u00B1',
+            tags$b(style = 'margin-left:1px;', round(ResParcialSource(), d2), '\u00B1',
                    ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), tags$br(), tags$br(),
             tags$div(
               style = 'font-size:11px',
               ReqField('', 1),
               'No incluye el error asociado a la determinación del punto final de titulación.
-              Este aporte es significativo y se estima con la repetibilidad de las mediciones (Incertidumbre tipo A).')))
+              Este aporte es significativo y se estima con la repetibilidad de las mediciones (Incertidumbre tipo A).'))))
       }
     })
     output$SummaryIndivTitr <- renderUI(SummaryIndivTitr())

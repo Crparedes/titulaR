@@ -23,3 +23,5 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
     return(tm_iso8601)
   }
 }
+
+decimals <- function(x) {nchar(sub("^-?\\d*\\.?", "", format(x, scientific = F)))}

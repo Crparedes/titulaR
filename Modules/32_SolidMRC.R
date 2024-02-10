@@ -2,59 +2,58 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
-    tags$b(paste0('Nueva disolucion estándar de ', reagKey)), tags$br(), 
-    paste0('Patrón para titular muestras de ', explan), 
-    tags$br(), tags$br(),
-    tags$div(
-      id = 'inline', style = 'font-size:12px; margin-left:25px', 
-      textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 8))), width = '300px',
-                value = paste(gsub('-', '', fecha), title, sep = '_')),
-      uiOutput(ns('MRCtoUse')),
-      tags$hr(),
-      splitLayout(
-        cellWidths = c("38%", "10%", "38%"),
-        tags$div(
-          id = "inline", style = 'margin-left:25px', 
-          h5(tags$b('Masa del solido')),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRec1'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 0.976601, 0), align = 'left', minimumValue = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
-                           ns('MasMRC1'), label = ReqField('Masa del MRC / g:'),
-                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 0.30042, 0.20012), 0), align = 'left', minimumValue = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecMRC1'), label = ReqField('Masa conjunta / g:'),
-                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 1.27705, 1.17673), 0), align = 'left', minimumValue = 0),
-          uiOutput(ns('deriMasaMRC'))),
-        tags$div(),
-        tags$div(
-          id = "inline",
-          h5(tags$b('Masa final de la disolución')),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRec2'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 16.77169, 0), align = 'left', minimumValue = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
-                           ns('MasDis1'), label = ReqField('Masa final disolución / g:'), 
-                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 80.02288, 125.0013), 0), align = 'left', minimumValue = 0),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRecDis1'), label = ReqField('Masa conjunta / g:'), 
-                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 96.79455, 141.7712), 0), align = 'left', minimumValue = 0),
-          uiOutput(ns('deriMasaDisMRC')))),
-      tags$hr(),
-      SiRealInputUI(ns('DensiDisol'), name = ReqField('Densidad de la disolución'),
-                    x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
-                    u0 = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)), units = DensityUnits,
-                    decimalPlaces = 3),
-      tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
+    conditionalPanel(
+      'input.buttonCalc == 0', ns = ns,
+      tags$b(paste0('Nueva disolucion estándar de ', reagKey)), tags$br(), 
+      paste0('Patrón para titular muestras de ', explan), 
+      tags$br(), tags$br(),
+      tags$div(
+        id = 'inline', style = 'font-size:12px; margin-left:25px', 
+        textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 8))), width = '300px',
+                  value = paste(gsub('-', '', fecha), title, sep = '_')),
+        uiOutput(ns('MRCtoUse')),
+        tags$hr(),
+        splitLayout(
+          cellWidths = c("38%", "10%", "38%"),
+          tags$div(
+            id = "inline", style = 'margin-left:25px', 
+            h5(tags$b('Masa del solido')),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                             ns('MasRec1'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 0.976601, 0), align = 'left', minimumValue = 0),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
+                             ns('MasMRC1'), label = ReqField('Masa del MRC / g:'),
+                             value = ifelse(demo, ifelse(reagKey == 'EDTA', 0.30042, 0.20012), 0), align = 'left', minimumValue = 0),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
+                             ns('MasRecMRC1'), label = ReqField('Masa conjunta / g:'),
+                             value = ifelse(demo, ifelse(reagKey == 'EDTA', 1.27705, 1.17673), 0), align = 'left', minimumValue = 0),
+            uiOutput(ns('deriMasaMRC'))),
+          tags$div(),
+          tags$div(
+            id = "inline",
+            h5(tags$b('Masa final de la disolución')),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+                             ns('MasRec2'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 16.77169, 0), align = 'left', minimumValue = 0),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
+                             ns('MasDis1'), label = ReqField('Masa final disolución / g:'), 
+                             value = ifelse(demo, ifelse(reagKey == 'EDTA', 80.02288, 125.0013), 0), align = 'left', minimumValue = 0),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
+                             ns('MasRecDis1'), label = ReqField('Masa conjunta / g:'), 
+                             value = ifelse(demo, ifelse(reagKey == 'EDTA', 96.79455, 141.7712), 0), align = 'left', minimumValue = 0),
+            uiOutput(ns('deriMasaDisMRC')))),
+        tags$hr(),
+        SiRealInputUI(ns('DensiDisol'), name = ReqField('Densidad de la disolución'),
+                      x0 = ifelse(reagKey == 'EDTA', 1.000, ifelse(reagKey == 'Pb', 1.007, 0)), 
+                      u0 = ifelse(reagKey == 'EDTA', 0.004, ifelse(reagKey == 'Pb', 0.006, 0)), units = DensityUnits,
+                      decimalPlaces = 3),
+        tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3))
+    ),
     fluidRow(
       column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
       column(width = 10,
              conditionalPanel(
-               'input.buttonCalc > 0', ns = ns,
-               downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar'), tags$br(),
-               conditionalPanel(
-                 'input.showBudget == 0', ns = ns,
-                 actionLink(ns("showBudget"), label = tags$b('Ver presupuesto de incertidumbre')), tags$br()),
-               uiOutput(ns('uncertBudget')),
-               htmlOutput(ns('InfoDisXML'))))
+               'input.buttonCalc > 0', ns = ns, 
+               uiOutput(ns('SummarySolution')), tags$hr(), tags$hr(),
+               uiOutput(ns('uncertBudget')), tags$hr(), htmlOutput(ns('InfoDisXML'))))
     )
   )
 }
@@ -153,6 +152,34 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     include.rownames = TRUE,
     include.colnames = TRUE)
     
+    SummarySolution <- eventReactive(input$buttonCalc, {
+      c_std <- GetValueEstandUncert(DisConc())
+      d1 <- decimals(signif(c_std$ValUnc[2], 3))
+      return(infoBox(
+        width = 12, title = tags$b(style = 'font-size:13px', paste0('Nueva disolución estándar creada')),
+        icon = icon("fill-drip"), color = 'black', fill = FALSE,
+        subtitle = tags$div(
+          tags$table(
+            style = "width:100%; font-size:13px; margin-left:20px; vertical-align:top",
+            tags$tr(
+              tags$th('Concentración:'),
+              tags$th(round(c_std$ValUnc[1], d1), '\u00B1', signif(c_std$ValUnc[2], 3), ' mmol/kg (k=1)')
+            ),
+            tags$tr(
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Especie:'),
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;',
+                      Substances[[reagForm]]$`mr:name`, tags$br(),
+                      'InChi Key ', InChiKey, tags$br(),
+                      tags$a(href = paste0('https://pubchem.ncbi.nlm.nih.gov/#query=', InChiKey), 
+                             style = 'color:#0072bd;',
+                             tags$html('Ver sustancia en', img(src = "PubChem.png", height = '19px')), target = '_blank'))
+            )),
+          tags$hr(),
+          downloadLink(session$ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución'), tags$br(),
+          actionLink(session$ns("showBudget"), label = tags$b('Mostrar presupuesto de incertidumbre')
+          ))))
+    })
+    output$SummarySolution <- renderUI(SummarySolution())
     
     
     # Messages
