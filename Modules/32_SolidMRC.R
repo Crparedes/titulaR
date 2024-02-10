@@ -175,9 +175,10 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                              tags$html('Ver sustancia en', img(src = "PubChem.png", height = '19px')), target = '_blank'))
             )),
           tags$hr(),
-          downloadLink(session$ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución'), tags$br(),
-          actionLink(session$ns("showBudget"), label = tags$b('Mostrar presupuesto de incertidumbre')
-          ))))
+          tags$ul(
+            tags$li(downloadLink(session$ns("downlXMLlink"), label = tags$b('Descargar archivo XML de la disolución'))),
+            tags$li(actionLink(session$ns("showBudget"), label = ('Mostrar presupuesto de incertidumbre'))),
+            tags$li(actionLink(session$ns("showXMLfile"), label = ('Mostrar informacion completa de la disolución')))))))
     })
     output$SummarySolution <- renderUI(SummarySolution())
     
@@ -206,14 +207,14 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     
     
-    observeEvent(input$buttonCalc, {
-      enable('downlXMLlink')
+    observeEvent(input$showXMLfile, {
       withCallingHandlers({
         shinyjs::html("InfoDisXML", "")
         message(DisolucionXML())},
         message = function(m) {
           shinyjs::html(id = "InfoDisXML",
-                        html = paste0('<textarea rows = 40 style = "width: 100%;">',
+                        html = paste0('<b>Información de la disolución:</b><br>
+                                      <textarea rows = 40 style = "width: 95%; margin-left:20px;">',
                                       m$message, '</textarea>'), add = FALSE)})
       
       output$downlXMLlink <-  downloadHandler(
