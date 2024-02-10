@@ -42,7 +42,8 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
       tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
     fluidRow(
       column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
-      column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar')),
+      column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar')), tags$br(),
+             actionLink(ns("showBudget"), label = 'Mostrar presupuesto de incertidumbre'), tags$br(), uiOutput(ns('uncertBudget')),
              Nlns(2), htmlOutput(ns('InfoDisXML'))))
   )
 }
@@ -100,16 +101,39 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                           uncertMABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
                                      u_rho = DisolDensi()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE)))
     
-    DisConc <- eventReactive(input$buttonCalc, {
-      xx <- propagate(
-        expr = expression(convMassMRC * MassFrMRC * BuoyMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
-        data = cbind(convMassMRC = convMassMRC(), MassFrMRC = MassFrMRC()$ValUnc, BuoyMRC = BuoyMRC(), 
+    DisConcProp <- eventReactive(input$buttonCalc, {
+      propagate(
+        expr = expression(convMassMRC * BuoyMRC * MassFrMRC / (MolWeiMRC * convMassDis * BuoyDis) * 1000000),
+        data = cbind(convMassMRC = convMassMRC(), BuoyMRC = BuoyMRC(), MassFrMRC = MassFrMRC()$ValUnc, 
                      MolWeiMRC = MolWeiMRC()$ValUnc, convMassDis = convMassDis(), BuoyDis = BuoyDis()),
         do.sim = FALSE)
-      xx <- SiRealXML(quantityTypeQUDT = 'AmountOfSubstancePerUnitMass', value = signif(xx$prop[[1]], 8),
-                      units = '\\milli\\mole\\kilo\\gram\\tothe{-1}', uncert =  signif(xx$prop[[3]], 3), covFac = 1)
-      return(xx)
     })
+    
+    DisConc <- reactive(SiRealXML(
+      quantityTypeQUDT = 'AmountOfSubstancePerUnitMass', value = signif(DisConcProp()$prop[[1]], 8),
+      units = '\\milli\\mole\\kilo\\gram\\tothe{-1}', uncert =  signif(DisConcProp()$prop[[3]], 3), covFac = 1))
+    
+    uncertBudget <- eventReactive(input$showBudget, {
+      tagList(
+        tags$hr(), tags$b('Modelo'), '$$ c_{std} = \\frac{m_{MRC} \\cdot B_{MRC} \\cdot x_{specie}}{M_{specie} \\cdot m_{solution} \\cdot B_{solution}}$$',
+        tags$b('Presupuesto de incertidumbre'),
+        withMathJax(),
+        withMathJax(tableOutput(session$ns("tableUncert"))), tags$hr())
+    })
+    output$uncertBudget <- renderUI(uncertBudget())
+    output$tableUncert <- renderTable({
+      c_std <- GetValueEstandUncert(DisConc())
+      units <- c(c_std$Units, "\\gram", "\\gram\\gram\\tothe{-1}", MassFrMRC()$Units, MolWeiMRC()$Units, "\\gram", "\\gram\\gram\\tothe{-1}")
+      tab <- data.frame(Valor = as.character(signif(c(c_std$ValUnc[1], DisConcProp()$data[1, ]), 9)),
+                        u_std = as.character(signif(c(c_std$ValUnc[2], DisConcProp()$data[2, ]), 4)),
+                        Unidades = units, Aporte = c(NA, paste((round(diag(DisConcProp()$rel.contr)*100, 3)), '%', sep = ' ')))
+      rownames(tab) <- c("\\(c_{std}\\)", "\\(m_{MRC}\\)", "\\(B_{MRC}\\)", "\\(x_{specie}\\)", 
+                         "\\(M_{specie}\\)", "\\(m_{solution}\\)", "\\B_{solution}\\)")
+      tab
+    },
+    include.rownames = TRUE,
+    include.colnames = TRUE)
+    
     
     
     # Messages

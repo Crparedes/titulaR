@@ -23,6 +23,7 @@ TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
           column(12, tags$hr()),
           column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
           column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado individual'), tags$br(),
+                 actionLink(ns("showBudget"), label = 'Mostrar presupuesto de incertidumbre'), tags$br(),
                  tags$div(style = 'font-size:11px;', '(Combine varios resultados individuales para obtener un resultado de medición)', tags$br(),
                  tags$div(style = 'font-size:12px;', htmlOutput(ns('InfoTitXML')))))
         )

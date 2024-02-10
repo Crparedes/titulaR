@@ -46,6 +46,7 @@ CalibSampleUI <- function(id, demo, title, fecha, nu = FALSE) {
     fluidRow(
         column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
         column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución muestra'),
+               actionLink(ns("showBudget"), label = 'Mostrar presupuesto de incertidumbre'), tags$br(),
                Nlns(2), htmlOutput(ns('InfoDisXML'))))
     )
 }
