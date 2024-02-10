@@ -21,11 +21,19 @@ CopySiRealFromXML <- function(xmlObject, property, node = NULL, as.char = TRUE) 
   return(read_xml(as.character(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)]))))
 }
 
-GetValueEstandUncert <- function(xmlObject, property = NULL, node = NULL) {
+GetValueEstandUncert <- function(xmlObject, property = NULL, node = NULL, InChiKey = NULL) {
   if (!missing(node)) xmlObject <- xml_child(xmlObject, search = node)
   if (!missing(property)) {
     QUDTnodes <- xml_find_all(xmlObject, '//si:quantityTypeQUDT')
-    GetValueEstandUncert(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)]))
+    
+    if (!missing(InChiKey)) {
+      InChiKeyNodes <- xml_find_all(xmlObject, '//mr:InChiKey')
+      index <- xml_parent(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)])) %in%
+        xml_parent(xml_parent(InChiKeyNodes[which(xml_text(InChiKeyNodes) == InChiKey)]))
+      GetValueEstandUncert(xml_parent(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)]))[index], node = 'si:real')
+    } else {
+      GetValueEstandUncert(xml_parent(QUDTnodes[which(xml_text(QUDTnodes) == property)]))
+    }
   } else {
     value <- xml_double(xml_find_all(xmlObject, xpath = 'si:value'))
     unitV <- xml_text(xml_find_all(xmlObject, xpath = 'si:unit'))

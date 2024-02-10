@@ -19,9 +19,11 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
                            ns('MasRec1'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 0.976601, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5, 
-                           ns('MasMRC1'), label = ReqField('Masa del MRC / g:'), value = ifelse(demo, 0.30042, 0), align = 'left', minimumValue = 0),
+                           ns('MasMRC1'), label = ReqField('Masa del MRC / g:'),
+                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 0.30042, 0.20012), 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 5,
-                           ns('MasRecMRC1'), label = ReqField('Masa conjunta / g:'), value = ifelse(demo, 1.27705, 0), align = 'left', minimumValue = 0),
+                           ns('MasRecMRC1'), label = ReqField('Masa conjunta / g:'),
+                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 1.27705, 1.17673), 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaMRC'))),
         tags$div(),
         tags$div(
@@ -30,9 +32,11 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
                            ns('MasRec2'), label = ReqField('Masa del recipiente / g:'), value = ifelse(demo, 16.77169, 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, 
-                           ns('MasDis1'), label = ReqField('Masa final disolución / g:'), value = ifelse(demo, 80.02288, 0), align = 'left', minimumValue = 0),
+                           ns('MasDis1'), label = ReqField('Masa final disolución / g:'), 
+                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 80.02288, 125.0013), 0), align = 'left', minimumValue = 0),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4,
-                           ns('MasRecDis1'), label = ReqField('Masa conjunta / g:'), value = ifelse(demo, 96.79455, 0), align = 'left', minimumValue = 0),
+                           ns('MasRecDis1'), label = ReqField('Masa conjunta / g:'), 
+                           value = ifelse(demo, ifelse(reagKey == 'EDTA', 96.79455, 141.7712), 0), align = 'left', minimumValue = 0),
           uiOutput(ns('deriMasaDisMRC')))),
       tags$hr(),
       SiRealInputUI(ns('DensiDisol'), name = ReqField('Densidad de la disolución'),
@@ -42,13 +46,20 @@ SolidMRCUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu = FA
       tags$hr(), disabled(actionButton(ns('buttonCalc'), label = 'Crear disolución')), Nlns(3)),
     fluidRow(
       column(width = 2, SI_unit_nice('mole', width = "95%"), SI_unit_nice('kilogram', width = "95%")),
-      column(width = 10, disabled(downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar')), tags$br(),
-             actionLink(ns("showBudget"), label = 'Mostrar presupuesto de incertidumbre'), tags$br(), uiOutput(ns('uncertBudget')),
-             Nlns(2), htmlOutput(ns('InfoDisXML'))))
+      column(width = 10,
+             conditionalPanel(
+               'input.buttonCalc > 0', ns = ns,
+               downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML de la disolución estándar'), tags$br(),
+               conditionalPanel(
+                 'input.showBudget == 0', ns = ns,
+                 actionLink(ns("showBudget"), label = tags$b('Ver presupuesto de incertidumbre')), tags$br()),
+               uiOutput(ns('uncertBudget')),
+               htmlOutput(ns('InfoDisXML'))))
+    )
   )
 }
 
-SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analyst, materiales, fecha, ambient, solutionType) {
+SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analyst, materiales, fecha, ambient, solutionType, InChiKey) {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))
@@ -74,8 +85,8 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
       if (input$MasRec1 * input$MasMRC1 * input$MasRecMRC1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
     
-    MassFrMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'MassFraction', node = 'mr:additionalValues'))
-    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'MolarMass', node = 'mr:additionalValues'))
+    MassFrMRC <- reactive(GetValueEstandUncert(req(xmlObject = SolidMRC()), property = 'MassFraction', InChiKey = InChiKey))
+    MolWeiMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'MolarMass', InChiKey = InChiKey))
     DensitMRC <- reactive(GetValueEstandUncert(req(SolidMRC()), property = 'Density', node = 'mr:additionalValues'))
     
     derMassMRC <- reactive(input$MasRecMRC1 - input$MasMRC1 - input$MasRec1)
@@ -115,10 +126,18 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     
     uncertBudget <- eventReactive(input$showBudget, {
       tagList(
-        tags$hr(), tags$b('Modelo'), '$$ c_{std} = \\frac{m_{MRC} \\cdot B_{MRC} \\cdot x_{specie}}{M_{specie} \\cdot m_{solution} \\cdot B_{solution}}$$',
-        tags$b('Presupuesto de incertidumbre'),
-        withMathJax(),
-        withMathJax(tableOutput(session$ns("tableUncert"))), tags$hr())
+        tags$b('Ecuación del modelo:'), tags$br(),
+        '$$ c_{std} = \\frac{m_{MRC} \\cdot B_{MRC} \\cdot x_{specie}}{M_{specie} \\cdot m_{solution} \\cdot B_{solution}}$$',
+        Nlns(), tags$b('Presupuesto de incertidumbre:'),
+        tags$div(
+          style = 'margin-left:15px;margin-right:10px;font-size:12px;', 
+          withMathJax(),
+          withMathJax(tableOutput(session$ns("tableUncert"))),
+          'donde \\(c_{std}\\) es la concentración de la especie en la disolución estándar, \\(m_{MRC}\\) es la masa convencional del MRC,
+          \\(B_{MRC}\\) es la corrección por flotabilidad del MRC, \\(x_{specie}\\) es la fracción másica de la especie en el MRC,
+          \\(M_{specie}\\) es la masa molar de la especie, \\(m_{solution}\\) es la masa convencional de la disolución, y 
+          \\(B_{solution}\\) es la corrección por flotabilidad de la disolución.'),
+        tags$hr())
     })
     output$uncertBudget <- renderUI(uncertBudget())
     output$tableUncert <- renderTable({
@@ -128,7 +147,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                         u_std = as.character(signif(c(c_std$ValUnc[2], DisConcProp()$data[2, ]), 4)),
                         Unidades = units, Aporte = c(NA, paste((round(diag(DisConcProp()$rel.contr)*100, 3)), '%', sep = ' ')))
       rownames(tab) <- c("\\(c_{std}\\)", "\\(m_{MRC}\\)", "\\(B_{MRC}\\)", "\\(x_{specie}\\)", 
-                         "\\(M_{specie}\\)", "\\(m_{solution}\\)", "\\B_{solution}\\)")
+                         "\\(M_{specie}\\)", "\\(m_{solution}\\)", "\\(B_{solution}\\)")
       tab
     },
     include.rownames = TRUE,

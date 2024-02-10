@@ -49,7 +49,7 @@ numInput <- function(...) {autonumericInput(..., digitGroupSeparator = " ", deci
 
 ui <- fluidPage(
   # shiny.i18n::usei18n(i18n),
-  
+  withMathJax(),
   dashboardPage(header = customHeader, sidebar = customSidebar, body = customBody,
                   title = "titulaR - Instituto Nacional de Metrología") #customStuff in ./Layouts
 )
