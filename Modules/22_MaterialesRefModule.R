@@ -20,7 +20,7 @@ MaterialesRefereUI <- function(id) {
     column(
       width = 7, style = 'margin-left: 40px;', 
       tags$b("Materiales de referencia cargados en el aplicativo"), Nlns(),
-      radioButtons(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA', width = '100%', inline = TRUE, 
+      awesomeRadio(ns('MrXmlViewType'), label = NULL, selected = 'forEDTA', width = '100%', inline = TRUE, status = 'primary',
                    choices = list('Para caracterizar disoluciones monoelementales' = 'forCalibrantes',
                                   'Para caracterizar sales de EDTA' = 'forEDTA')),
       uiOutput(ns('SelectMRC')),

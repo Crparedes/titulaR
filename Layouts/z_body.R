@@ -65,10 +65,18 @@ customBody <- dashboardBody(
     tags$style(HTML(".box.box-solid.box-success {border-top-color:#8daa8a}
                     .box.box-danger {border-top-color:#aa8a8d}")),
     tags$style(HTML('.checkbox-primary input[type="checkbox"]:checked+label::before, .checkbox-primary input[type="radio"]:checked+label::before {
-                      background-color: #3f4e4f; border-color: #3f4e4f;}')),
+                      background-color: #ffffff; border-color: #ffffff;}')),
     tags$style(HTML('.radio-primary input[type="radio"]:checked+label::after {
-                      background-color: #3f4e4f; border-color: #3f4e4f;}'))
-  ),
+                      background-color: #3f4e4f; border-color: #3f4e4f;}')),
+    tags$style(".checkbox-bs-mass input[type='checkbox']:checked + label::before,.checkbox-bs-mass input[type='radio']:checked + label::before {
+    background-color: #f38f83;border-color: #f38f83;}
+.checkbox-mass input[type='checkbox']:checked + label::before,.checkbox-mass input[type='radio']:checked + label::before {
+    background-color: #f38f83;border-color: #f38f83;}"),
+    tags$style(".checkbox-bs-primary input[type='checkbox']:checked + label::before,.checkbox-bs-primary input[type='radio']:checked + label::before {
+    background-color: #dc91ba;border-color: #dc91ba;}
+.checkbox-primary input[type='checkbox']:checked + label::before,.checkbox-primary input[type='radio']:checked + label::before {
+    background-color: #dc91ba;border-color: #dc91ba;}")
+  ), 
   customTheme,
   # div(id = 'inline', style = "float: right;", Nlns(2) ,
       # selectInput('selected_language', NonReqField(i18n$t("Lenguaje:")), choices = i18n$get_languages(), selected = i18n$get_key_translation())),

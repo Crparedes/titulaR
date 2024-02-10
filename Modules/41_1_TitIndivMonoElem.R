@@ -9,7 +9,7 @@ TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
         tags$div(
           id = 'inline', style = 'font-size:12px; margin-left:25px', 
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
-                           ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, 10.0552, 0)),
+                           ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, rnorm(1, 10.0552, 10.0552*0.0015), 0)),
           autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
                            ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 5), value = 0),
           conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, Nlns(),

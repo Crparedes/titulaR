@@ -89,16 +89,18 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
     masDis <- reactive(mean(input$MasRecSolution1 - input$MasRec1, input$MasSample1 + input$MasDisolv1))
     
     # Messages
-    deriMasaSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', signif(derMassSample() * 1000, 2), ' mg'))
-    deriMasaDisSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva de la balanza: ', signif(derMassDis() * 1000, 2), ' mg'))
+    deriMasaSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva de masa: ', signif(derMassSample() * 1000, 2), ' mg'))
+    deriMasaDisSAMPLE <- reactive(div(style = 'font-size:11px', 'Deriva de masa: ', signif(derMassDis() * 1000, 2), ' mg'))
     output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
     output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     
     convMassSample <- reactive(c(convMass(calibCert = balanza(), reading = masSample(), units = 'g'),
-                              uncertConvMass(calibCert = balanza(), reading = masSample(), units = 'g')))
+                                 sqrt(uncertConvMass(calibCert = balanza(), reading = masSample(), units = 'g')^2 +
+                                        (derMassSample()/sqrt(12))^2)))
     
     convMassDis <- reactive(c(convMass(calibCert = balanza(), reading = masDis(), units = 'g'),
-                              uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')))
+                              sqrt(uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')^2 +
+                                     (derMassDis()/sqrt(12))^2)))
     
     
     

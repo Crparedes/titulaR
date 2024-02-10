@@ -43,9 +43,9 @@ BalanceCalibCertServer <- function(id, devMode, demo, BalanzasReVa) {
       tags$div(actionButton(session$ns('brwzInsideModule'), tags$b('Pausa modulo')), tags$hr())})
     observeEvent(input$brwzInsideModule, browser())
     
-    balanzasElected <- reactive(checkboxGroupInput(
+    balanzasElected <- reactive(awesomeCheckboxGroup(
       session$ns("balanzasElected"), width = '100%', selected = ifelse(demo(), 'Mettler Toledo XPE 205 (2023-07-18)', ''),
-      label = NULL, choices = balanzasShow))
+      label = Nlns(1), choices = balanzasShow, status = 'mass'))
     output$balanzasElected <- renderUI(balanzasElected())
     
     balanzasPicker <- reactive({

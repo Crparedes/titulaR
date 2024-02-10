@@ -7,8 +7,9 @@ SolidSampleUI <- function(id, demo, title, reagent, reagKey, fecha, explan, nu =
       id = 'inline', style = 'font-size:12px; margin-left:25px', 
       textInput(ns('DisolID'), label = h5(tags$b(ReqField('ID disolución', 4))), width = '300px',
                 value = paste(gsub('-', '', fecha), title, sep = '_')),
-      radioButtons(ns('Reagent'), label = h5(tags$b(ReqField('Reactivo', 11))),
-                   choices = list('Sal disódica dihidratada de EDTA' = 'Na2EDTA.2H2O')),
+      awesomeRadio(ns('Reagent'), label = h5(tags$b(ReqField('Reactivo', 11))),
+                   choices = list('Sal disódica dihidratada de EDTA' = 'Na2EDTA.2H2O',
+                                  'EDTA - ácido tetraprótico' = 'H4EDTA')),
       tags$hr(),
       splitLayout(
         cellWidths = c("38%", "10%", "38%"),
@@ -57,14 +58,9 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
       req(balanza, analyst, input$DisolID, input$MasRec1, input$MasSample1, input$MasRecSample1, input$MasRec2, input$MasDis1, input$MasRecDis1)
       if (input$MasRec1 * input$MasSample1 * input$MasRecSample1 * input$MasRec2 * input$MasDis1 * input$MasRecDis1 > 0) enable('buttonCalc')
     })
-    
+
     derMassSample <- reactive(input$MasRecSample1 - input$MasSample1 - input$MasRec1)
     masSample <- reactive(mean(input$MasSample1, input$MasRecSample1 - input$MasRec1))
-    derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
-    masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
-    
-    derMassSAMPLE <- reactive(input$MasRecSAMPLE1 - input$MasSAMPLE1 - input$MasRec1)
-    masSAMPLE <- reactive(mean(input$MasSAMPLE1, input$MasRecSAMPLE1 - input$MasRec1))
     derMassDis <- reactive(input$MasRecDis1 - input$MasDis1 - input$MasRec2)
     masDis <- reactive(mean(input$MasDis1, input$MasRecDis1 - input$MasRec2))
     
@@ -72,7 +68,8 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
     airDensity <- reactive(GetValueEstandUncert(req(ambient()), 'Density'))
     
     convMassSample <- reactive(c(convMass(calibCert = balanza(), reading = masSample(), units = 'g'),
-                              uncertConvMass(calibCert = balanza(), reading = masSample(), units = 'g')))
+                                 sqrt(uncertConvMass(calibCert = balanza(), reading = masSample(), units = 'g')^2 +
+                                        (derMassSample()/sqrt(12))^2)))
     DensitSample <- reactive(GetValueEstandUncert(SiRealXML(SI.list = densities$Na2EDTA.2H2O['si:real']), 'Density'))
     
     BuoySample <- reactive(c(MABC(rho = DensitSample()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
@@ -80,7 +77,8 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
                                      u_rho = DensitSample()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE, plot = FALSE)))
     
     convMassDis <- reactive(c(convMass(calibCert = balanza(), reading = masDis(), units = 'g'),
-                              uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')))
+                              sqrt(uncertConvMass(calibCert = balanza(), reading = masDis(), units = 'g')^2 +
+                                     (derMassDis()/sqrt(12))^2)))
     BuoyDis <- reactive(c(MABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
                           uncertMABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
                                      u_rho = DisolDensi()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE)))
@@ -97,10 +95,10 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
     })
     
     # Messages
-    deriMasaSAMPLE <- eventReactive(input$MasRecSAMPLE1, 
-                                 div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassSAMPLE() * 1000, 2), ' mg'))
+    deriMasaSAMPLE <- eventReactive(input$MasRecSample1, 
+                                 div(style = 'font-size:11px', 'Deriva de masa: ', signif(derMassSample() * 1000, 2), ' mg'))
     deriMasaDisSAMPLE <- eventReactive(input$MasRecDis1,
-                                    div(style = 'font-size:11px', 'Deriva de la balanza:', signif(derMassDis() * 1000, 2), ' mg'))
+                                    div(style = 'font-size:11px', 'Deriva de masa: ', signif(derMassDis() * 1000, 2), ' mg'))
     output$deriMasaSAMPLE <- renderUI(deriMasaSAMPLE())
     output$deriMasaDisSAMPLE <- renderUI(deriMasaDisSAMPLE())
     
