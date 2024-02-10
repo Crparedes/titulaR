@@ -3,32 +3,43 @@ TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
     tags$b('Titulación de ', explan), Nlns(2),
-    fluidRow(
-      column(
-        5,
-        tags$div(
-          id = 'inline', style = 'font-size:12px; margin-left:25px', 
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
-                           ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, rnorm(1, 10.0552, 10.0552*0.0015), 0)),
-          autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
-                           ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 5), value = 0),
-          conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, Nlns(),
-                           rHandsontableOutput(ns("TitData"), width = '100%')))),
-      column(
-        7, #tags$b('Curva de titulación:'),
-        fluidRow(
-          column(12, uiOutput(ns('SummaryIndivTitr'))),
-          column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'), tags$br()),
-          column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación'))),
-          column(12, tags$hr()),
-          column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
-          column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado individual'), tags$br(),
-                 actionLink(ns("showBudget"), label = 'Mostrar presupuesto de incertidumbre'), tags$br(),
-                 tags$div(style = 'font-size:11px;', '(Combine varios resultados individuales para obtener un resultado de medición)', tags$br(),
-                 tags$div(style = 'font-size:12px;', htmlOutput(ns('InfoTitXML')))))
-        )
+    conditionalPanel(
+      'input.TermTit == 0', ns = ns,
+      fluidRow(
+        column(
+          5,
+          tags$div(
+            id = 'inline', style = 'font-size:12px; margin-left:25px', 
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
+                             ns('MasaAlic'), label = ReqField('Masa de la alícuota / g'), value = ifelse(demo, rnorm(1, 10.0552, 10.0552*0.0015), 0)),
+            autonumericInput(digitGroupSeparator = " ", decimalCharacter = ".", modifyValueOnWheel = FALSE, decimalPlaces = 4, align = 'left',
+                             ns('MasaEDTA0'), label = NonReqField('Masa inicial de titulante / g', 5), value = 0),
+            conditionalPanel(condition = 'input.MasaAlic > 0', ns = ns, Nlns(),
+                             rHandsontableOutput(ns("TitData"), width = '100%')))),
+        column(
+          7, #tags$b('Curva de titulación:'),
+          fluidRow(
+            column(12, align = 'center', plotOutput(ns('TitCurvePlot'), width = '80%'), tags$br()),
+            column(9, offset = 2, disabled(actionButton(ns('TermTit'), label = 'Terminar titulación'))),
+            column(12, tags$hr()),
+            column(width = 2, SI_unit_nice('mole', width = "97%"), SI_unit_nice('kilogram', width = "97%")),
+            # column(width = 10, downloadLink(ns("downlXMLlink"), label = 'Descargar archivo XML del resultado individual'), tags$br(),
+            #        actionLink(ns("showBudget"), label = 'Mostrar presupuesto de incertidumbre'), tags$br(),
+            #        tags$div(style = 'font-size:11px;', '(Combine varios resultados individuales para obtener un resultado de medición)', tags$br(),
+            #                 tags$div(style = 'font-size:12px;', htmlOutput(ns('InfoTitXML')))))
+          )))
+    ),
+    conditionalPanel(
+      'input.TermTit > 0', ns = ns,
+      fluidRow(
+        column(width = 1, SI_unit_nice('mole', width = "100%"), SI_unit_nice('kilogram', width = "100%")),
+        column(width = 11, #align = 'center', 
+               uiOutput(ns('SummaryIndivTitr')),
+               # plotOutput(ns('TitCurvePlot2'), width = '80%'),
+               tags$hr(), uiOutput(ns('uncertBudget')), tags$hr(), htmlOutput(ns('InfoDisXML')))
       )
     )
+    
   )
 }
 
@@ -98,9 +109,10 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
         expr = {
           if(length(na.omit(TitCurvDat()$Titrant)) >= 3) {
             if(input$TermTit < 1) {
-              plot(TitCurvDat()$Signal[TitCurvDat()$Titrant != 0] ~ TitCurvDat()$Titrant[TitCurvDat()$Titrant != 0])
+              plot(TitCurvDat()$Signal[TitCurvDat()$Titrant != 0] ~ TitCurvDat()$Titrant[TitCurvDat()$Titrant != 0],
+                   xlab = 'Masa de titulante / g', ylab = 'Diferencia de potencial / mV')
             } else {
-              plotCurve(curve = CleanDf(), xlab = 'Titulante [g]', ylab = 'Señal [mV]')
+              plotCurve(curve = CleanDf(), xlab = 'Masa de titulante / g', ylab = 'Diferencia de potencial / mV')
             }
           } else {
             plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
@@ -114,6 +126,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
         })
     )
     output$TitCurvePlot <- renderPlot(TitCurvePlot())
+    output$TitCurvePlot2 <- renderPlot(TitCurvePlot())
     
     MasaEquiv <- eventReactive(input$TermTit, {try(EP.1stDer(curve = CleanDf()))})
     ConcStanSolut <- reactive(GetValueEstandUncert(StanDisol(),  property = 'AmountOfSubstancePerUnitMass'))
@@ -216,18 +229,28 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
           width = 12, title = tags$b(style = 'font-size:13px', 'Resultado individual (parcial)'),
           icon = icon("vials"), color = 'black', fill = FALSE,
           subtitle = tags$div(
-            style = 'font-size:12px',
-            'Fracción de', elemEspa[[element()]], 'en la disolución titulada:',
-            tags$b(style = 'margin-left:1px;', round(ResParcial(), d1), '\u00B1',
-                   ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(1), 
-            'Fracción de', elemEspa[[element()]], 'en la muestra original:', spcs(2),
-            tags$b(style = 'margin-left:1px;', round(ResParcialSource(), d2), '\u00B1',
-                   ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), tags$br(), tags$br(),
-            tags$div(
-              style = 'font-size:11px',
-              ReqField('', 1),
-              'No incluye el error asociado a la determinación del punto final de titulación.
-              Este aporte es significativo y se estima con la repetibilidad de las mediciones (Incertidumbre tipo A).'))))
+            style = 'font-size:13px',
+            fluidRow(
+              column(5,
+                'Fracción de', elemEspa[[element()]], 'en la disolución titulada:', tags$br(),
+                tags$b(style = 'margin-left:10px;', round(ResParcial(), d1), '\u00B1',
+                       ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2), 
+                'Fracción de', elemEspa[[element()]], 'en la muestra original:',  tags$br(),
+                tags$b(style = 'margin-left:10px;', round(ResParcialSource(), d2), '\u00B1',
+                       ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), tags$br(), tags$br(),
+                tags$div(
+                  style = 'font-size:10px',
+                  ReqField('', 1),
+                  'No incluye el error asociado a la determinación del punto final de titulación.
+                  Este aporte es significativo y se estima con la repetibilidad de las mediciones (Incertidumbre tipo A).'),
+                tags$hr(),
+                tags$ul(
+                  tags$li(downloadLink(session$ns("downlXMLlink"), label = tags$b('Descargar XML del resultado'))),
+                  tags$li(actionLink(session$ns("showBudget"), label = ('Ver presupuesto de incertidumbre'))),
+                  tags$li(actionLink(session$ns("showXMLfile"), label = ('Ver informacion completa del resultado'))))
+              ),
+              column(6, plotOutput(session$ns('TitCurvePlot2'), width = '100%'))
+            ))))
       }
     })
     output$SummaryIndivTitr <- renderUI(SummaryIndivTitr())
