@@ -123,34 +123,6 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
       quantityTypeQUDT = 'AmountOfSubstancePerUnitMass', value = signif(DisConcProp()$prop[[1]], 8),
       units = '\\milli\\mole\\kilo\\gram\\tothe{-1}', uncert =  signif(DisConcProp()$prop[[3]], 3), covFac = 1))
     
-    uncertBudget <- eventReactive(input$showBudget, {
-      tagList(
-        tags$b('Ecuación del modelo:'), tags$br(),
-        '$$ c_{std} = \\frac{m_{MRC} \\cdot B_{MRC} \\cdot x_{specie}}{M_{specie} \\cdot m_{solution} \\cdot B_{solution}}$$',
-        Nlns(), tags$b('Presupuesto de incertidumbre:'),
-        tags$div(
-          style = 'margin-left:15px;margin-right:10px;font-size:12px;', 
-          withMathJax(),
-          withMathJax(tableOutput(session$ns("tableUncert"))),
-          'donde \\(c_{std}\\) es la concentración de la especie en la disolución estándar, \\(m_{MRC}\\) es la masa convencional del MRC,
-          \\(B_{MRC}\\) es la corrección por flotabilidad del MRC, \\(x_{specie}\\) es la fracción másica de la especie en el MRC,
-          \\(M_{specie}\\) es la masa molar de la especie, \\(m_{solution}\\) es la masa convencional de la disolución, y 
-          \\(B_{solution}\\) es la corrección por flotabilidad de la disolución.'),
-        tags$hr())
-    })
-    output$uncertBudget <- renderUI(uncertBudget())
-    output$tableUncert <- renderTable({
-      c_std <- GetValueEstandUncert(DisConc())
-      units <- c(c_std$Units, "\\gram", "\\gram\\gram\\tothe{-1}", MassFrMRC()$Units, MolWeiMRC()$Units, "\\gram", "\\gram\\gram\\tothe{-1}")
-      tab <- data.frame(Valor = as.character(signif(c(c_std$ValUnc[1], DisConcProp()$data[1, ]), 9)),
-                        u_std = as.character(signif(c(c_std$ValUnc[2], DisConcProp()$data[2, ]), 4)),
-                        Unidades = units, Aporte = c(NA, paste((round(diag(DisConcProp()$rel.contr)*100, 3)), '%', sep = ' ')))
-      rownames(tab) <- c("\\(c_{std}\\)", "\\(m_{MRC}\\)", "\\(B_{MRC}\\)", "\\(x_{specie}\\)", 
-                         "\\(M_{specie}\\)", "\\(m_{solution}\\)", "\\(B_{solution}\\)")
-      tab
-    },
-    include.rownames = TRUE,
-    include.colnames = TRUE)
     
     SummarySolution <- eventReactive(input$buttonCalc, {
       c_std <- GetValueEstandUncert(DisConc())
@@ -182,11 +154,38 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
     })
     output$SummarySolution <- renderUI(SummarySolution())
     
+    uncertBudget <- eventReactive(input$showBudget, {
+      tagList(
+        tags$b('Ecuación del modelo:'), tags$br(),
+        '$$ c_{std} = \\frac{m_{MRC} \\cdot B_{MRC} \\cdot x_{specie}}{M_{specie} \\cdot m_{solution} \\cdot B_{solution}}$$',
+        Nlns(), tags$b('Presupuesto de incertidumbre:'),
+        tags$div(
+          style = 'margin-left:15px;margin-right:10px;font-size:12px;', 
+          withMathJax(),
+          withMathJax(tableOutput(session$ns("tableUncert"))),
+          'donde \\(c_{std}\\) es la concentración de la especie en la disolución estándar, \\(m_{MRC}\\) es la masa convencional del MRC,
+          \\(B_{MRC}\\) es la corrección por flotabilidad del MRC, \\(x_{specie}\\) es la fracción másica de la especie en el MRC,
+          \\(M_{specie}\\) es la masa molar de la especie, \\(m_{solution}\\) es la masa convencional de la disolución, y 
+          \\(B_{solution}\\) es la corrección por flotabilidad de la disolución.'),
+        tags$hr())
+    })
+    output$uncertBudget <- renderUI(uncertBudget())
+    output$tableUncert <- renderTable({
+      c_std <- GetValueEstandUncert(DisConc())
+      units <- c(c_std$Units, "\\gram", "\\gram\\gram\\tothe{-1}", MassFrMRC()$Units, MolWeiMRC()$Units, "\\gram", "\\gram\\gram\\tothe{-1}")
+      tab <- data.frame(Valor = as.character(signif(c(c_std$ValUnc[1], DisConcProp()$data[1, ]), 9)),
+                        u_std = as.character(signif(c(c_std$ValUnc[2], DisConcProp()$data[2, ]), 4)),
+                        Unidades = units, Aporte = c(NA, paste((round(diag(DisConcProp()$rel.contr)*100, 3)), '%', sep = ' ')))
+      rownames(tab) <- c("\\(c_{std}\\)", "\\(m_{MRC}\\)", "\\(B_{MRC}\\)", "\\(x_{specie}\\)", 
+                         "\\(M_{specie}\\)", "\\(m_{solution}\\)", "\\(B_{solution}\\)")
+      tab
+    },
+    include.rownames = TRUE,
+    include.colnames = TRUE)
     
     # Messages
     deriMasaMRC <- reactive(div(style = 'font-size:11px', 'Deriva de masa: ', round(derMassMRC() * 1000, 2), ' mg'))
     deriMasaDisMRC <- reactive(div(style = 'font-size:11px', 'Deriva de masa: ', round(derMassDis() * 1000, 2), ' mg'))
-    
     output$deriMasaMRC <- renderUI(deriMasaMRC())
     output$deriMasaDisMRC <- renderUI(deriMasaDisMRC())
     

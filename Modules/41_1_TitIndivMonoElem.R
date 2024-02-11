@@ -32,11 +32,11 @@ TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
     conditionalPanel(
       'input.TermTit > 0', ns = ns,
       fluidRow(
-        column(width = 1, SI_unit_nice('mole', width = "100%"), SI_unit_nice('kilogram', width = "100%")),
+        column(width = 1, SI_unit_nice('mole', width = "120%"), SI_unit_nice('kilogram', width = "120%")),
         column(width = 11, #align = 'center', 
                uiOutput(ns('SummaryIndivTitr')),
                # plotOutput(ns('TitCurvePlot2'), width = '80%'),
-               tags$hr(), uiOutput(ns('uncertBudget')), tags$hr(), htmlOutput(ns('InfoDisXML')))
+               tags$hr(), uiOutput(ns('uncertBudget')), tags$hr(), htmlOutput(ns('InfoTitXML')))
       )
     )
     
@@ -168,7 +168,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionSource'))
         xml_add_child(., .value = analyst())
       }
-      addDataToMRXML(xmlObject, list('mr:titrationStart' = horaInicio(), 'mr:titrationEnd' = horaFinal()), node = 'mr:coreData')
+      addDataToMRXML(xmlObject, list('mr:dateTime' = horaFinal()), node = 'mr:coreData')
     
       xml_child(xmlObject, search = 'mr:titrationResult') %>% {
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:property//mr:substance'))
@@ -195,27 +195,9 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
         xml_add_child(., .value = CopySiRealFromXML(StanDisol(), 'AmountOfSubstancePerUnitMass'))
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
       }
-      
       message(xmlObject)
-      
-      
       # addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
       return(xmlObject)
-    })
-    
-    observeEvent(req(InfoTitXML()), {
-      enable('downlXMLlink')
-      withCallingHandlers({
-        shinyjs::html("InfoTitXML", "")
-        message(InfoTitXML())},
-        message = function(m) {
-          shinyjs::html(id = "InfoTitXML",
-                        html = paste0('<textarea rows = 80 style = "width: 100%;">',
-                                      m$message, '</textarea>'), add = FALSE)})
-      
-      output$downlXMLlink <-  downloadHandler(
-        filename = function() {paste0(gsub(' ', '_', resultID(), fixed = FALSE), ".xml")},
-        content = function(file) {write_xml(InfoTitXML(), file)})
     })
 
     
@@ -254,8 +236,50 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
       }
     })
     output$SummaryIndivTitr <- renderUI(SummaryIndivTitr())
-    output$DescaResu <- renderUI(DescaResu())
     
+    uncertBudget <- eventReactive(input$showBudget, {
+      tagList(
+        tags$b('Ecuación del modelo:'), tags$br(),
+        '$$ \\nu_{metal} = \\frac{(m_{eq} - m_{bln} \\cdot c_{std}}{m_{ali}} \\cdot M_{metal} \\cdot
+        \\frac{1}{r_{mass}}$$',
+        Nlns(), tags$b('Presupuesto de incertidumbre:'),
+        tags$div(
+          style = 'margin-left:15px;margin-right:10px;font-size:12px;', 
+          withMathJax(),
+          withMathJax(tableOutput(session$ns("tableUncert"))),
+          'donde \\(\\nu_{metal}\\) es la fracción másica del metal en la disolución original, \\(m_{eq}\\) es la masa de equivalencia de titulante,
+          \\(m_{bln}\\) es la masa de titulante para un blanco de muestra, \\(c_{std}\\) es la concentración de EDTA en la disolución estándar,
+          \\(m_{ali}\\) es la masa de la alícuota, \\(M_{metal}\\) es el peso atómico del metal, y 
+          \\(r_{mass}\\) es la relación de masa de la disolución original en la disolución que se titula (en caso de titular muestras diluidas gravimétricamente).'),
+        tags$hr())
+    })
+    output$uncertBudget <- renderUI(uncertBudget())
+    output$tableUncert <- renderTable({
+      units <- c("\\milli\\gram\\kilo\\gram\\tothe{-1}", "\\gram", "\\gram", ConcStanSolut()$Units, "\\gram", 
+                 ConcStanSolut()$Units, MassRatioSamp()$Units)
+      tab <- data.frame(Valor = as.character(signif(c(ResParcUncSource()$prop[[1]], ResParcUncSource()$data[1, ]), 9)),
+                        u_std = as.character(signif(c(ResParcUncSource()$prop[[3]], ResParcUncSource()$data[2, ]), 4)),
+                        Unidades = units, Aporte = c(NA, paste((round(diag(ResParcUncSource()$rel.contr)*100, 3)), '%', sep = ' ')))
+      rownames(tab) <- c("\\(nu_{metal}\\)", "\\(m_{eq}\\)", "\\(m_{bln}\\)", "\\(c_{std}\\)", "\\(m_{ali}\\)", "\\(M_{metal}\\)", "\\r_{mass}\\)")
+      tab
+    },
+    include.rownames = TRUE, include.colnames = TRUE)
+    
+    observeEvent(req(input$showXMLfile), {
+      withCallingHandlers({
+        shinyjs::html("InfoTitXML", "")
+        message(InfoTitXML())},
+        message = function(m) {
+          shinyjs::html(id = "InfoTitXML",
+                        html = paste0('<b>Información de la titulación:</b><br>
+                                      <textarea rows = 40 style = "width: 95%; margin-left:20px;">',
+                                      m$message, '</textarea>'), add = FALSE)})
+      
+      output$downlXMLlink <-  downloadHandler(
+        filename = function() {paste0(gsub(' ', '_', resultID(), fixed = FALSE), ".xml")},
+        content = function(file) {write_xml(InfoTitXML(), file)})
+    })
+
     return(InfoTitXML)
   })
 }
