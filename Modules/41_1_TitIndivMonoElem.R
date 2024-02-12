@@ -148,17 +148,23 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
                 second.order = FALSE, do.sim = FALSE))
     
     ResParcialSource <- reactive(MasaEquiv() * ConcStanSolut()$ValUnc[1] / input$MasaAlic * AtMasSampElem()$ValUnc[1] / MassRatioSamp()$ValUnc[1])
-    ResParcUncSource <- reactive(
-      propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato / MassRatioSamp),
-                data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()),
-                                     sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg')),
-                             Mbln = c(0, 0.0028/(2*sqrt(3))),
-                             Cedta = ConcStanSolut()$ValUnc,
-                             Mali = c(convMass(balanza(), reading = input$MasaAlic),
-                                      uncertConvMass(balanza(), reading = input$MasaAlic)),
-                             Mato = AtMasSampElem()$ValUnc,
-                             MassRatioSamp = MassRatioSamp()$ValUnc),
-                second.order = FALSE, do.sim = FALSE))
+    ResParcUncSource <- reactive({
+      u.Meq.drop <- sum(sort(abs(na.omit(TitCurvDat()$Titrant) - MasaEquiv()))[1:2]) / sqrt(12)
+      u.Meq.balanza <- sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg') 
+      
+      prop <- propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato / MassRatioSamp),
+                        data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()), sqrt(u.Meq.drop^2 + u.Meq.balanza^2)),#,
+                                     Mbln = c(0, 0.0028/(2*sqrt(3))),
+                                     Cedta = ConcStanSolut()$ValUnc,
+                                     Mali = c(convMass(balanza(), reading = input$MasaAlic),
+                                              uncertConvMass(balanza(), reading = input$MasaAlic)),
+                                     Mato = AtMasSampElem()$ValUnc,
+                                     MassRatioSamp = MassRatioSamp()$ValUnc),
+                        second.order = FALSE, do.sim = FALSE)
+      return(prop)
+    }
+      
+      )
     
     InfoTitXML <- eventReactive(MasaEquiv(), {
       xmlObject <- initiateTitrationXML()

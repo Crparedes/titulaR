@@ -33,11 +33,11 @@
     </mr:property>
   </mr:certifiedValues>
   <mr:additionalValues>
-    <mr:property id="ionMassFraction">
+    <mr:property id="metalMassFraction">
       <mr:substance>
-        <mr:name>lead(2+)</mr:name>
-        <mr:InChI version="1.0.6">1S/Pb/q+2</mr:InChI>
-        <mr:InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</mr:InChiKey>
+        <mr:name>lead</mr:name>
+        <mr:InChI version="1.0.6">1S/Pb</mr:InChI>
+        <mr:InChiKey version="1.0.6">WABPQHHGFIMREM-UHFFFAOYSA-N</mr:InChiKey>
       </mr:substance>
       <si:real>
         <si:quantityTypeQUDT>MassFraction</si:quantityTypeQUDT>
@@ -52,9 +52,9 @@
     </mr:property>
     <mr:property id="ionMolarMass">
       <mr:substance>
-        <mr:name>lead(2+)</mr:name>
-        <mr:InChI version="1.0.6">1S/Pb/q+2</mr:InChI>
-        <mr:InChiKey version="1.0.6">RVPVRDXYQKGNMQ-UHFFFAOYSA-N</mr:InChiKey>
+        <mr:name>lead</mr:name>
+        <mr:InChI version="1.0.6">1S/Pb</mr:InChI>
+        <mr:InChiKey version="1.0.6">WABPQHHGFIMREM-UHFFFAOYSA-N</mr:InChiKey>
       </mr:substance>
       <si:real>
         <si:quantityTypeQUDT>MolarMass</si:quantityTypeQUDT>

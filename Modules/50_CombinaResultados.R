@@ -10,20 +10,22 @@ CombinaResultadosUI <- function(id) {
         # column(
           # width = 9,
           # tags$hr(),
-      tags$b('Importe archivos de resultados de sesiones anteriores.'),
+      tags$b('Importe archivos XML de sesiones anteriores.'),
       tags$div(
         style = 'margin-left: 25px; margin-top:0px;',
         fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%'),
         uiOutput(ns('XmlCargados')))),
     column(
       width = 7, style = 'margin-left: 50px;', tags$br(),
-      tags$b('Seleccione los resultados de titulación para combinar'), tags$br(),
+      tags$br(),
       box(
-        id = ns('FilesAvailable'), status = 'primary', title = tags$b('Archivos disponibles en el aplicativo'), width = 12, collapsible = TRUE, collapsed = FALSE,
+        id = ns('FilesAvailable'), status = 'primary', title = tags$b('Resultados individuales'), width = 12, collapsible = TRUE, collapsed = FALSE,
+        'Seleccione los resultados individuales de titulación para combinar marcando la casilla al inicio de cada fila.', tags$br(),
+        'Solo puede combinar resultados de la misma sustancia.', tags$br(),
         tags$div(style = 'margin-left: 25px; margin-top:20px; border-style:groove;', rHandsontableOutput(ns("resultFiles"))),
-        '(Solo puede combinar resultados de la misma susbtancia)', Nlns(),
-        actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
-    column(11, hidden(tags$div(style = 'margin-left: 80px;', 
+        Nlns(), actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
+    column(11, hidden(tags$div(
+      style = 'margin-left: 80px;',                         
       id = ns('combinedResults'), tags$hr(), tags$h4(tags$b('Resultados combinados')), Nlns(2),
       fluidRow(
         column(7, plotOutput(ns('plotCombinados'), width = '100%')),
@@ -51,20 +53,19 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       } else {
         uploadedFiles <- lapply((input$NewXML$datapath), function(x) read_xml(x))
         # browser()
-        # solTypes <- sapply(uploadedFiles, function(x) xml_text(xml_find_all(x, xpath = '//mr:resultID')))
+        isTitRes <- sapply(uploadedFiles, function(x) length(xml_find_all(x, xpath = '//mr:titrationResult')))
         
-        if (FALSE){#!all(solTypes %in% c('EstandarEDTA', 'MuestraCalib', 'EstandarPlomo', 'MuestraEDTA'))) {
-        #   shinyalert(title = 'Error!', text = 'Al menos un archivo XML no contiene información de disoluciones.', type = 'error',
-        #              timer = 3000, showConfirmButton = FALSE)
+        if (any(isTitRes == 0)) {#!all(solTypes %in% c('EstandarEDTA', 'MuestraCalib', 'EstandarPlomo', 'MuestraEDTA'))) {
+          shinyalert(title = 'Error!', text = 'Al menos un archivo XML no contiene resultados de titulación.', type = 'error',
+                     timer = 3000, showConfirmButton = FALSE)
         } else {
-          PartialTitrationResults$results <- append(PartialTitrationResults$results, 
-                                                    lapply(uploadedFiles, function(x) {return(reactive(x))}))
+          PartialTitrationResults$results <- append(PartialTitrationResults$results, lapply(uploadedFiles, function(x) {return(reactive(x))}))
           XmlCargados(tags$div(
             id = session$ns('filesCargados'),
             HTML('Se cargó la información de los siguientes archivos de resultados:<p align = "left"><ul>',
                            paste0(sapply(uploadedFiles, function(x) {
                              return(paste0('<li><b>', xml_text(xml_find_all(x, xpath = '//mr:coreData/mr:solutionSource')), ':</b> ',
-                                           xml_text(xml_find_all(x, xpath = '//mr:solutionID')), '</li>'))
+                                           xml_text(xml_find_all(x, xpath = '//mr:coreData/mr:dateTime')), '</li>'))
                            }), collapse = ''))))
           shinyjs::show("filesCargados")}}
     })
@@ -84,8 +85,8 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
           Material = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))}),
           Fecha = sapply(PartialTitrationResults$results, function (x) {
-            return(xml_text(xml_child(x(), search = 'mr:coreData/mr:titrationEnd')))}),
-          Substancia = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:coreData/mr:dateTime')))}),
+          Sustancia = sapply(PartialTitrationResults$results, function (x) {
             return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])}),
           Valor = sapply(PartialTitrationResults$results, function (x) {
             return(round(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')), 3))}),
@@ -99,14 +100,10 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       if (!is.null(input$resultFiles)) {
         DF = hot_to_r(input$resultFiles)
       } else {
-        if (is.null(values[["DF"]]))
-          DF <- DF()
-        else
-          DF <- values[["DF"]]
+        if (is.null(values[["DF"]])) {DF <- DF()} else {DF <- values[["DF"]]}
       }
       values[["DF"]] <- DF()
     })
-    
     
     output$resultFiles <- renderRHandsontable({
       DF <- values[["DF"]]
@@ -114,8 +111,7 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
         rhandsontable(DF, useTypes = TRUE, stretchH = "all", rowHeaders = NULL, selectCallback = TRUE)%>%
         hot_col(2:6, readOnly = TRUE) %>%
         hot_cols(colWidths = c(20, 150, 150, 150, 75, 75, 190)) %>%
-        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
-    })
+        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)})
     
     files2Combine <- reactiveVal()
     observeEvent(input$CombinArchivos, {
@@ -138,8 +134,30 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       }
     })
     
+    # x <- reactive({
+    # VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[2]]]})))[order(VecMomento)]
+    #   VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[3]]]})))[order(VecMomento)]
+    #   VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[4]]]})))[order(VecMomento)]
+    #   VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[5]]]$prop[[3]]})))[order(VecMomento)]
+    #   VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[pos[6]]]), start = 1, stop = 10)})))[order(VecMomento)]
+    #   #browser()
+    #   x <- data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
+    #                   index = 1:length(VecFracUnc))
     
-    
+    # DF <- data.frame('.' = 1:length(files2Combine()))
+    #   DF$ResInd <- lapply(files2Combine(), function (x) {
+    #     People <- xml_text(xml_child(x(), search = 'mr:coreData/respPerson/name'))
+    #     Date <- xml_text(xml_child(x(), search = 'mr:coreData/mr:dateTime'))
+    #     
+    #     Vunits <- GetValueEstandUncert(xml_child(x(), search = 'mr:titrationResult/si:real'))$Units
+    #     
+    #     # xml_child(files2Combine()[[1]](), search = 'mr:coreData')
+    #     
+    #   })
+    #   if (length(unique(Vunits)) != 1) return() else Vunits <- Vunits[1]
+      # 
+      
+    # })
     
     ResultadosElect <- reactive({
       
@@ -147,68 +165,6 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     output$ResultadosElect <- renderUI(ResultadosElect())
     
     
-    
-    
-    # FileNames <- reactive(input$TitFiles$name)
-    # 
-    # ifelsebuttonUpload <- reactive({
-    #   dplyr::case_when(especie == 'EDTA' ~ all(substr(FileNames(), start = 1, stop = 5) == 'EDTA.'),
-    #                    especie == 'Elem' ~ length(unique(substr(FileNames(), start = 1, stop = 3))) == 1)})
-    # 
-    # 
-    # buttonUpload <- eventReactive(input$TitFiles, {
-    #   ifelse(ifelsebuttonUpload(),
-    #          return(actionButton(session$ns('buttonUpload'), label = tags$b('Subir archivos'))),
-    #          return(box(status = 'danger', width = 12, 
-    #                     dplyr::case_when(especie == 'EDTA' ~ list(tags$b('Todos los archivos deben ser de muestras de EDTA. Intente nuevamente')),
-    #                                      especie == 'Elem' ~ list(tags$b('Todos los archivos deben corresponder al mismo elemento. Intente nuevamente'))))))})
-    # output$buttonUpload <- renderUI(buttonUpload())
-    # 
-    # visualizacion <- eventReactive(input$buttonUpload, {
-    #   radioButtons(session$ns('visualizacion'), label = NULL,
-    #                choices = list('Combinar los resultados' = 'Comb', 'Visualizar resultado individual' = 'Indi'))})
-    # output$visualizacion <- renderUI(visualizacion())
-    # 
-    # Calcular <- reactive(
-    #   ifelse(length(unique(substr(FileNames(), start = 1, stop = 3))) == 1,
-    #          return(actionButton(session$ns('Calcular'), label = tags$b('Mostrar/recalcular resultados'))),
-    #          return(NULL)))
-    # output$Calcular <- renderUI(Calcular())
-    # 
-    # 
-    # DataCompl <- reactiveValues()
-    # observeEvent(input$TitFiles, {
-    #   #DataCompl <- reactiveValues()
-    #   for (i in 1:length(FileNames())) DataCompl[[FileNames()[i]]] <- readRDS(input$TitFiles[i, ]$datapath)
-    #   #browser()
-    # })
-    # 
-    # # DataComplList <- reactive({
-    # #   x <- reactiveValuesToList(DataCompl)
-    # #   x <- x[names(x) %in% FileNames()] # To clean old files
-    # #   return(x)})
-    # 
-    # titFilesSelectComb <- reactive({
-    #   x <- reactiveValuesToList(DataCompl)
-    #   x <- x[names(x) %in% FileNames()]
-    #   pos <- dplyr::case_when(especie == 'EDTA' ~ c(12, 11),
-    #                           especie == 'Elem' ~ c(13, 13))
-    #   Fechas <- as.factor(unlist(sapply(x, 
-    #                                     function(x) {substr(as.character(x[[pos[1]]]), 
-    #                                                         start = nchar(as.character(x[[pos[1]]])) - 18, 
-    #                                                         stop = nchar(as.character(x[[pos[1]]])) - 3)})))
-    #   VecMomento <- as.factor(unlist(sapply(x, function(x) {x[[pos[2]]]})))
-    #   choices <- names(x)[order(VecMomento)]
-    #   #browser()
-    #   return(checkboxGroupInput(session$ns('titFilesSelectComb'), label = tags$b("Archivos a considerar:"), 
-    #                             choices = choices, selected = choices, width = '100%'))
-    # })
-    # output$titFilesSelectComb <- renderUI(titFilesSelectComb())
-    # 
-    # DataCleanDF <- eventReactive(input$Calcular, {#browser()
-    #   pos <- dplyr::case_when(especie == 'EDTA' ~ c(11, 2, 3, 4, 5, 12),
-    #                           especie == 'Elem' ~ c(13, 3, 4, 5, 6, 13))
-    #   
     #   x <- reactiveValuesToList(DataCompl)
     #   x <- x[names(x) %in% FileNames()]
     #   DataTrimmedList <- x[names(x) %in% input$titFilesSelectComb] # To consider only selected files

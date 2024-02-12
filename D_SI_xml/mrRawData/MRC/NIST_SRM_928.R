@@ -19,8 +19,8 @@ certiData_NIST_SRM_928 <- list(
         'si:coverageProbability' = 0.95))))
 
 additData_NIST_SRM_928 <- list(
-  ionMassFraction = list(
-    'mr:substance' = Substances$PbII,
+  metalMassFraction = list(
+    'mr:substance' = Substances$Pb,
     'si:real' = list(
       'si:quantityTypeQUDT' = 'MassFraction',
       'si:value' = 207.209 / 331.219,
@@ -30,7 +30,7 @@ additData_NIST_SRM_928 <- list(
         'si:coverageFactor' = 2,
         'si:coverageProbability' = 0.95))),
     ionMolarMass = list(
-      'mr:substance' = Substances$PbII,
+      'mr:substance' = Substances$Pb,
       'si:real' = list(
         'si:quantityTypeQUDT' = 'MolarMass',
         'si:value' = 207.209,
