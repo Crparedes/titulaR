@@ -182,26 +182,40 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
           quantityTypeQUDT = 'massFraction', value = ResParcUncSource()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
           uncert = ResParcUncSource()$prop[[3]], covFac = 1))
       }
+      
       xml_child(xmlObject, search = 'mr:additionalInfo') %>% {
-        xml_add_child(., .value = 'mr:intermediateSolution')
-        xml_add_child(., .value = 'mr:referenceSolution')
+        xml_add_child(., .value = 'mr:measurementData') %>% {
+          xml_add_child(., .value = 'mr:titrationcurve')
+        }
+        
+        xml_add_child(., .value = 'mr:intermediateSolution') %>% {
+          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
+          xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
+          xml_add_child(., .value = SiRealXML(
+            quantityTypeQUDT = 'massFraction', value = ResParcUnc()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
+            uncert = ResParcUnc()$prop[[3]], covFac = 1))
+          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
+        }
+        
+        xml_add_child(., .value = 'mr:referenceSolution') %>% {
+          xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:solutionID'))
+          xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:CRM'))
+          xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:property//mr:substance'))
+          xml_add_child(., .value = CopySiRealFromXML(StanDisol(), 'AmountOfSubstancePerUnitMass'))
+          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
+        }
       }
-      xml_child(xmlObject, search = 'mr:additionalInfo//mr:intermediateSolution') %>% {
-        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
-        xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
-        xml_add_child(., .value = SiRealXML(
-          quantityTypeQUDT = 'massFraction', value = ResParcUnc()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
-          uncert = ResParcUnc()$prop[[3]], covFac = 1))
-        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
+      
+      xml_child(xmlObject, search = 'mr:additionalInfo//mr:measurementData//mr:titrationcurve') %>% {
+        xml_add_child(., .value = 'mr:titrant') %>% {
+          xml_add_child(., .value = SiRealListXML(
+            quantityTypeQUDT = 'Mass', values = na.omit(TitCurvDat()$Titrant), listUnit = '\\gram'))}
+        xml_add_child(., .value = 'mr:signal') %>% {
+          xml_add_child(., .value = SiRealListXML(
+            quantityTypeQUDT = 'ElectricPotentialDifference', values = na.omit(TitCurvDat()$Signal), listUnit = '\\milli\\volt'))}
       }
-      xml_child(xmlObject, search = 'mr:additionalInfo//mr:referenceSolution') %>% {
-        xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:solutionID'))
-        xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:CRM'))
-        xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:property//mr:substance'))
-        xml_add_child(., .value = CopySiRealFromXML(StanDisol(), 'AmountOfSubstancePerUnitMass'))
-        xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
-      }
-      message(xmlObject)
+
+      # message(xmlObject)
       # addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
       return(xmlObject)
     })
