@@ -217,8 +217,6 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                         html = paste0('<b>Información de la disolución:</b><br>
                                       <textarea rows = 40 style = "width: 95%; margin-left:20px;">',
                                       m$message, '</textarea>'), add = FALSE)})
-      
-      
     })
     
     return(DisolucionXML)
