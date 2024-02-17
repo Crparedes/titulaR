@@ -4,23 +4,18 @@ CombinaResultadosUI <- function(id) {
     column(12, Nlns(4), uiOutput(ns('brwz')),
            tags$h4(style = 'margin-left: 60px;', tags$b('Combinación de resultados individuales de titulación'))),
     column(
-      width = 3, style = 'margin-left: 80px;', tags$br(),
-      # fluidRow(
-        # column(width = 3, SI_unit_nice('mole', width = "110%"), SI_unit_nice('kilogram', width = "110%")),
-        # column(
-          # width = 9,
-          # tags$hr(),
+      width = 2, style = 'margin-left: 80px;', tags$br(),
       tags$b('Importe archivos XML de sesiones anteriores.'),
       tags$div(
         style = 'margin-left: 25px; margin-top:0px;',
         fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%'),
         uiOutput(ns('XmlCargados')))),
     column(
-      width = 7, style = 'margin-left: 50px;', tags$br(),
+      width = 9, style = 'margin-left: 50px;', tags$br(),
       tags$br(),
       box(
         id = ns('FilesAvailable'), status = 'primary', title = tags$b('Resultados individuales'), width = 12, collapsible = TRUE, collapsed = FALSE,
-        'Seleccione los resultados individuales de titulación para combinar marcando la casilla al inicio de cada fila.', tags$br(),
+        'Seleccione los resultados individuales de titulación marcando la casilla al inicio de cada fila.', tags$br(),
         'Solo puede combinar resultados de la misma sustancia.', tags$br(),
         tags$div(style = 'margin-left: 25px; margin-top:20px; border-style:groove;', rHandsontableOutput(ns("resultFiles"))),
         Nlns(), actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
@@ -76,18 +71,18 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     DF <- reactive({
       n <- length(PartialTitrationResults$results)
       if (n == 0) {
-        return(data.frame('.' = FALSE, Disolucion = '', Material = '', Fecha = '', Susbtancia = '', Valor = '', Unidades = ''))
+        return(data.frame('.' = FALSE,  Sustancia = '', Resultado = '', Material = '', Fecha = '', Valor = '', Unidades = ''))
       } else {
         return(data.frame(
           '.' = FALSE,
-          Disolucion = sapply(PartialTitrationResults$results, function (x) {
+          Sustancia = sapply(PartialTitrationResults$results, function (x) {
+            return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])}),
+          Resultado = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:additionalInfo/mr:intermediateSolution/mr:solutionID')))}),
           Material = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))}),
           Fecha = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:coreData/mr:dateTime')))}),
-          Sustancia = sapply(PartialTitrationResults$results, function (x) {
-            return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])}),
           Valor = sapply(PartialTitrationResults$results, function (x) {
             return(round(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')), 3))}),
           Unidades = sapply(PartialTitrationResults$results, function (x) {
@@ -110,26 +105,40 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       if (!is.null(DF))
         rhandsontable(DF, useTypes = TRUE, stretchH = "all", rowHeaders = NULL, selectCallback = TRUE)%>%
         hot_col(2:6, readOnly = TRUE) %>%
-        hot_cols(colWidths = c(20, 150, 150, 150, 75, 75, 190)) %>%
+        hot_cols(colWidths = c(20, 75, 180, 170, 170, 75, 190)) %>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)})
     
     files2Combine <- reactiveVal()
     observeEvent(input$CombinArchivos, {
-      if (sum(hot_to_r(input$resultFiles)['.']) < 2) {
+      SimpleData <- hot_to_r(input$resultFiles)
+      if (sum(SimpleData['.']) < 2) {
         shinyalert(title = 'Error!', text = 'Seleccione al menos dos archivos de resultados para combinar.',
                    type = 'error', timer = 3000, showConfirmButton = FALSE)
       } else {
-        SelectedXMLs <- PartialTitrationResults$results[which(hot_to_r(input$resultFiles)['.'] == TRUE)]
+        
+        SelectedXMLs <- PartialTitrationResults$results[which(SimpleData['.'] == TRUE)]
         Substances <- sapply(SelectedXMLs, function (x) {
           return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])})
+        ResultIDs <- sapply(SelectedXMLs, function (x) {
+          return(xml_text(xml_child(x(), search = 'mr:coreData/mr:resultID')))})
+        ResValues <- sapply(SelectedXMLs, function (x) {
+          return(xml_text(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')))})
         if (length(unique(Substances)) != 1) {
           shinyalert(title = 'Error!', text = 'Solo se pueden combinar archivos de resultados de la misma especie química.',
                      type = 'error', timer = 3000, showConfirmButton = FALSE)
         } else {
-          js$collapse(session$ns("FilesAvailable"))
-          shinyjs::hide("filesCargados")
-          shinyjs::show("combinedResults")
-          files2Combine(SelectedXMLs)
+          if (length(unique(ResultIDs)) < sum(SimpleData['.']) && length(unique(ResValues)) < sum(SimpleData['.']) ) {
+            shinyalert(title = 'Error!', text = 'Existe un archivo duplicado!<br>
+                       Verifique el ID de los resultados para combinar e inténtelo nuevamente.',
+                       type = 'error', timer = 3000, showConfirmButton = FALSE)
+          } else {
+          
+          
+            js$collapse(session$ns("FilesAvailable"))
+            shinyjs::hide("filesCargados")
+            shinyjs::show("combinedResults")
+            files2Combine(SelectedXMLs)
+          }
         }
       }
     })

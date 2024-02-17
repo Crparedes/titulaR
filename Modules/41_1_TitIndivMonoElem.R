@@ -232,42 +232,47 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
 
     
     SummaryIndivTitr <- eventReactive(input$TermTit, {
-      if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
-        tags$b('No se puede terminar la titulación con menos de 7 datos.')
+      if (is.error(c(balanza(), analyst(), StanDisol(), SampDisol()))) {
+        shinyalert(title = 'Error!', text = 'Verifique los campos de la columna de la izquierda.',
+                   type = 'error', timer = 3000, showConfirmButton = FALSE)
       } else {
-        d1 <- decimals(signif(ResParcUnc()$prop[3], 3))
-        d2 <- decimals(signif(ResParcUncSource()$prop[3], 3))
-        return(infoBox(
-          width = 12, title = tags$b(style = 'font-size:13px', 'Resultado individual (parcial)'),
-          icon = icon("vials"), color = 'black', fill = FALSE,
-          subtitle = tags$div(
-            style = 'font-size:13px',
-            fluidRow(
-              column(5,
-                'Fracción de', elemEspa[[element()]], 'en la disolución titulada:', tags$br(),
-                tags$b(style = 'margin-left:10px;', round(ResParcial(), d1), '\u00B1',
-                       ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2), 
-                'Fracción de', elemEspa[[element()]], 'en la muestra original:',  tags$br(),
-                tags$b(style = 'margin-left:10px;', round(ResParcialSource(), d2), '\u00B1',
-                       ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2),
-                tags$div(
-                  style = 'font-size:11px',
-                  ReqField('', 1),
-                  'Se recomienda combinar varios resultados de titulación para incluir el aporte de incertidumbre tipo A
+        if(length(na.omit(TitCurvDat()$Titrant)) < 6) {
+          tags$b('No se puede terminar la titulación con menos de 7 datos.')
+        } else {
+          d1 <- decimals(signif(ResParcUnc()$prop[3], 3))
+          d2 <- decimals(signif(ResParcUncSource()$prop[3], 3))
+          return(infoBox(
+            width = 12, title = tags$b(style = 'font-size:13px', 'Resultado individual (parcial)'),
+            icon = icon("vials"), color = 'black', fill = FALSE,
+            subtitle = tags$div(
+              style = 'font-size:13px',
+              fluidRow(
+                column(5,
+                       'Fracción de', elemEspa[[element()]], 'en la disolución titulada:', tags$br(),
+                       tags$b(style = 'margin-left:10px;', round(ResParcial(), d1), '\u00B1',
+                              ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2), 
+                       'Fracción de', elemEspa[[element()]], 'en la muestra original:',  tags$br(),
+                       tags$b(style = 'margin-left:10px;', round(ResParcialSource(), d2), '\u00B1',
+                              ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2),
+                       tags$div(
+                         style = 'font-size:11px',
+                         ReqField('', 1),
+                         'Se recomienda combinar varios resultados de titulación para incluir el aporte de incertidumbre tipo A
                   en el estimado del valor de la propiedad de la disolución.'),
-                tags$hr(),
-                'Masa de alícuota de la disolución:', tags$br(),
-                tags$b(style = 'margin-left:10px;', round(MasaAlic()[1], 5), '\u00B1', round(MasaAlic()[2], 5), ' g (k=1)'), Nlns(1),
-                'Masa final de titulación:', tags$br(),
-                tags$b(style = 'margin-left:10px;', round(MasaEquiv()[1], 5), '\u00B1', round(MasaEquiv()[2], 5), ' g (k=1)'),
-                tags$hr(),
-                tags$ul(
-                  tags$li(downloadLink(session$ns("downlXMLlink"), label = tags$b('Descargar XML del resultado'))),
-                  tags$li(actionLink(session$ns("showBudget"), label = ('Ver presupuesto de incertidumbre'))),
-                  tags$li(actionLink(session$ns("showXMLfile"), label = ('Ver informacion completa del resultado'))))
-              ),
-              column(6, plotOutput(session$ns('TitCurvePlot2'), width = '100%'))
-            ))))
+                       tags$hr(),
+                       'Masa de alícuota de la disolución:', tags$br(),
+                       tags$b(style = 'margin-left:10px;', round(MasaAlic()[1], 5), '\u00B1', round(MasaAlic()[2], 5), ' g (k=1)'), Nlns(1),
+                       'Masa final de titulación:', tags$br(),
+                       tags$b(style = 'margin-left:10px;', round(MasaEquiv()[1], 5), '\u00B1', round(MasaEquiv()[2], 5), ' g (k=1)'),
+                       tags$hr(),
+                       tags$ul(
+                         tags$li(downloadLink(session$ns("downlXMLlink"), label = tags$b('Descargar XML del resultado'))),
+                         tags$li(actionLink(session$ns("showBudget"), label = ('Ver presupuesto de incertidumbre'))),
+                         tags$li(actionLink(session$ns("showXMLfile"), label = ('Ver informacion completa del resultado'))))
+                ),
+                column(6, plotOutput(session$ns('TitCurvePlot2'), width = '100%'))
+              ))))
+        }
       }
     })
     output$SummaryIndivTitr <- renderUI(SummaryIndivTitr())

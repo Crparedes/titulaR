@@ -22,7 +22,7 @@ solutionPickerServer <- function(id, devMode, demo, solutions, label, inline = F
       names(solPosit) <- solNames
       pickerInput(
         session$ns("solution"), label = ReqField(label), inline = inline, width = width,
-        choices = solPosit, multiple = TRUE, selected = ifelse(demo(), 1, ''),
+        choices = solPosit, multiple = FALSE,# selected = ifelse(demo(), 1, ''),
         options = list(`max-options` = 1, `none-selected-text` = "(Módulo Preparación disoluciones)"))
     })
     output$solutionPicker <- renderUI(solutionPicker())

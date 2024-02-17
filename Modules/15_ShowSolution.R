@@ -46,7 +46,7 @@ ShowSolutionServer <- function(id, devMode, demo, solution) {
               tags$th(style = 'vertical-align:top;padding-top:0.5em;',
                       xml_text(xml_child(solution(), search = 'mr:coreData//respPerson//name')), spcs(3),
                       tags$a(href = xml_text(xml_child(solution(), search = 'mr:coreData//respPerson//orcid')),
-                             img(src = "ORCID.png", width = "25", height = "25"), target = "_blank"))
+                             img(src = "ORCID.png", width = "15", height = "15"), target = "_blank"))
             )
             
           ),

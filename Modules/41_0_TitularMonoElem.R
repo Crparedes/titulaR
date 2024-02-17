@@ -9,7 +9,7 @@ TitularMonoelemtUI <- function(id) {
       # actionLink(ns('verDisolEstand'), ' Ver informacion de la disolución estándar'), Nlns(),
       solutionPickerUI(ns('SampDisol')),  tags$hr(),
       # actionLink(ns('verDisolSample'), ' Ver informacion de la disolución muestra'), tags$hr(),
-      actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;')),
+      disabled(actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;'))),
     column(width = 8,
            conditionalPanel(
              'input.NewTit > 0', ns = ns, tabBox(
@@ -37,9 +37,8 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
     SampDisol <- solutionPickerServer('SampDisol', devMode = devMode, demo = demo, solutions = MuestraCalib,
                                       label = 'Muestra disolución monoelemental')
     
-    observe({
-      req(balanzaUsed(), Analyst(), StanDisol(), SampDisol())
-      enable('NewTit')
+    observeEvent(req(balanzaUsed(), Analyst(), StanDisol(), SampDisol()), {
+      if (is.error(c(balanzaUsed(), Analyst(), StanDisol(), SampDisol()))) disable('NewTit') else enable('NewTit')
     })
     
     isolate(ShowSolutionServer(id = 'Estandar', devMode = devMode, demo = demo, solution = StanDisol))
@@ -47,20 +46,21 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
     IndivTitrResult <- reactiveValues()
     observeEvent(input$NewTit, {
       req(input$NewTit > 0)
-      
-      tabName <- isolate(paste0('Titulación_', input$NewTit))
-      element <- xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name'))
-      PartialTitrationResults$results <- append(
-        PartialTitrationResults$results, 
-        list(isolate(TitIndivMonoElemServer(
-          id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha,
-          StanDisol = StanDisol, SampDisol = SampDisol))))
-      
-      appendTab(
-        inputId = 'Titrations', select = TRUE, 
-        tab = TitIndivMonoElemUI(
-          id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()),
-          explan = tagList('disolución monoelemental: ', elemEspa[[element]])))
+      if (!is.error(c(balanzaUsed(), Analyst(), StanDisol(), SampDisol()))) {
+        tabName <- isolate(paste0('Titulación_', input$NewTit))
+        element <- xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name'))
+        PartialTitrationResults$results <- append(
+          PartialTitrationResults$results, 
+          list(isolate(TitIndivMonoElemServer(
+            id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha,
+            StanDisol = StanDisol, SampDisol = SampDisol))))
+        
+        appendTab(
+          inputId = 'Titrations', select = TRUE, 
+          tab = TitIndivMonoElemUI(
+            id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()),
+            explan = tagList('disolución monoelemental: ', elemEspa[[element]])))
+      }
     })
     
     

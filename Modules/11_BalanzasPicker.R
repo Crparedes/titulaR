@@ -17,8 +17,8 @@ balanzasPickerServer <- function(id, devMode, demo, balanzas, inline = TRUE, wid
                                  'y seleccione (o cargue) la información de al menos una balanza.', tags$br(), tags$br())))
       }
       pickerInput(
-        session$ns("balanzaUsed"), label = ReqField('Balanza', 3), inline = inline, width = width, multiple = TRUE,
-        selected = ifelse(demo(), 'BALANZA METTLER TOLEDO XPE 205', ''), 
+        session$ns("balanzaUsed"), label = ReqField('Balanza', 3), inline = inline, width = width, multiple = FALSE,
+        # selected = ifelse(demo(), 'BALANZA METTLER TOLEDO XPE 205', ''), 
         choices = sapply(balanzas$DCC, function (x) x$balanceID), options = list(`max-options` = 1, `none-selected-text` = "(Módulo balanzas)"))
     })
     output$balanzasPicker <- renderUI(balanzasPicker())

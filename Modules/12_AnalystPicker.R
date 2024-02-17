@@ -19,7 +19,7 @@ AnalystPickerServer <- function(id, devMode, demo, showData = TRUE, inline = TRU
     
     AnalistaPicker <- reactive(pickerInput(
       session$ns("Analista"), label = ReqField('Analista', 2), inline = inline, width = width,
-      choices = names(authPersons), multiple = TRUE, selected = ifelse(demo(), 'Cristhian Paredes', ''),
+      choices = names(authPersons), multiple = FALSE,#, selected = ifelse(demo(), 'Cristhian Paredes', ''),
       options = list(`max-options` = 1, `none-selected-text` = "(Personal registrado)")))
     output$AnalistaPicker <- renderUI(AnalistaPicker())
 
