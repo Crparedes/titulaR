@@ -61,8 +61,10 @@ inicioLy <- fluidRow(
                'para relacionar personas responsables de ejecutar una etapa del análisis.')),
            tags$br(),
        )),
-       tags$hr(), 
-       conditionalPanel('input.partesAplicativo == 0', actionLink('partesAplicativo', 'Descripción de módulos del aplicativo...')),
+       tags$hr(),
+       conditionalPanel('input.partesAplicativo == 0', actionLink('partesAplicativo', 'Ver la descripción de módulos del aplicativo...')), tags$br(),
+       tags$a(href = 'https://validar.inm.gov.co/titulaRbeta', target = '_blank',
+              '(Visitar la versión del aplicativo compatible con archivos .DIS y .TIT)'), tags$br(),
        conditionalPanel(
          'input.partesAplicativo > 0',               
          tags$b('El aplicativo tiene por los siguientes módulos:'),

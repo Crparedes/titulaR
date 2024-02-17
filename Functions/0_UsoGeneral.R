@@ -16,7 +16,7 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
   tm_iso8601 <- sub('(+[0-9]{2})([0-9]{2}$)','\\1:\\2', strftime(tm, "%Y-%m-%dT%H:%M:%S%z"), fixed = FALSE)
   if (niceHTML) {
     niceDIV <- tags$div(style = 'font-size:12px;', spcs(5),
-                        tags$a(href = 'https://www.iso.org/iso-8601-date-and-time-format.html', tags$b('ISO 8601: '), target = '_blank'),
+                        tags$a(href = 'https://www.iso.org/iso-8601-date-and-time-format.html', tags$b('dateTime: '), target = '_blank'),
                         tags$div(style = 'font-size:14px;display:inline;', tm_iso8601))
     return(niceDIV)
   } else {

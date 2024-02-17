@@ -5,9 +5,21 @@ TitularMonoelemtUI <- function(id) {
     column(
       width = 3, style = 'margin-left: 80px;',
       balanzasPickerUI(ns('TitMonoelem')), tags$br(), AnalystPickerUI(ns('Analyst')), tags$br(),
-      solutionPickerUI(ns('StanDisol')), tags$br(), solutionPickerUI(ns('SampDisol')), tags$hr(),
+      solutionPickerUI(ns('StanDisol')), tags$br(),
+      # actionLink(ns('verDisolEstand'), ' Ver informacion de la disolución estándar'), Nlns(),
+      solutionPickerUI(ns('SampDisol')),  tags$hr(),
+      # actionLink(ns('verDisolSample'), ' Ver informacion de la disolución muestra'), tags$hr(),
       actionButton(ns('NewTit'), label = tags$b('Nueva titulación'), style = 'margin-left:40px;')),
-    column(width = 8, conditionalPanel('input.NewTit > 0', ns = ns, tabBox(title = NULL, id = ns('Titrations'), width = 12, side = 'left')))
+    column(width = 8,
+           conditionalPanel(
+             'input.NewTit > 0', ns = ns, tabBox(
+               title = NULL, id = ns('Titrations'), width = 12, side = 'left',
+               tabPanel(
+                 title = tags$b('Disoluciones'), 
+                 fluidRow(column(width = 1, SI_unit_nice('mole', width = "100%"), SI_unit_nice('kilogram', width = "100%")),
+                          column(width = 10, tags$h5(tags$b('Disolución estándar de EDTA')), ShowSolutionUI(id = ns('Estandar')), Nlns(3),
+                                 tags$hr(), tags$h5(tags$b('Disolución calibrante monoelemental')), ShowSolutionUI(id = ns('Muestra'))))
+    ))))
   )
 }
 
@@ -29,6 +41,8 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
       req(balanzaUsed(), Analyst(), StanDisol(), SampDisol())
       enable('NewTit')
     })
+    
+    isolate(ShowSolutionServer(id = 'Estandar', devMode = devMode, demo = demo, solution = StanDisol))
     
     IndivTitrResult <- reactiveValues()
     observeEvent(input$NewTit, {

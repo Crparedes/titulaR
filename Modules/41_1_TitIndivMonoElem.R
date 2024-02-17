@@ -134,9 +134,9 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
                       (sqrt(2) * uncertConvMass(balanza(), reading = meq, d = 0.1, d.units = 'mg')) ^ 2)
       return(c(meq, u.meq))
     })
-    ConcStanSolut <- reactive(GetValueEstandUncert(StanDisol(),  property = 'AmountOfSubstancePerUnitMass'))
-    AtMasSampElem <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MolarMass', node = 'mr:property'))
-    MassRatioSamp <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MassRatio', node = 'mr:property'))
+    ConcStanSolut <- eventReactive(input$TermTit, GetValueEstandUncert(StanDisol(),  property = 'AmountOfSubstancePerUnitMass'))
+    AtMasSampElem <- eventReactive(input$TermTit, GetValueEstandUncert(SampDisol(),  property = 'MolarMass', node = 'mr:property'))
+    MassRatioSamp <- eventReactive(input$TermTit, GetValueEstandUncert(SampDisol(),  property = 'MassRatio', node = 'mr:property'))
     
     MasaAlic <- reactive(c(convMass(balanza(), reading = input$MasaAlic), uncertConvMass(balanza(), reading = input$MasaAlic)))
     
@@ -275,7 +275,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     uncertBudget <- eventReactive(input$showBudget, {
       tagList(
         tags$b('Ecuación del modelo:'), tags$br(),
-        '$$ \\nu_{metal} = \\frac{(m_{eq} - m_{bln} \\cdot c_{std}}{m_{ali}} \\cdot M_{metal} \\cdot
+        '$$ \\nu_{metal} = \\frac{(m_{eq} - m_{bln}) \\cdot c_{std}}{m_{ali}} \\cdot M_{metal} \\cdot
         \\frac{1}{r_{mass}}$$',
         Nlns(), tags$b('Presupuesto de incertidumbre:'),
         tags$div(
@@ -285,7 +285,14 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
           'donde \\(\\nu_{metal}\\) es la fracción másica del metal en la disolución original, \\(m_{eq}\\) es la masa de equivalencia de titulante,
           \\(m_{bln}\\) es la masa de titulante para un blanco de muestra, \\(c_{std}\\) es la concentración de EDTA en la disolución estándar,
           \\(m_{ali}\\) es la masa de la alícuota, \\(M_{metal}\\) es el peso atómico del metal, y 
-          \\(r_{mass}\\) es la relación de masa de la disolución original en la disolución que se titula (en caso de titular muestras diluidas gravimétricamente).'),
+          \\(r_{mass}\\) es la relación de masa de la disolución original en
+          la disolución que se titula (en caso de titular muestras diluidas gravimétricamente).'),
+        tags$br(),
+        'La masa de equivalencia de titulante se indica con el punto de inflección de una curva no paramétrica interpolada
+        con los puntos experimentales de la titulación.', tags$br(),
+        'La incertidumbre de la masa de equivalencia (\\(u(m_{eq})\\)) combina el aporte de incertidumbre por el uso de la balanza,
+        con la diferencia de masa entre las adiciones de disolución titulante inmediatamente antes y despues del punto final,
+        asumiendo una distribución de probabilidad rectangular.',
         tags$hr())
     })
     output$uncertBudget <- renderUI(uncertBudget())

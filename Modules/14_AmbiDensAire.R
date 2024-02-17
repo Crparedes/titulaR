@@ -47,9 +47,10 @@ AmbiDensAireServer <- function(id, devMode, fecha) {
       return(DensitAir)
     })
     
-    NiceDensitAir <- reactive(tags$div(style = 'background-color:#ebebeb;',
-                                       'Densidad local del aire (Fórmula CIMP2007): ', GetValueEstandUncert(DensitAir())$ValUnc[1], 
-                                       ' \u00B1 ', GetValueEstandUncert(DensitAir())$ValUnc[2], '/ g cm', tags$sup('-3'), ' '))
+    NiceDensitAir <- reactive(tags$div(
+      style = 'background-color:#ebebeb;', 'Densidad local del aire: ',
+      GetValueEstandUncert(DensitAir())$ValUnc[1], ' \u00B1 ', GetValueEstandUncert(DensitAir())$ValUnc[2], '/ g cm', tags$sup('-3'),
+      tags$a(href = 'https://www.nist.gov/system/files/documents/calibrations/CIPM-2007.pdf', target = '_blank', '(Fórmula CIMP-2007)')))
     output$NiceDensitAir <- renderUI(NiceDensitAir())
     
     AmbientCondInfo <- reactive({
