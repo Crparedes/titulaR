@@ -107,7 +107,7 @@ SolidSampleServer <- function(id, devMode, demo, reagKey, reagForm, balanza, ana
       xmlObject <- initiateSolutionXML()
       AdminList <- list('mr:solutionType' = solutionType, 
                         'mr:solutionID' = input$DisolID,
-                        'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+                        'mr:dateTime' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[reagForm])
       
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')

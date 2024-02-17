@@ -132,7 +132,7 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
       AdminList <- list('mr:solutionType' = solutionType,
                         'mr:solutionID' = input$DisolID,
                         'mr:solutionSource' = input$solutionSource,
-                        'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+                        'mr:dateTime' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[[input$Elemento]])
       
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')

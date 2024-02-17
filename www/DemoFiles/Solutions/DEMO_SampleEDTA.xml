@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mr:standardSolution xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+  <mr:coreData>
+    <mr:solutionType>MuestraEDTA</mr:solutionType>
+    <mr:solutionID>DEMO_SampleEDTA</mr:solutionID>
+    <mr:dateTime>2024-02-16T18:55:32-05:00</mr:dateTime>
+    <respPerson>
+      <name>Cristhian Paredes</name>
+      <email>caparedes@inm.gov.co</email>
+      <orcid>https://orcid.org/0000-0001-7049-9597</orcid>
+    </respPerson>
+  </mr:coreData>
+  <mr:property>
+    <mr:substance>
+      <Na2EDTA.2H2O>
+        <mr:name>EDTA disodium salt dihydrate</mr:name>
+        <mr:InChI version="1.0.6">1S/C10H16N2O8.2Na.2H2O/c13-7(14)3-11(4-8(15)16)1-2-12(5-9(17)18)6-10(19)20;;;;/h1-6H2,(H,13,14)(H,15,16)(H,17,18)(H,19,20);;;2*1H2</mr:InChI>
+        <mr:InChiKey version="1.0.6">FXKZPKBFTQUJBA-UHFFFAOYSA-N</mr:InChiKey>
+      </Na2EDTA.2H2O>
+    </mr:substance>
+    <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <si:quantityTypeQUDT>MassRatio</si:quantityTypeQUDT>
+      <si:value>0.0037548417</si:value>
+      <si:unit>\gram\gram\tothe{-1}</si:unit>
+      <si:expandedUnc>
+        <si:uncertainty>5.6794e-07</si:uncertainty>
+        <si:coverageFactor>1</si:coverageFactor>
+        <si:coverageProbability>0.683</si:coverageProbability>
+        <si:distribution>normal</si:distribution>
+      </si:expandedUnc>
+    </si:real>
+  </mr:property>
+</mr:standardSolution>

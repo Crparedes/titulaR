@@ -128,43 +128,43 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     output$TitCurvePlot <- renderPlot(TitCurvePlot())
     output$TitCurvePlot2 <- renderPlot(TitCurvePlot())
     
-    MasaEquiv <- eventReactive(input$TermTit, {try(EP.1stDer(curve = CleanDf()))})
+    MasaEquiv <- eventReactive(input$TermTit, {
+      meq <- try(convMass(balanza(), reading = EP.1stDer(curve = CleanDf())))
+      u.meq <- sqrt((sum(sort(abs(na.omit(TitCurvDat()$Titrant) - meq))[1:2]) / sqrt(12)) ^ 2 +
+                      (sqrt(2) * uncertConvMass(balanza(), reading = meq, d = 0.1, d.units = 'mg')) ^ 2)
+      return(c(meq, u.meq))
+    })
     ConcStanSolut <- reactive(GetValueEstandUncert(StanDisol(),  property = 'AmountOfSubstancePerUnitMass'))
     AtMasSampElem <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MolarMass', node = 'mr:property'))
     MassRatioSamp <- reactive(GetValueEstandUncert(SampDisol(),  property = 'MassRatio', node = 'mr:property'))
     
+    MasaAlic <- reactive(c(convMass(balanza(), reading = input$MasaAlic), uncertConvMass(balanza(), reading = input$MasaAlic)))
     
     # SampDisol
-    ResParcial <- reactive(MasaEquiv() * ConcStanSolut()$ValUnc[1] / input$MasaAlic * AtMasSampElem()$ValUnc[1])
+    ResParcial <- reactive(MasaEquiv()[1] * ConcStanSolut()$ValUnc[1] / MasaAlic()[1] * AtMasSampElem()$ValUnc[1])
     ResParcUnc <- reactive(
       propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato),
-                data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()),
-                                     sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg')),
+                data = cbind(Meq = MasaEquiv(),
                              Mbln = c(0, 0.0028/(2*sqrt(3))),
                              Cedta = ConcStanSolut()$ValUnc,
-                             Mali = c(convMass(balanza(), reading = input$MasaAlic),
-                                      uncertConvMass(balanza(), reading = input$MasaAlic)),
+                             Mali = MasaAlic(),
                              Mato = AtMasSampElem()$ValUnc),
                 second.order = FALSE, do.sim = FALSE))
     
-    ResParcialSource <- reactive(MasaEquiv() * ConcStanSolut()$ValUnc[1] / input$MasaAlic * AtMasSampElem()$ValUnc[1] / MassRatioSamp()$ValUnc[1])
+    ResParcialSource <- reactive(MasaEquiv()[1] * ConcStanSolut()$ValUnc[1] / MasaAlic()[1] * AtMasSampElem()$ValUnc[1] / MassRatioSamp()$ValUnc[1])
+    
+    
     ResParcUncSource <- reactive({
-      u.Meq.drop <- sum(sort(abs(na.omit(TitCurvDat()$Titrant) - MasaEquiv()))[1:2]) / sqrt(12)
-      u.Meq.balanza <- sqrt(2) * uncertConvMass(balanza(), reading = MasaEquiv(), d = 0.1, d.units = 'mg') 
-      
       prop <- propagate(expr = expression((Meq - Mbln) * Cedta / Mali * Mato / MassRatioSamp),
-                        data = cbind(Meq = c(convMass(balanza(), reading = MasaEquiv()), sqrt(u.Meq.drop^2 + u.Meq.balanza^2)),#,
+                        data = cbind(Meq = MasaEquiv(),#,
                                      Mbln = c(0, 0.0028/(2*sqrt(3))),
                                      Cedta = ConcStanSolut()$ValUnc,
-                                     Mali = c(convMass(balanza(), reading = input$MasaAlic),
-                                              uncertConvMass(balanza(), reading = input$MasaAlic)),
+                                     Mali = MasaAlic(),
                                      Mato = AtMasSampElem()$ValUnc,
                                      MassRatioSamp = MassRatioSamp()$ValUnc),
                         second.order = FALSE, do.sim = FALSE)
       return(prop)
-    }
-      
-      )
+    })
     
     InfoTitXML <- eventReactive(MasaEquiv(), {
       xmlObject <- initiateTitrationXML()
@@ -179,41 +179,51 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
       xml_child(xmlObject, search = 'mr:titrationResult') %>% {
         xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:property//mr:substance'))
         xml_add_child(., .value = SiRealXML(
-          quantityTypeQUDT = 'massFraction', value = ResParcUncSource()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
+          quantityTypeQUDT = 'MassFraction', value = ResParcUncSource()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
           uncert = ResParcUncSource()$prop[[3]], covFac = 1))
       }
       
       xml_child(xmlObject, search = 'mr:additionalInfo') %>% {
-        xml_add_child(., .value = 'mr:measurementData') %>% {
-          xml_add_child(., .value = 'mr:titrationcurve')
-        }
-        
-        xml_add_child(., .value = 'mr:intermediateSolution') %>% {
-          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
-          xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
-          xml_add_child(., .value = SiRealXML(
-            quantityTypeQUDT = 'massFraction', value = ResParcUnc()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
-            uncert = ResParcUnc()$prop[[3]], covFac = 1))
-          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
-        }
         
         xml_add_child(., .value = 'mr:referenceSolution') %>% {
           xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:solutionID'))
           xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:CRM'))
           xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:property//mr:substance'))
           xml_add_child(., .value = CopySiRealFromXML(StanDisol(), 'AmountOfSubstancePerUnitMass'))
-          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:timeISO8601'))
+          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:dateTime'))
+        }
+        
+        xml_add_child(., .value = 'mr:intermediateSolution') %>% {
+          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:solutionID'))
+          xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MassRatio'))
+          xml_add_child(., .value = 'mr:intermediateTitrationResult') %>% {
+            xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:property//mr:substance'))
+            xml_add_child(., .value = SiRealXML(
+              quantityTypeQUDT = 'MassFraction', value = ResParcUnc()$prop[[1]], units = '\\milli\\gram\\kilo\\gram\\tothe{-1}',
+              uncert = ResParcUnc()$prop[[3]], covFac = 1))
+          }
+          xml_add_child(., .value = xml_child(SampDisol(), search = 'mr:coreData//mr:dateTime'))
+        }
+        
+        xml_add_child(., .value = 'mr:measurementData') %>% {
+          xml_add_child(., .value = 'mr:titrationAliquot') %>% {
+            xml_add_child(., .value = SiRealXML(
+              quantityTypeQUDT = 'Mass', value = MasaAlic()[1], units = '\\gram', uncert = MasaAlic()[2], covFac = 1))}
+          xml_add_child(., .value = 'mr:titrationFinalMass') %>% {
+            xml_add_child(., .value = SiRealXML(
+              quantityTypeQUDT = 'Mass', value = MasaEquiv()[1], units = '\\gram', uncert = MasaEquiv()[2], covFac = 1))}
+          xml_add_child(., .value = 'mr:titrationcurve') %>% {
+            xml_add_child(., .value = 'mr:titrant') %>% {
+              xml_add_child(., .value = SiRealListXML(
+                quantityTypeQUDT = 'Mass', values = na.omit(TitCurvDat()$Titrant), listUnit = '\\gram'))}
+            xml_add_child(., .value = 'mr:signal') %>% {
+              xml_add_child(., .value = SiRealListXML(
+                quantityTypeQUDT = 'ElectricPotentialDifference', values = na.omit(TitCurvDat()$Signal), listUnit = '\\milli\\volt'))}
+          }
         }
       }
       
-      xml_child(xmlObject, search = 'mr:additionalInfo//mr:measurementData//mr:titrationcurve') %>% {
-        xml_add_child(., .value = 'mr:titrant') %>% {
-          xml_add_child(., .value = SiRealListXML(
-            quantityTypeQUDT = 'Mass', values = na.omit(TitCurvDat()$Titrant), listUnit = '\\gram'))}
-        xml_add_child(., .value = 'mr:signal') %>% {
-          xml_add_child(., .value = SiRealListXML(
-            quantityTypeQUDT = 'ElectricPotentialDifference', values = na.omit(TitCurvDat()$Signal), listUnit = '\\milli\\volt'))}
-      }
+      
 
       # message(xmlObject)
       # addDataToMRXML(xmlObject, addInfList, node = 'mr:additionalInfo')
@@ -239,12 +249,17 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
                        ReqField(signif(ResParcUnc()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2), 
                 'Fracción de', elemEspa[[element()]], 'en la muestra original:',  tags$br(),
                 tags$b(style = 'margin-left:10px;', round(ResParcialSource(), d2), '\u00B1',
-                       ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), tags$br(), tags$br(),
+                       ReqField(signif(ResParcUncSource()$prop[3], 3), 1), ' mg/kg (k=1)'), Nlns(2),
                 tags$div(
-                  style = 'font-size:10px',
+                  style = 'font-size:11px',
                   ReqField('', 1),
-                  'No incluye el error asociado a la determinación del punto final de titulación.
-                  Este aporte es significativo y se estima con la repetibilidad de las mediciones (Incertidumbre tipo A).'),
+                  'Se recomienda combinar varios resultados de titulación para incluir el aporte de incertidumbre tipo A
+                  en el estimado del valor de la propiedad de la disolución.'),
+                tags$hr(),
+                'Masa de alícuota de la disolución:', tags$br(),
+                tags$b(style = 'margin-left:10px;', round(MasaAlic()[1], 5), '\u00B1', round(MasaAlic()[2], 5), ' g (k=1)'), Nlns(1),
+                'Masa final de titulación:', tags$br(),
+                tags$b(style = 'margin-left:10px;', round(MasaEquiv()[1], 5), '\u00B1', round(MasaEquiv()[2], 5), ' g (k=1)'),
                 tags$hr(),
                 tags$ul(
                   tags$li(downloadLink(session$ns("downlXMLlink"), label = tags$b('Descargar XML del resultado'))),
@@ -285,6 +300,10 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     },
     include.rownames = TRUE, include.colnames = TRUE)
     
+    output$downlXMLlink <-  downloadHandler(
+        filename = function() {paste0(gsub(' ', '_', resultID(), fixed = FALSE), ".xml")},
+        content = function(file) {write_xml(InfoTitXML(), file)})
+    
     observeEvent(req(input$showXMLfile), {
       withCallingHandlers({
         shinyjs::html("InfoTitXML", "")
@@ -294,10 +313,6 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
                         html = paste0('<b>Información de la titulación:</b><br>
                                       <textarea rows = 40 style = "width: 95%; margin-left:20px;">',
                                       m$message, '</textarea>'), add = FALSE)})
-      
-      output$downlXMLlink <-  downloadHandler(
-        filename = function() {paste0(gsub(' ', '_', resultID(), fixed = FALSE), ".xml")},
-        content = function(file) {write_xml(InfoTitXML(), file)})
     })
 
     return(InfoTitXML)

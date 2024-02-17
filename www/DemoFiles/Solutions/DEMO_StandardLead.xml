@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mr:standardSolution xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+  <mr:coreData>
+    <mr:solutionType>EstandarPlomo</mr:solutionType>
+    <mr:solutionID>DEMO_StandardLead</mr:solutionID>
+    <mr:CRM>NIST SRM 928</mr:CRM>
+    <mr:dateTime>2024-02-16T19:01:14-05:00</mr:dateTime>
+    <respPerson>
+      <name>Cristhian Paredes</name>
+      <email>caparedes@inm.gov.co</email>
+      <orcid>https://orcid.org/0000-0001-7049-9597</orcid>
+    </respPerson>
+  </mr:coreData>
+  <mr:property>
+    <mr:substance>
+      <mr:name>Lead nitrate</mr:name>
+      <mr:InChI version="1.0.6">1S/2NO3.Pb/c2*2-1(3)4;/q2*-1;+2</mr:InChI>
+      <mr:InChiKey version="1.0.6">RLJMLMKIBZAXJO-UHFFFAOYSA-N</mr:InChiKey>
+    </mr:substance>
+    <si:real xmlns:si="https://ptb.de/si" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <si:quantityTypeQUDT>AmountOfSubstancePerUnitMass</si:quantityTypeQUDT>
+      <si:value>4.830269</si:value>
+      <si:unit>\milli\mole\kilo\gram\tothe{-1}</si:unit>
+      <si:expandedUnc>
+        <si:uncertainty>0.00151</si:uncertainty>
+        <si:coverageFactor>1</si:coverageFactor>
+        <si:coverageProbability>0.683</si:coverageProbability>
+        <si:distribution>normal</si:distribution>
+      </si:expandedUnc>
+    </si:real>
+  </mr:property>
+</mr:standardSolution>

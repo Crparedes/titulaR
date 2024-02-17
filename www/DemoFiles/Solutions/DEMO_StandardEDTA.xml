@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mr:standardSolution xmlns:mr="https://inm.gov.co/mr" xmlns:si="https://ptb.de/si" xmlns:qudt="http://qudt.org/vocab/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://ptb.de/si https://www.ptb.de/si/v2.2.0/SI_Format.xsd">
+  <mr:coreData>
+    <mr:solutionType>EstandarEDTA</mr:solutionType>
+    <mr:solutionID>DEMO_StandardEDTA</mr:solutionID>
+    <mr:CRM>InHouse GSO 2960-84</mr:CRM>
+    <mr:dateTime>2024-02-16T19:00:07-05:00</mr:dateTime>
+    <respPerson>
+      <name>Cristhian Paredes</name>
+      <email>caparedes@inm.gov.co</email>
+      <orcid>https://orcid.org/0000-0001-7049-9597</orcid>
+    </respPerson>
+  </mr:coreData>
   <mr:property>
     <mr:substance>
       <mr:name>EDTA disodium salt dihydrate</mr:name>
@@ -11,32 +22,11 @@
       <si:value>10.074529</si:value>
       <si:unit>\milli\mole\kilo\gram\tothe{-1}</si:unit>
       <si:expandedUnc>
-        <si:uncertainty>0.00387</si:uncertainty>
+        <si:uncertainty>0.00388</si:uncertainty>
         <si:coverageFactor>1</si:coverageFactor>
         <si:coverageProbability>0.683</si:coverageProbability>
         <si:distribution>normal</si:distribution>
       </si:expandedUnc>
     </si:real>
   </mr:property>
-  <mr:coreData>
-    <mr:solutionType>EstandarEDTA</mr:solutionType>
-    <mr:solutionID>DEMO_EstandarEDTA</mr:solutionID>
-    <mr:CRM>InHouse GSO 2960-84</mr:CRM>
-    <mr:timeISO8601>2024-02-02T21:18:17-05:00</mr:timeISO8601>
-    <respPerson>
-      <data>
-        <name>Cristhian Paredes</name>
-        <email>caparedes@inm.gov.co</email>
-        <orcid>https://orcid.org/0000-0001-7049-9597</orcid>
-      </data>
-      <inst>
-        <name lang="ES">Instituto Nacional de Metrología de Colombia</name>
-        <shortName>INM</shortName>
-        <country>CO</country>
-        <alternativeName lang="EN">National Metrology Institute of Colombia</alternativeName>
-        <ror>https://ror.org/028s91538</ror>
-        <url>https://inm.gov.co</url>
-      </inst>
-    </respPerson>
-  </mr:coreData>
 </mr:standardSolution>

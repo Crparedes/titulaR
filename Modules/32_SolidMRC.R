@@ -194,7 +194,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
       AdminList <- list('mr:solutionType' = solutionType,
                         'mr:solutionID' = input$DisolID,
                         'mr:CRM' = input$MRCtoUse,
-                        'mr:timeISO8601' = iso8601(fecha(), niceHTML = FALSE))
+                        'mr:dateTime' = iso8601(fecha(), niceHTML = FALSE))
       PropeList <- list('mr:substance' = Substances[[reagForm]])
 
       addDataToMRXML(xmlObject, AdminList, node = 'mr:coreData')
@@ -204,7 +204,9 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
       return(xmlObject)
     })
     
-    
+    output$downlXMLlink <-  downloadHandler(
+      filename = function() {paste0(gsub(pattern = ' ', replacement = '_', input$DisolID, fixed = FALSE), ".xml")},
+      content = function(file) {write_xml(DisolucionXML(), file)})
     
     observeEvent(input$showXMLfile, {
       withCallingHandlers({
@@ -216,9 +218,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                                       <textarea rows = 40 style = "width: 95%; margin-left:20px;">',
                                       m$message, '</textarea>'), add = FALSE)})
       
-      output$downlXMLlink <-  downloadHandler(
-        filename = function() {paste0(gsub(pattern = ' ', replacement = '_', input$DisolID, fixed = FALSE), ".xml")},
-        content = function(file) {write_xml(DisolucionXML(), file)})
+      
     })
     
     return(DisolucionXML)

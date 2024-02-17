@@ -128,7 +128,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
         StandardSampleSolutions$solutions, 
         list(isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'Pb', reagForm = 'PbNO3', materiales = materiales$forEDTA,
                                     demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire,
-                                    solutionType = solutionType, InChiKey = 'RVPVRDXYQKGNMQ-UHFFFAOYSA-N'))))
+                                    solutionType = solutionType, InChiKey = 'WABPQHHGFIMREM-UHFFFAOYSA-N'))))
       appendTab(
         inputId = 'NewSolutions', select = TRUE, 
         tab = SolidMRCUI(
