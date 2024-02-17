@@ -20,16 +20,15 @@ CombinaResultadosUI <- function(id) {
         tags$div(style = 'margin-left: 25px; margin-top:20px; border-style:groove;', rHandsontableOutput(ns("resultFiles"))),
         Nlns(), actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
     column(11, hidden(tags$div(
-      style = 'margin-left: 80px;',                         
-      id = ns('combinedResults'), tags$hr(), tags$h4(tags$b('Resultados combinados')), Nlns(2),
+      style = 'margin-left: 80px;', id = ns('combinedResults'), tags$hr(), # tags$h4(tags$b('Resultados combinados')), Nlns(2),
       fluidRow(
-        column(7, plotOutput(ns('plotCombinados'), width = '100%')),
-        column(5, box(title = tags$b('Resumen de resultados combinados'), width = 12, status = 'primary',
+        column(6, plotOutput(ns('plotCombinados'), width = '100%')),
+        column(5, box(title = tags$b('Resumen'), width = 12, status = 'primary',
                       tableOutput(ns('resultadosCombi'))), tags$br(),
                uiOutput(ns('DescDigit.SIBttn')), tags$hr(),
                uiOutput(ns('DescMatDarBttn')), uiOutput(ns('DescMatExcelBttn'))), tags$hr(), tags$br(), tags$hr(),
         column(12, uiOutput(ns('TablasPorDia'))))
-    ))),
+    )))
     
   )
 }
@@ -132,8 +131,6 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
                        Verifique el ID de los resultados para combinar e inténtelo nuevamente.',
                        type = 'error', timer = 3000, showConfirmButton = FALSE)
           } else {
-          
-          
             js$collapse(session$ns("FilesAvailable"))
             shinyjs::hide("filesCargados")
             shinyjs::show("combinedResults")
@@ -143,80 +140,57 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       }
     })
     
-    # x <- reactive({
-    # VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[2]]]})))[order(VecMomento)]
-    #   VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[3]]]})))[order(VecMomento)]
-    #   VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[4]]]})))[order(VecMomento)]
-    #   VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[5]]]$prop[[3]]})))[order(VecMomento)]
-    #   VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[pos[6]]]), start = 1, stop = 10)})))[order(VecMomento)]
-    #   #browser()
-    #   x <- data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
-    #                   index = 1:length(VecFracUnc))
-    
-    # DF <- data.frame('.' = 1:length(files2Combine()))
-    #   DF$ResInd <- lapply(files2Combine(), function (x) {
-    #     People <- xml_text(xml_child(x(), search = 'mr:coreData/respPerson/name'))
-    #     Date <- xml_text(xml_child(x(), search = 'mr:coreData/mr:dateTime'))
-    #     
-    #     Vunits <- GetValueEstandUncert(xml_child(x(), search = 'mr:titrationResult/si:real'))$Units
-    #     
-    #     # xml_child(files2Combine()[[1]](), search = 'mr:coreData')
-    #     
-    #   })
-    #   if (length(unique(Vunits)) != 1) return() else Vunits <- Vunits[1]
-      # 
+    DataCleanDF <- reactive({
+      VecElement <- sapply(files2Combine(), function (x) {
+        return(xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name')))})
+      VecMuestra <- sapply(files2Combine(), function (x) {
+        return(xml_text(xml_child(x(), search = 'mr:coreData/mr:resultID')))})
+      VecDescrip <- sapply(files2Combine(), function (x) {
+        return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))})
+      VecMasaAli <- sapply(files2Combine(), function (x) {
+        return(xml_double(xml_child(x(), search = 'mr:additionalInfo/mr:measurementData/mr:titrationAliquot/si:real/si:value')))})
+      VecMasaEqi <- sapply(files2Combine(), function (x) {
+        return(xml_double(xml_child(x(), search = 'mr:additionalInfo/mr:measurementData/mr:titrationFinalMass/si:real/si:value')))})
+      VecFraccMa <- sapply(files2Combine(), function (x) {
+        return(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')))})
+      VecUnits <- sapply(files2Combine(), function (x) {
+        return(xml_text(xml_child(x(), search = 'mr:titrationResult/si:real/si:unit')))})
+      VecFracUnc <- sapply(files2Combine(), function (x) {
+        return(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:expandedUnc/si:uncertainty')))})
       
-    # })
+      VecFechas0 <- sapply(files2Combine(), function (x) {
+        return(substr(xml_text(xml_child(x(), search = 'mr:coreData/mr:dateTime')), 1, 10))})
+      
+      x <- data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecUnits,
+                      VecFracUnc, VecFechas0, index = 1:length(VecMasaAli))
+      return(x)
+    })
     
     ResultadosElect <- reactive({
       
     })
     output$ResultadosElect <- renderUI(ResultadosElect())
     
-    
-    #   x <- reactiveValuesToList(DataCompl)
-    #   x <- x[names(x) %in% FileNames()]
-    #   DataTrimmedList <- x[names(x) %in% input$titFilesSelectComb] # To consider only selected files
-    #   VecMomento <- as.factor(unlist(sapply(DataTrimmedList, function(x) {x[[pos[1]]]})))
-    #   
-    #   VecElement <- ifelse(especie == 'EDTA', rep(NA, length(VecMomento)),
-    #                        ifelse(especie == 'Elem', unlist(sapply(DataTrimmedList, function(x) {x[[2]]}))[order(VecMomento)], NULL))
-    #   VecMuestra <- unlist(sapply(DataTrimmedList, function(x) {x[[1]]}))[order(VecMomento)]
-    #   VecDescrip <- ifelse(especie == 'EDTA', 
-    #                        unlist(sapply(DataTrimmedList, function(x) {ifelse(!is.null(x[[6]][[3]]), x[[6]][[3]], x[[6]][[2]])}))[order(VecMomento)],
-    #                        ifelse(especie == 'Elem', unlist(sapply(DataTrimmedList, function(x) {x[[11]]}))[order(VecMomento)], NULL))
-    #   VecMasaAli <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[2]]]})))[order(VecMomento)]
-    #   VecMasaEqi <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[3]]]})))[order(VecMomento)]
-    #   VecFraccMa <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[4]]]})))[order(VecMomento)]
-    #   VecFracUnc <- as.numeric(unlist(sapply(DataTrimmedList, function(x) {x[[pos[5]]]$prop[[3]]})))[order(VecMomento)]
-    #   VecFechas0 <- as.factor(unlist(sapply(DataTrimmedList, function(x) {substr(as.character(x[[pos[6]]]), start = 1, stop = 10)})))[order(VecMomento)]
-    #   #browser()
-    #   x <- data.frame(VecElement, VecMuestra, VecDescrip, VecMasaAli, VecMasaEqi, VecFraccMa, VecFracUnc, VecFechas0,
-    #                   index = 1:length(VecFracUnc))
-    #   #browser()
-    #   return(x)
-    # })
-    # 
-    # DescMatDarBttn <- eventReactive(DataCleanDF(), {
-    #   downloadButton(session$ns('DescMatDar'), label = tags$b('Descargar matriz de resultados en RDS'))})
-    # output$DescMatDarBttn <- renderUI(DescMatDarBttn())
-    # output$DescMatDar <- downloadHandler(
-    #   filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
-    #   content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
-    # 
-    # DescMatExcelBttn <- eventReactive(DataCleanDF(), {
-    #   downloadButton(session$ns('DescMatExcel'), label = tags$b('Descargar matriz de resultados en Excel'))})
-    # output$DescMatExcelBttn <- renderUI(DescMatExcelBttn())
-    # output$DescMatExcel <- downloadHandler(
-    #   filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
-    #   content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
-    # 
-    # DescDigit.SIBttn <- eventReactive(DataCleanDF(), {
-    #   downloadButton(session$ns('DescDigit.SI'), label = tags$b('Descargar resultados en SI Digital (XML)'))})
-    # output$DescDigit.SIBttn <- renderUI(DescDigit.SIBttn())
-    # output$DescDigit.SI <- downloadHandler(
-    #   filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
-    #   content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
+    DescMatDarBttn <- eventReactive(DataCleanDF(), {
+      downloadButton(session$ns('DescMatDar'), label = tags$b('Descargar resumen de resultados en RDS'))})
+    output$DescMatDarBttn <- renderUI(DescMatDarBttn())
+    output$DescMatDar <- downloadHandler(
+      filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
+      content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
+
+    DescMatExcelBttn <- eventReactive(DataCleanDF(), {
+      downloadButton(session$ns('DescMatExcel'), label = tags$b('Descargar resumen de resultados en Excel'))})
+    output$DescMatExcelBttn <- renderUI(DescMatExcelBttn())
+    output$DescMatExcel <- downloadHandler(
+      filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
+      content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
+
+    DescDigit.SIBttn <- eventReactive(DataCleanDF(), {
+      downloadButton(session$ns('DescDigit.SI'), label = tags$b('Descargar resultados en SI Digital (XML)'))})
+    output$DescDigit.SIBttn <- renderUI(DescDigit.SIBttn())
+    output$DescDigit.SI <- downloadHandler(
+      filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
+      content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
     # 
     # 
     # 
