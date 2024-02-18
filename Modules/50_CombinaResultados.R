@@ -57,6 +57,8 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
           shinyalert(title = 'Error!', text = 'Al menos un archivo XML no contiene resultados de titulación.', type = 'error',
                      timer = 3000, showConfirmButton = FALSE)
         } else {
+          # resultsIDs <- sapply(uploadedFiles, function(x) length(xml_find_all(x, xpath = '//mr:titrationResult')))
+          # ONLY ENTRY THOSE FILES NOT IN THE APP
           PartialTitrationResults$results <- append(PartialTitrationResults$results, lapply(uploadedFiles, function(x) {return(reactive(x))}))
           XmlCargados(tags$div(
             id = session$ns('filesCargados'),
@@ -74,18 +76,18 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     DF <- reactive({
       n <- length(PartialTitrationResults$results)
       if (n == 0) {
-        return(data.frame('.' = FALSE,  Sustancia = '', Resultado = '', Material = '', Fecha = '', Valor = '', Unidades = ''))
+        return(data.frame('.' = FALSE,  Sustancia = '', Material = '', ID.Resultado = '', Analista = '', Valor = '', Unidades = ''))
       } else {
         return(data.frame(
           '.' = FALSE,
           Sustancia = sapply(PartialTitrationResults$results, function (x) {
             return(elemEspa[[xml_text(xml_child(x(), search = 'mr:titrationResult/mr:substance/mr:name'))]])}),
-          Resultado = sapply(PartialTitrationResults$results, function (x) {
-            return(xml_text(xml_child(x(), search = 'mr:additionalInfo/mr:intermediateSolution/mr:solutionID')))}),
           Material = sapply(PartialTitrationResults$results, function (x) {
             return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))}),
-          Fecha = sapply(PartialTitrationResults$results, function (x) {
-            return(xml_text(xml_child(x(), search = 'mr:coreData/mr:dateTime')))}),
+          ID.Resultado = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:coreData/mr:resultID')))}),
+          Analista = sapply(PartialTitrationResults$results, function (x) {
+            return(xml_text(xml_child(x(), search = 'mr:coreData/respPerson/name')))}),
           Valor = sapply(PartialTitrationResults$results, function (x) {
             return(round(xml_double(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')), 3))}),
           Unidades = sapply(PartialTitrationResults$results, function (x) {
@@ -108,7 +110,7 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
       if (!is.null(DF))
         rhandsontable(DF, useTypes = TRUE, stretchH = "all", rowHeaders = NULL, selectCallback = TRUE)%>%
         hot_col(2:6, readOnly = TRUE) %>%
-        hot_cols(colWidths = c(20, 75, 180, 170, 170, 75, 190)) %>%
+        hot_cols(colWidths = c(20, 75, 100, 250, 100, 70, 180)) %>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)})
     
     files2Combine <- reactiveVal()
