@@ -62,12 +62,7 @@ inicioLy <- fluidRow(
            tags$br(),
        )),
        tags$hr(),
-       conditionalPanel('input.partesAplicativo == 0', actionLink('partesAplicativo', 'Ver la descripción de módulos del aplicativo...')), tags$br(),
-       tags$a(href = 'https://validar.inm.gov.co/titulaRbeta', target = '_blank',
-              '(Visitar la versión del aplicativo compatible con archivos .DIS y .TIT)'), tags$br(),
-       conditionalPanel(
-         'input.partesAplicativo > 0',               
-         tags$b('El aplicativo tiene por los siguientes módulos:'),
+       tags$b('El aplicativo tiene por los siguientes módulos:'),
          tags$ul(
            tags$br(),
            # tags$li("Diligencie la información general en el recuadro que se muestra abajo a la derecha."), tags$br(),
@@ -96,8 +91,10 @@ inicioLy <- fluidRow(
            tags$li(
              actionLink('tabsSummResu', label = tags$b(icon("compass"), "Combinación resultados")), tags$br(),
              "Combinación de archivos de resultados individuales.")
-         )
-       )
+         ),
+       tags$hr(),
+       tags$a(href = 'https://validar.inm.gov.co/titulaRbeta', target = '_blank',
+              tags$b('(Visitar versión antigua de titulaR para compatibilidad con archivos .DIS y .TIT)')), tags$br()
     )
   )
   

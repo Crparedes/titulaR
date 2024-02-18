@@ -2,32 +2,36 @@ CombinaResultadosUI <- function(id) {
   ns <- NS(id)
   fluidRow(
     column(12, Nlns(4), uiOutput(ns('brwz')),
-           tags$h4(style = 'margin-left: 60px;', tags$b('Combinación de resultados individuales de titulación'))),
+           tags$h4(style = 'margin-left: 60px;', tags$b('Combinación de resultados de titulación'))),
     column(
       width = 2, style = 'margin-left: 80px;', tags$br(),
-      tags$b('Importe archivos XML de sesiones anteriores.'),
+      tags$b('Archivos de sesiones pasadas:'),
       tags$div(
         style = 'margin-left: 25px; margin-top:0px;',
         fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%'),
         uiOutput(ns('XmlCargados')))),
     column(
       width = 9, style = 'margin-left: 50px;', tags$br(),
-      tags$br(),
       box(
-        id = ns('FilesAvailable'), status = 'primary', title = tags$b('Resultados individuales'), width = 12, collapsible = TRUE, collapsed = FALSE,
+        id = ns('FilesAvailable'), status = 'primary', title = 'Resultados individuales', width = 12, collapsible = TRUE, collapsed = FALSE,
         'Seleccione los resultados individuales de titulación marcando la casilla al inicio de cada fila.', tags$br(),
         'Solo puede combinar resultados de la misma sustancia.', tags$br(),
         tags$div(style = 'margin-left: 25px; margin-top:20px; border-style:groove;', rHandsontableOutput(ns("resultFiles"))),
-        Nlns(), actionButton(ns('CombinArchivos'), label = tags$b('Combinar resultados individuales'), style = 'margin-left:25px;'))),
+        Nlns(), actionButton(ns('CombinArchivos'), label = tags$b('Promediar resultados'), style = 'margin-left:45px;')),
+      ),
     column(11, hidden(tags$div(
-      style = 'margin-left: 80px;', id = ns('combinedResults'), tags$hr(), # tags$h4(tags$b('Resultados combinados')), Nlns(2),
+      style = 'margin-left: 80px;', id = ns('combinedResults'), tags$hr(), #tags$h4(tags$b('Resultado')), Nlns(2),
       fluidRow(
         column(6, plotOutput(ns('plotCombinados'), width = '100%')),
-        column(5, box(title = tags$b('Resumen'), width = 12, status = 'primary',
-                      tableOutput(ns('resultadosCombi'))), tags$br(),
-               uiOutput(ns('DescDigit.SIBttn')), tags$hr(),
-               uiOutput(ns('DescMatDarBttn')), uiOutput(ns('DescMatExcelBttn'))), tags$hr(), tags$br(), tags$hr(),
-        column(12, uiOutput(ns('TablasPorDia'))))
+        column(5, box(title = NULL, width = 12, status = 'primary',
+                      tableOutput(ns('resultadosCombi')), tags$br(),
+                      tags$hr(),
+                      tags$ul(
+                        tags$li(downloadLink(ns("DownResultadoXML"), label = tags$b('Descargar información del resultado (formato XML)'))),
+                        tags$li(downloadLink(ns("ResumenRDS"), label = ('Descargar resumen de resultados individuales (Archivo R)'))),
+                        tags$li(downloadLink(ns("ResumenExcel"), label = ('Descargar resumen de resultados individuales (Archivo Excel)'))))
+                      )),
+        column(12, tags$hr(), uiOutput(ns('TablasPorDia'))))
     )))
     
   )
@@ -171,141 +175,110 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     })
     output$ResultadosElect <- renderUI(ResultadosElect())
     
-    DescMatDarBttn <- eventReactive(DataCleanDF(), {
-      downloadButton(session$ns('DescMatDar'), label = tags$b('Descargar resumen de resultados en RDS'))})
-    output$DescMatDarBttn <- renderUI(DescMatDarBttn())
-    output$DescMatDar <- downloadHandler(
+    output$ResumenRDS <- downloadHandler(
       filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
       content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
 
-    DescMatExcelBttn <- eventReactive(DataCleanDF(), {
-      downloadButton(session$ns('DescMatExcel'), label = tags$b('Descargar resumen de resultados en Excel'))})
-    output$DescMatExcelBttn <- renderUI(DescMatExcelBttn())
-    output$DescMatExcel <- downloadHandler(
+    output$ResumenExcel <- downloadHandler(
       filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
       content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
 
-    DescDigit.SIBttn <- eventReactive(DataCleanDF(), {
-      downloadButton(session$ns('DescDigit.SI'), label = tags$b('Descargar resultados en SI Digital (XML)'))})
-    output$DescDigit.SIBttn <- renderUI(DescDigit.SIBttn())
-    output$DescDigit.SI <- downloadHandler(
+    ##### FIX THIS
+    output$DownResultadoXML <- downloadHandler(
       filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
       content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
-    # 
-    # 
-    # 
-    # resultadosCombi <- eventReactive(DataCleanDF(), {
-    #   AverageValue <- mean(DataCleanDF()$VecFraccMa)
-    #   IncertTipoB <- max(DataCleanDF()$VecFracUnc)
-    #   StandarDev <- sd(DataCleanDF()$VecFraccMa)
-    #   n_ind <- length(unique((DataCleanDF()$VecFechas0)))
-    #   IncertTipoA <- StandarDev/sqrt(n_ind)
-    #   IncertComb <- sqrt(IncertTipoB^2 + IncertTipoA^2)
-    #   LevTest <- tryCatch(leveneTest(VecFraccMa ~ VecFechas0, data = DataCleanDF()), error = function(e) 'no aplica')
-    #   return(data.frame('.' = c('Promedio de las mediciones', 'Incertidumbre tipo B', 'Desviacion estandar de las mediciones', 
-    #                             'Numero de datos', 'Numero de datos independientes (dia)', 'Incertidumbre tipo A', 'Incertidumbre combinada',
-    #                             'Incertidumbre expandida (k=2)', 'Valor p homogeneidad de varianzas (Levene)'),
-    #                     'Valor' = as.character(c(round(c(AverageValue, IncertTipoB, StandarDev), 3), 
-    #                                              round(c(length((DataCleanDF()$VecFechas0)), n_ind)),
-    #                                              round(c(IncertTipoA, IncertComb, IncertComb * 2), 3),
-    #                                              ifelse(n_ind > 1, round(LevTest$`Pr(>F)`[1], 4), LevTest))),
-    #                     'Unidades' = c(rep(unidad, 3), rep('', 2), rep(unidad, 3), '')))
-    # })
-    # 
-    # plotCombinados <- reactive({
-    #   if (especie == 'EDTA') {
-    #     ylab <- expression(paste('Fracción masica de EDTA / g ', ' ', g^{-1}, ' (%)'))
-    #   } else {
-    #     if (especie == 'Elem') {
-    #       ylab <- expression(paste('Fracción masica del elemento / ', 'mg k', g^{-1}))
-    #     }
-    #   }
-    #   
-    #   p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() + 
-    #     labs(y = ylab, x = NULL) +
-    #     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-    #           axis.text.y = element_text(color = "black"),
-    #           #axis.ticks.x = element_blank(), 
-    #           axis.text.x = element_blank(), legend.title = element_blank()) +
-    #     scale_y_continuous(expand = c(0, 0.4), n.breaks = 8) +
-    #     #geom_hline(aes(yintercept = 0.999 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
-    #     geom_hline(aes(yintercept = (1 - tol) * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
-    #     geom_hline(aes(yintercept = mean(VecFraccMa)), linetype = 1, lwd = 0.5, col = 'gray60') +
-    #     geom_hline(aes(yintercept = (1 + tol) * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
-    #     #geom_hline(aes(yintercept = 1.001 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
-    #     geom_point(aes(y = VecFraccMa, color = VecFechas0)) + 
-    #     geom_errorbar(aes(ymin = VecFraccMa - VecFracUnc, ymax = VecFraccMa + VecFracUnc, color = VecFechas0), width = 0.4)
-    #   #browser()
-    #   print(p)
-    # })
-    # output$plotCombinados <- renderPlot(plotCombinados())
-    # output$resultadosCombi <- renderTable(resultadosCombi())
-    # 
-    # unidad <- dplyr::case_when(especie == 'EDTA' ~ 'g / g (%)', especie == 'Elem' ~ 'mg / kg')
-    # 
-    # TablasPorDia <- eventReactive(DataCleanDF(), {
-    #   x <- list()
-    #   for (i in unique((DataCleanDF()$VecFechas0))) {
-    #     j <- i
-    #     DayRes <- which(DataCleanDF()$VecFechas0 == j)
-    #     datFram <- data.frame(Archivo = row.names(DataCleanDF())[DayRes],
-    #                           Resultado = DataCleanDF()$VecFraccMa[DayRes], 
-    #                           '.' = rep(unidad, length(DayRes)))
-    #     nDat <- nrow(datFram)
-    #     temp <- box(title = tags$b(paste0('Resumen de resultados del ', j)), status = 'primary', collapsible = TRUE, collapsed = FALSE,
-    #                 column(5, #renderTable(isolate(datFram), digits = 3),
-    #                        tags$h4('Promedio del día:', tags$b(round(mean(datFram$Resultado), 3), unidad), tags$br(),
-    #                                'Desviación estándar relativa del día:', tags$b(round(sd(datFram$Resultado)/mean(datFram$Resultado)*100, 3), '%'))),
-    #                 column(7, tags$h4('Valor p prueba de normalidad de Shapiro-Wilk:', 
-    #                                   tags$b(tryCatch(signif(shapiro.test(datFram$Resultado)$p.value, 3), 
-    #                                                   error = function(e) 'No se puede calcular para menos de tres datos')), 
-    #                                   tags$br(),
-    #                                   'Valores p de las pruebas de datos anómalos de Grubbs:', tags$br(),
-    #                                   tryCatch(
-    #                                     tags$h4('  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3)),
-    #                                             ' para el valor más ', 
-    #                                             ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto.', 'bajo.')),
-    #                                     error = function(e) 'No se puede calcular para menos de tres datos'),
-    #                                   tryCatch(
-    #                                     tags$h4('  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 11)$p.value, 3)),
-    #                                             ' para un valor a cada extremo.', tags$br(),
-    #                                             '  · ', tags$b(signif(grubbs.test(datFram$Resultado, type = 20)$p.value, 3)), 
-    #                                             ' para los dos valores más ', 
-    #                                             ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'altos.', 'bajos.')),
-    #                                     error = function(e) ''))
-    #                 ))
-    #     x <- c(x, temp)
-    #   }
-    #   return(x)
-    # })
-    # output$TablasPorDia <- renderUI(TablasPorDia())
-    # 
-    # 
-    # titFilesSelectIndi <- reactive({
-    #   x <- reactiveValuesToList(DataCompl)
-    #   x <- x[names(x) %in% FileNames()]
-    #   pos <- dplyr::case_when(especie == 'EDTA' ~ c(12, 11),
-    #                           especie == 'Elem' ~ c(13, 13))
-    #   Fechas <- as.factor(unlist(sapply(x, 
-    #                                     function(x) {substr(as.character(x[[pos[1]]]), 
-    #                                                         start = nchar(as.character(x[[pos[1]]])) - 18, 
-    #                                                         stop = nchar(as.character(x[[pos[1]]])) - 3)})))
-    #   VecMomento <- as.factor(unlist(sapply(x, function(x) {x[[pos[2]]]})))
-    #   choices <- names(x)[order(VecMomento)]
-    #   #browser()
-    #   return(radioButtons(session$ns('titFilesSelectIndi'), label = tags$b("Archivo:"), 
-    #                       choices = choices, #selected = character(0), 
-    #                       width = '100%'))
-    # })
-    # output$titFilesSelectIndi <- renderUI(titFilesSelectIndi())
-    # 
-    # meanValues <- reactive(
-    #   NULL
-    # )
-    # 
-    # output$printed <- renderPrint({
-    #   #  req(input$TitFiles)
-    #   #  (length(input$TitFiles$name))
-    # })
+
+
+
+    resultadosCombi <- eventReactive(DataCleanDF(), {
+      AverageValue <- mean(DataCleanDF()$VecFraccMa)
+      IncertTipoB <- max(DataCleanDF()$VecFracUnc)
+      StandarDev <- sd(DataCleanDF()$VecFraccMa)
+      n_ind <- length(DataCleanDF())
+      IncertTipoA <- StandarDev/sqrt(n_ind)
+      IncertComb <- sqrt(IncertTipoB^2 + IncertTipoA^2)
+      LevTest <- tryCatch(round(leveneTest(VecFraccMa ~ VecFechas0, data = DataCleanDF())$`Pr(>F)`[1], 4), error = function(e) 'no aplica')
+      return(data.frame('.' = c('Promedio de las mediciones', 'Incertidumbre tipo B', 'Desviacion estandar de las mediciones',
+                                'Numero de datos', 'Dias de medicion', 'Incertidumbre tipo A', 'Incertidumbre combinada',
+                                'Incertidumbre expandida (k=2)', 'Homocedasticidad entre días'),
+                        'Valor' = as.character(c(signif(AverageValue, 8), signif(c(IncertTipoB, StandarDev), 4),
+                                                 length((DataCleanDF()$VecFechas0)),
+                                                 length(unique(DataCleanDF()$VecFechas0)),
+                                                 signif(c(IncertTipoA, IncertComb, IncertComb * 2), 4),
+                                                 LevTest)),
+                        'Unidades' = c(rep(DataCleanDF()$VecUnits[1], 3), rep('', 2), rep(DataCleanDF()$VecUnits[1], 3), 
+                                       'Valor p, prueba de Levene')))
+    })
+    output$resultadosCombi <- renderTable(resultadosCombi())
+
+    plotCombinados <- reactive({
+      ylab <- paste('Fracción masica / ', DataCleanDF()$VecUnits[1])
+      tol <- 0.005
+      p <- ggplot(data = DataCleanDF(), aes(x = index)) + theme_bw() +
+        labs(y = ylab, x = NULL) +
+        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+              axis.text.y = element_text(color = "black"),
+              #axis.ticks.x = element_blank(),
+              axis.text.x = element_blank(), legend.title = element_blank()) +
+        scale_y_continuous(expand = c(0.4, 0), n.breaks = 8) +
+        #geom_hline(aes(yintercept = 0.999 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
+        geom_hline(aes(yintercept = (1 - tol) * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
+        geom_hline(aes(yintercept = mean(VecFraccMa)), linetype = 1, lwd = 0.5, col = 'gray60') +
+        geom_hline(aes(yintercept = (1 + tol) * mean(VecFraccMa)), linetype = 2, lwd = 0.5, col = 'gray60') +
+        #geom_hline(aes(yintercept = 1.001 * mean(VecFraccMa)), linetype = 4, lwd = 0.5, col = 'red1') +
+        geom_point(aes(y = VecFraccMa, color = VecFechas0)) +
+        geom_errorbar(aes(ymin = VecFraccMa - VecFracUnc, ymax = VecFraccMa + VecFracUnc, color = VecFechas0), width = 0.4)
+      #browser()
+      print(p)
+    })
+    output$plotCombinados <- renderPlot(plotCombinados())
+
+    TablasPorDia <- eventReactive(DataCleanDF(), {
+      x <- list()
+      unidad <- DataCleanDF()$VecUnits[1]
+      k <- 1
+      for (i in unique(DataCleanDF()$VecFechas0)) {
+        j <- i
+        DayRes <- which(DataCleanDF()$VecFechas0 == j)
+        datFram <- data.frame(Archivo = row.names(DataCleanDF())[DayRes],
+                              Resultado = DataCleanDF()$VecFraccMa[DayRes],
+                              '.' = rep(unidad, length(DayRes)))
+        nDat <- nrow(datFram)
+        x[[k]] <- box(
+          title = tags$b(paste0('Resumen de resultados del día ', j)), status = 'primary', collapsible = TRUE, collapsed = FALSE, width = 4,
+          'Promedio:', tags$b(signif(mean(datFram$Resultado), 7), unidad), tags$br(),
+          'Desviación estándar relativa:', tags$b(round(sd(datFram$Resultado)/mean(datFram$Resultado)*100, 4), '%'),
+          tags$hr(),
+          tags$b('Normalidad de los datos'), tags$br(), tags$ul(tags$li(
+            'Prueba Shapiro-Wilk, valor p ', 
+            tags$b(tryCatch(pred(signif(shapiro.test(datFram$Resultado)$p.value, 3)),
+                            error = function(e) 'No disponible para menos de tres datos')))),
+          tags$hr(),
+          tags$b('Ausencia de datos anómalos'), tags$br(), 'Pruebas de Grubbs', tags$br(),
+          tags$ul(
+            tryCatch(
+              tags$li(
+                'Valor p para el valor más ',
+                ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'alto: ', 'bajo: '),
+                tags$b(pred(signif(grubbs.test(datFram$Resultado, type = 10)$p.value, 3)))),
+              error = function(e) 'No disponible para menos de tres datos'),
+            tryCatch(
+              tags$li(
+                'Valor p para los dos valores de los extremos:',
+                tags$b(pred(signif(grubbs.test(datFram$Resultado, type = 11)$p.value, 3)))),
+              error = function(e) ''),
+            tryCatch(
+              tags$li(
+                'Valor p para los dos valores más ',
+                ifelse(word(grubbs.test(datFram$Resultado, type = 10)$alternative, 1) == 'highest', 'altos: ', 'bajos: '),
+                tags$b(pred(signif(grubbs.test(datFram$Resultado, type = 20)$p.value, 3)))),
+              error = function(e) '')
+          )
+        )
+        k <- k + 1
+      }
+      return(x)
+    })
+    output$TablasPorDia <- renderUI(TablasPorDia())
   })
 }

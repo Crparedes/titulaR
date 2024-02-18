@@ -25,3 +25,7 @@ iso8601 <- function(fecha = Sys.Date(), niceHTML = FALSE) {
 }
 
 decimals <- function(x) {nchar(sub("^-?\\d*\\.?", "", format(x, scientific = F)))}
+
+pred <- function(p, conf.lev = 0.95) {
+  if (p < 1 - conf.lev) return(tags$span(style = 'color:red;', p)) else return(p)
+}
