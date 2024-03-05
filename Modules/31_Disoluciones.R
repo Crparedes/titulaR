@@ -5,7 +5,7 @@ PreparaDisolucioUI <- function(id) {
       12, Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: 60px;', tags$b('Disoluciones estandar y disoluciones muestra para las titulaciones')), tags$br()),
     column(
-      width = 6,  style = 'margin-left: 80px;',
+      width = 5,  style = 'margin-left: 80px;',
       tags$b('Disoluciones para la caracterización de calibrantes monoelementales'), Nlns(1),
       spcs(10), actionLink(ns('NewEDTAStdSol'), icon = icon("fill-drip"), 'Nueva disolución estándar de EDTA'), tags$br(),
       spcs(10), actionLink(ns('NewCaliSamSol'), icon = icon("fill-drip"), 'Nueva muestra de disolución monoelemental'), Nlns(),

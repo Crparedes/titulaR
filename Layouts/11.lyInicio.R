@@ -21,7 +21,7 @@ inicioLy <- fluidRow(
                           img(src = "SI_units.png", width = '85%', alt = 'SI brochure'),
                           target = '_blank')),
          column(
-           8, 'Este aplicativo utiliza el',
+           9, 'Este aplicativo utiliza el',
            tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI) de SmartCom', target = '_blank')),
            'para el manejo de datos metrológicos, utilizando archivos en formato XML para el almacenamiento y la transferencia
            de la información.', Nlns(),
@@ -34,7 +34,7 @@ inicioLy <- fluidRow(
              tags$li(tags$i(tags$b('A', .noWS = c('after')), 'ccessability'), spcs(2), '(Datos accesibles)'),
              tags$li(tags$i(tags$b('I', .noWS = c('after')), 'nteroperability'), '(Datos interoperables)'),
              tags$li(tags$i(tags$b('R', .noWS = c('after')), 'eusability'), spcs(5), '(Datos reusables)')),
-           Nlns(), tags$hr(), Nlns(),
+           Nlns(1), tags$hr(), Nlns(1),
            'La información metrológica generada en la app incorpora además los siguientes identificadores digitales: ', Nlns(),
            tags$ul(
              tags$li(
