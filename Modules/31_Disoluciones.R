@@ -5,20 +5,23 @@ PreparaDisolucioUI <- function(id) {
       12, Nlns(4), uiOutput(ns('brwz')),
       tags$h4(style = 'margin-left: 60px;', tags$b('Disoluciones estandar y disoluciones muestra para las titulaciones')), tags$br()),
     column(
-      width = 4, style = 'margin-left: 80px;',
-      tags$b('Crear archivos de disoluciones para la titulacion de calibrantes monoelementales'), Nlns(),
+      width = 6,  style = 'margin-left: 80px;',
+      tags$b('Disoluciones para la caracterización de calibrantes monoelementales'), Nlns(1),
       spcs(10), actionLink(ns('NewEDTAStdSol'), icon = icon("fill-drip"), 'Nueva disolución estándar de EDTA'), tags$br(),
-      spcs(10), actionLink(ns('NewCaliSamSol'), icon = icon("fill-drip"), 'Nueva muestra de disolución monoelemental'), Nlns(3),
-      tags$b('Crear archivos de disoluciones para la titulacion de la sal de EDTA'), Nlns(),
+      spcs(10), actionLink(ns('NewCaliSamSol'), icon = icon("fill-drip"), 'Nueva muestra de disolución monoelemental'), Nlns(),
+      tags$b('Disoluciones para la  caracterización de la sal de EDTA'), Nlns(1),
       spcs(10), actionLink(ns('NewLeadStdSol'), icon = icon("fill-drip"), 'Nueva disolución estándar de plomo'), tags$br(),
-      spcs(10), actionLink(ns('NewEDTASamSol'), icon = icon("fill-drip"), 'Nueva disolución muestra de EDTA'), Nlns(3),
-      tags$b('Importar archivos de información de disoluciones (XML)'), Nlns(),
+      spcs(10), actionLink(ns('NewEDTASamSol'), icon = icon("fill-drip"), 'Nueva disolución muestra de EDTA'), Nlns()),
+    column(
+      width = 4,
+      tags$b('Importar archivos de información de disoluciones (.xml)'), Nlns(),
       tags$div(
-        style = 'margin-left: 40px;',
+        style = 'margin-left: 30px;',
         fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '90%'),
         uiOutput(ns('XmlCargados')))),
+    column(12, tags$hr(), tags$hr()),
     column(
-      width = 7, style = 'margin-left: 50px;',
+      width = 8, style = 'margin-left: 120px;',
       # shinydashboardPlus::
         box(id = ns('condAmbiBox'), status = 'primary', 
             title = tags$b(style = 'font-size: 14px;', 'Condiciones ambientales para la preparación de disoluciones'),

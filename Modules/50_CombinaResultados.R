@@ -5,13 +5,13 @@ CombinaResultadosUI <- function(id) {
            tags$h4(style = 'margin-left: 60px;', tags$b('Combinación de resultados de titulación'))),
     column(
       width = 2, style = 'margin-left: 80px;', tags$br(),
-      tags$b('Archivos de sesiones pasadas:'),
+      tags$b('Importar archivos de resultados de sesiones anteriores (.xml)'),
       tags$div(
         style = 'margin-left: 25px; margin-top:0px;',
         fileInput(ns('NewXML'), label = NULL, buttonLabel = 'Examinar...', multiple = TRUE, accept = '.xml', width = '100%'),
         uiOutput(ns('XmlCargados')))),
     column(
-      width = 9, style = 'margin-left: 50px;', tags$br(),
+      width = 9, style = 'margin-left: 30px;', tags$br(),
       box(
         id = ns('FilesAvailable'), status = 'primary', title = 'Resultados individuales', width = 12, collapsible = TRUE, collapsed = FALSE,
         'Seleccione los resultados individuales de titulación marcando la casilla al inicio de cada fila.', tags$br(),
