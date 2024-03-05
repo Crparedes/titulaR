@@ -91,7 +91,8 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
       tabName <- isolate(paste0(solutionType, '_', input$NewEDTAStdSol))
       StandardSampleSolutions$solutions <- append(
         StandardSampleSolutions$solutions, 
-        list(isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O', materiales = materiales$forCalibrantes,
+        list(isolate(SolidMRCServer(id = tabName, devMode = devMode, reagKey = 'EDTA', reagForm = 'Na2EDTA.2H2O',
+                                    materiales = materiales$forCalibrantes,
                                     demo = demo, analyst = analyst, balanza = balanzaUsed, fecha = fecha, ambient = AmbiDensAire,
                                     solutionType = solutionType, InChiKey = 'FXKZPKBFTQUJBA-UHFFFAOYSA-N'))))
       
@@ -125,7 +126,7 @@ PreparaDisolucioServer <- function(id, devMode, demo, balanzas, materiales, fech
     observeEvent(input$NewLeadStdSol, {
       req(input$NewLeadStdSol > 0)
       solutionType <- 'EstandarPlomo'
-      tabName <- isolate(paste0(solutionType, '_', input$NewEDTAStdSol))
+      tabName <- isolate(paste0(solutionType, '_', input$NewLeadStdSol))
       
       StandardSampleSolutions$solutions <- append(
         StandardSampleSolutions$solutions, 
