@@ -1,11 +1,11 @@
-canonicalURL <- 'https://siunits.stuchalk.domains.unf.edu/si/definition/'
+canonicalURL <- 'https://si-digital-framework.org/SI/units' #'https://siunits.stuchalk.domains.unf.edu/si/definition/'
 SI_unit_nice <- function(unit = NULL, derived = FALSE, width = "84%") {
   if (missing(unit)) {
     unitCircle <- tags$a(href = canonicalURL, 
                          img(src = "SI_units.png", width = width, alt = 'SI units digital reference'),
                          target = '_blank')
   } else {
-    unitCircle <- tags$a(href = paste0(canonicalURL, ifelse(derived, 'derivedunit/', 'unit/'), unit),
+    unitCircle <- tags$a(href = paste0(canonicalURL, '/', unit),
                          img(src = paste0("SI_", unit, ".png"), width = width,
                              alt = paste0('SI ', ifelse(derived, 'derived unit ', 'unit '), unit)),
                          target = '_blank')

@@ -17,12 +17,12 @@ inicioLy <- fluidRow(
                      Calibrantes Monoelementales, por Titulación Complejométrica con EDTA")),
        Nlns(2), tags$hr(),
        fluidRow(
-         column(2, tags$a(href = 'https://www.bipm.org/en/publications/si-brochure', 
+         column(2, tags$a(href = 'https://si-digital-framework.org/', 
                           img(src = "SI_units.png", width = '85%', alt = 'SI brochure'),
                           target = '_blank')),
          column(
            8, 'Este aplicativo utiliza el',
-           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI)', target = '_blank')),
+           tags$b(tags$a(href = 'https://zenodo.org/records/10230771', 'Esquema del SI Digital (D-SI) de SmartCom', target = '_blank')),
            'para el manejo de datos metrológicos, utilizando archivos en formato XML para el almacenamiento y la transferencia
            de la información.', Nlns(),
            'El', tags$b('Esquema del SI Digital (D-SI)'),# tags$a(href = 'https://zenodo.org/records/10230771', '', target = '_blank')
