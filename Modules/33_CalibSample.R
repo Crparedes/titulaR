@@ -147,6 +147,10 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
           tags$table(
             style = "width:100%; font-size:13px; margin-left:20px; vertical-align:top",
             tags$tr(
+              tags$th('Disolución de partida:'),
+              tags$th(input$solutionSource)
+            ),
+            tags$tr(
               tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Elemento:'),
               tags$th(style = 'vertical-align:top;padding-top:0.5em;',
                       Substances[[input$Elemento]]$`mr:name`, tags$br(),
