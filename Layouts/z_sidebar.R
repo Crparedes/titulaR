@@ -31,6 +31,8 @@ customSidebar <- dashboardSidebar(
                          spcs(5), dateInput('fecha', label = 'Fecha', language = 'es')),
                      # timeInput("Hora", "Modificar hora: (hh:mm:ss)", value = Sys.time()),
                      actionButton('brwz', label = tags$b('Pausar aplicativo'), width = '70%')),
+    conditionalPanel('input.Demo', tags$span(style = 'font-size:12px;',
+                                       h6(spcs(5), 'Para salir del modo demo debe recargar la página'))),
     splitLayout(
       materialSwitch('Demo', 'Demo', value = TRUE, status = 'primary'),
       # disabled

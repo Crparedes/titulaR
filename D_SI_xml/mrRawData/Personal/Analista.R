@@ -1,5 +1,5 @@
-data_Analista2 <- list(
-  'name' = 'Analista2',
+data_Analista <- list(
+  'name' = 'Analista',
   'email' = 'contacto@inm.gov.co',
   'orcid' = 'https://orcid.org/')
 
@@ -11,12 +11,12 @@ data_Analista2 <- list(
 #   'ror' = 'https://ror.org/028s91538',
 #   'url' = 'https://inm.gov.co')
 
-Analista2 <- read_xml('<respPerson/>')
-addDataToMRXML(Analista2, fields = data_Analista2)#, node = 'data')
+Analista <- read_xml('<respPerson/>')
+addDataToMRXML(Analista, fields = data_Analista)#, node = 'data')
 # addDataToMRXML(xmlObject = Analista2, fields = inst_Analista2, node = 'inst')
-message(Analista2)
+message(Analista)
 
-write_xml(Analista2, 'www/Personal/Analista 2.xml')
+write_xml(Analista, 'www/Personal/Analista.xml')
 
 
 
