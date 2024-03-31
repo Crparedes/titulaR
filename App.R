@@ -56,10 +56,18 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-print.xml_document <- print.xml_node <- function (x) message(x)
+  print.xml_document <- print.xml_node <- function (x) message(x)
+  
+  observeEvent(input$Demo, ignoreInit = TRUE, {
+    disable(id = 'Demo')
+    shinyalert(title = 'Modo de demostración',
+               text = "El <b>modo demo</b> precarga datos de medición de ejemplo <br>.",
+               showConfirmButton = FALSE,
+               closeOnEsc = TRUE, closeOnClickOutside = TRUE, html = TRUE, type = "info", timer = 5000)
+  })
 
-  # shinyalert(title = 'Advertencia', text = , "Este aplicativo está en desarrollo", showConfirmButton = FALSE,
-  #            closeOnEsc = TRUE, closeOnClickOutside = TRUE, html = TRUE, type = "info", timer = 7500)
+  
+# 
   # 
   devMode <- reactive(input$Desarrollador)
   observeEvent(input$brwz, browser())
