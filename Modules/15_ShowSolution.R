@@ -64,8 +64,9 @@ ShowSolutionServer <- function(id, devMode, demo, solution, type = 'SolidMRC') {
           tags$table(
             style = "width:100%; font-size:13px; margin-left:20px; vertical-align:top",
             tags$tr(
-              tags$th('Especie:'),
-              tags$th(xml_text(xml_child(solution(), search = 'mr:property//mr:substance//mr:name')), tags$br(),
+              tags$th(style = 'vertical-align:top', 'Especie:'),
+              tags$th(style = 'vertical-align:top', 
+                      xml_text(xml_child(solution(), search = 'mr:property//mr:substance//mr:name')), tags$br(),
                       'InChi Key ', InChiKey, tags$br(),
                       tags$a(href = paste0('https://pubchem.ncbi.nlm.nih.gov/#query=', InChiKey),
                              style = 'color:#0072bd;',

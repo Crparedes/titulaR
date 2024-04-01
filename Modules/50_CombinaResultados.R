@@ -24,7 +24,8 @@ CombinaResultadosUI <- function(id) {
       fluidRow(
         column(6, plotOutput(ns('plotCombinados'), width = '100%')),
         column(5, box(title = NULL, width = 12, status = 'primary',
-                      tableOutput(ns('resultadosCombi')), tags$br(),
+                      tableOutput(ns('resultadosCombi')), tags$hr(),
+                      uiOutput(ns('DFexplan')),
                       tags$hr(),
                       tags$ul(
                         tags$li(downloadLink(ns("DownResultadoXML"), label = tags$b('Descargar información del resultado (formato XML)'))),
@@ -128,6 +129,8 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
           return(xml_text(xml_child(x(), search = 'mr:coreData/mr:resultID')))})
         ResValues <- sapply(SelectedXMLs, function (x) {
           return(xml_text(xml_child(x(), search = 'mr:titrationResult/si:real/si:value')))})
+        ResUnits <- sapply(SelectedXMLs, function (x) {
+          return(xml_text(xml_child(x(), search = 'mr:titrationResult/si:real/si:unit')))})
         if (length(unique(Substances)) != 1) {
           shinyalert(title = 'Error!', text = 'Solo se pueden combinar archivos de resultados de la misma especie química.',
                      type = 'error', timer = 3000, showConfirmButton = FALSE)
@@ -137,10 +140,16 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
                        Verifique el ID de los resultados para combinar e inténtelo nuevamente.',
                        type = 'error', timer = 3000, showConfirmButton = FALSE)
           } else {
-            js$collapse(session$ns("FilesAvailable"))
-            shinyjs::hide("filesCargados")
-            shinyjs::show("combinedResults")
-            files2Combine(SelectedXMLs)
+            if (length(unique(ResUnits)) > 1) {
+              shinyalert(title = 'Error!', text = 'El aplicativo aún no soporta conversión de unidades<br>
+                       Las unidades de los resultados de medición deben ser todas iguales.',
+                         type = 'error', timer = 3000, showConfirmButton = FALSE)
+            } else {
+              js$collapse(session$ns("FilesAvailable"))
+              shinyjs::hide("filesCargados")
+              shinyjs::show("combinedResults")
+              files2Combine(SelectedXMLs)
+            }
           }
         }
       }
@@ -177,39 +186,35 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     })
     output$ResultadosElect <- renderUI(ResultadosElect())
     
-    output$ResumenRDS <- downloadHandler(
-      filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
-      content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
-
-    output$ResumenExcel <- downloadHandler(
-      filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
-      content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
-
-    ##### FIX THIS
-    output$DownResultadoXML <- downloadHandler(
-      filename = function() {paste0("MatrizResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
-      content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
-
-
-
+    # Combinaci'on de resultados
+    AverageValue  <- reactive(mean(DataCleanDF()$VecFraccMa))
+    IncertTipoB <- reactive(max(DataCleanDF()$VecFracUnc))
+    StandarDev  <- reactive(sd(DataCleanDF()$VecFraccMa))
+    n_ind       <- reactive(length(DataCleanDF()))
+    output$DFexplan <- renderUI(tags$div(
+      style = 'font-size:12px;',
+      'Los grados de libertad se calculan con la relación de Welch-Satterthwaite utilizando', n_ind(),
+      '- 1 grados de libertad para el aporte de incertidumbre tipo A y 200 grados de libertad para el aporte de incertidumbre tipo B.'))
+    IncertTipoA <- reactive(StandarDev()/sqrt(n_ind()))
+    nu_A <- reactive(n_ind() - 1)
+    IncertComb  <- reactive(sqrt(IncertTipoB()^2 + IncertTipoA()^2))
+    nu_eff <- reactive(round(IncertComb()^4/(IncertTipoB()^4/200 + IncertTipoA()^4/nu_A())))
+    k_fact <- reactive(round(qt(p = 0.975, df = nu_eff()), 4))
+    
     resultadosCombi <- eventReactive(DataCleanDF(), {
-      AverageValue <- mean(DataCleanDF()$VecFraccMa)
-      IncertTipoB <- max(DataCleanDF()$VecFracUnc)
-      StandarDev <- sd(DataCleanDF()$VecFraccMa)
-      n_ind <- length(DataCleanDF())
-      IncertTipoA <- StandarDev/sqrt(n_ind)
-      IncertComb <- sqrt(IncertTipoB^2 + IncertTipoA^2)
+      d1 <- decimals(signif(IncertComb(), 3))
+      
       LevTest <- tryCatch(round(leveneTest(VecFraccMa ~ VecFechas0, data = DataCleanDF())$`Pr(>F)`[1], 4), error = function(e) 'no aplica')
       return(data.frame('.' = c('Promedio de las mediciones', 'Incertidumbre tipo B', 'Desviacion estandar de las mediciones',
                                 'Numero de datos', 'Dias de medicion', 'Incertidumbre tipo A', 'Incertidumbre combinada',
-                                'Incertidumbre expandida (k=2)', 'Homocedasticidad entre días'),
-                        'Valor' = as.character(c(signif(AverageValue, 8), signif(c(IncertTipoB, StandarDev), 4),
+                                'Incertidumbre expandida', 'Factor de cobertura (95 %)', 'Grados de libertad efectivos', 'Homocedasticidad entre días'),
+                        'Valor' = as.character(c(round(AverageValue(), d1), signif(c(IncertTipoB(), StandarDev()), 3),
                                                  length((DataCleanDF()$VecFechas0)),
                                                  length(unique(DataCleanDF()$VecFechas0)),
-                                                 signif(c(IncertTipoA, IncertComb, IncertComb * 2), 4),
+                                                 signif(c(IncertTipoA(), IncertComb(), IncertComb() * k_fact()), 3), k_fact(), nu_eff(),
                                                  LevTest)),
-                        'Unidades' = c(rep(DataCleanDF()$VecUnits[1], 3), rep('', 2), rep(DataCleanDF()$VecUnits[1], 3), 
-                                       'Valor p, prueba de Levene')))
+                        'Unidades' = c(rep(DataCleanDF()$VecUnits[1], 3), '', '\\day', rep(DataCleanDF()$VecUnits[1], 3),  '', '',
+                                       '(Valor p prueba de Levene)')))
     })
     output$resultadosCombi <- renderTable(resultadosCombi())
 
@@ -235,6 +240,52 @@ CombinaResultadosServer <- function(id, session, devMode, demo, fecha, PartialTi
     })
     output$plotCombinados <- renderPlot(plotCombinados())
 
+    # Resultados en XML
+    CompleteResultsXML <- eventReactive(DataCleanDF(), {
+      SamplesIDs <- unique(sapply(files2Combine(), function (x) {
+        return(xml_text(xml_child(x(), search = 'mr:coreData/mr:solutionSource')))}))
+      if(length(SamplesIDs) > 1) SamplesIDs <- paste0(SamplesIDs, collapse = ', ')
+      
+      xmlObject <- initiateResultsXML()
+      addDataToMRXML(xmlObject, list('mr:sampleID' = SamplesIDs), node = 'mr:coreData')
+      addDataToMRXML(xmlObject, list('mr:dateTime' = iso8601(fecha = fecha())), node = 'mr:coreData')
+      xml_add_child(xml_child(xmlObject, search = 'mr:coreData'), xml_child(files2Combine()[[1]](), search = 'mr:coreData/respPerson'))
+      
+      
+      xml_child(xmlObject, search = 'mr:measurementResult') %>% {
+        xml_add_child(., .value = xml_child(files2Combine()[[1]](), search = 'mr:titrationResult//mr:substance'))
+        xml_add_child(., .value = SiRealXML(
+          quantityTypeQUDT = 'MassFraction', value = AverageValue(),
+          units = xml_text(xml_child(files2Combine()[[1]](), search = 'mr:titrationResult//si:real//si:unit')),
+          uncert = IncertComb() * k_fact(), covFac = k_fact(), covProp = 0.95, distribution = 't Student'))
+      }
+      xml_child(xmlObject, search = 'mr:additionalInfo') %>% {
+        xml_add_child(., .value = 'mr:individualResults') %>% {
+          sapply(files2Combine(), function (x) {
+            xml_add_child(., xml_child(x(), search = 'mr:coreData/mr:resultID')) %>%
+              xml_add_child(., xml_child(x(), search = 'mr:titrationResult/si:real'))
+            return()
+          })
+      }}
+      
+      return(xmlObject)
+    })
+    
+    # Descarga de archivos
+    output$ResumenRDS <- downloadHandler(
+      filename = function() {paste0("ResumenResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.rds')},
+      content = function(file) {saveRDS(DataCleanDF(), file = file)}, contentType = NULL)
+
+    output$ResumenExcel <- downloadHandler(
+      filename = function() {paste0("ResumenResultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xlsx')},
+      content = function(file) {write_xlsx(x = DataCleanDF(), path = file, format_headers = TRUE)}, contentType = NULL)
+
+    output$DownResultadoXML <- downloadHandler(
+      filename = function() {paste0("Resultados_", fecha(), format(Sys.time(), '_%H-%M'), '.xml')},
+      content = function(file) {write_xml(x = CompleteResultsXML(), file)})
+
+    
+    # Tablas por d'ia
     TablasPorDia <- eventReactive(DataCleanDF(), {
       x <- list()
       unidad <- DataCleanDF()$VecUnits[1]

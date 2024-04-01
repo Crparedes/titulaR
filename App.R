@@ -37,7 +37,7 @@ library(propagate)
 
 # rm(print.xml_document, print.xml_node)
 
-source('D_SI_xml/0_createMRXML.R')
+# source('D_SI_xml/0_createMRXML.R')
 
 # Por lo general, los módulos_UI son llamados desde las funciones de layouts
 functiFiles <- list.files(path = "Functions", full.names = TRUE)

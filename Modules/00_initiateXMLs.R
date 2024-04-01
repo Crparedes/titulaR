@@ -73,3 +73,10 @@ initiateTitrationXML <- function(name) {
   xmlObject %>% {xml_add_child(., 'mr:coreData'); xml_add_child(., 'mr:titrationResult'); xml_add_child(., 'mr:additionalInfo')}
   return(xmlObject)
 }
+
+##### Resultados generales
+initiateResultsXML <- function(name) {
+  xmlObject <- read_xml(genericHeading('mr:combinedResults', TRUE))
+  xmlObject %>% {xml_add_child(., 'mr:coreData'); xml_add_child(., 'mr:measurementResult'); xml_add_child(., 'mr:additionalInfo')}
+  return(xmlObject)
+}

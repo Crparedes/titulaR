@@ -82,7 +82,6 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
     
     TitCurvDat <- reactive(hot_to_r(input$TitData))
     
-    
     output$TitData <- renderRHandsontable(TableData())
     
     observe({req(TitCurvDat()); if(length(na.omit(TitCurvDat()$Titrant)) >= 7) enable('TermTit')})

@@ -109,7 +109,7 @@ SolidMRCServer <- function(id, devMode, demo, reagKey, reagForm, balanza, analys
                                      (derMassDis()/sqrt(12))^2)))
     BuoyDis <- reactive(c(MABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1]),
                           uncertMABC(rho = DisolDensi()$ValUnc[1], rho_air = airDensity()$ValUnc[1], 
-                                     u_rho = DisolDensi()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE)))
+                                     u_rho = DisolDensi()$ValUnc[2], u_rho_air = airDensity()$ValUnc[2], printRelSD = FALSE, plot = FALSE)))
     
     DisConcProp <- eventReactive(input$buttonCalc, {
       propagate(
