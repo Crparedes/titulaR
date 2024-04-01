@@ -160,12 +160,14 @@ CalibSampleServer <- function(id, devMode, demo, balanza, analyst, fecha, ambien
                              tags$html('Ver elemento en', img(src = "PubChem.png", height = '19px')), target = '_blank'))
             ),
             tags$tr(
-              tags$th('Peso atómico:'),
-              tags$th(round(m_mas$ValUnc[1], d2), '\u00B1', signif(m_mas$ValUnc[2], 3), ' g/mol (k=1)')
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Factor de dilución:'),
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;', 
+                      round(f_dil$ValUnc[1], d1), '\u00B1', signif(f_dil$ValUnc[2], 3), ' g/g (k=1)')
             ),
             tags$tr(
-              tags$th('Factor de dilución:'),
-              tags$th(round(f_dil$ValUnc[1], d1), '\u00B1', signif(f_dil$ValUnc[2], 3), ' g/g (k=1)')
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Peso atómico:'),
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;',
+                      round(m_mas$ValUnc[1], d2), '\u00B1', signif(m_mas$ValUnc[2], 3), ' g/mol (k=1)')
             )
           ),
           tags$hr(),

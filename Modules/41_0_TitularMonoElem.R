@@ -17,8 +17,9 @@ TitularMonoelemtUI <- function(id) {
                tabPanel(
                  title = tags$b('Disoluciones'), 
                  fluidRow(column(width = 1, SI_unit_nice('mole', width = "100%"), SI_unit_nice('kilogram', width = "100%")),
-                          column(width = 10, tags$h5(tags$b('Disolución estándar de EDTA')), ShowSolutionUI(id = ns('Estandar')), Nlns(3),
-                                 tags$hr(), tags$h5(tags$b('Disolución calibrante monoelemental')), ShowSolutionUI(id = ns('Muestra'))))
+                          column(width = 10, tags$h5(tags$b('Disolución estándar de EDTA')), ShowSolutionUI(id = ns('Estandar')),
+                                 '.', tags$hr(),
+                                 tags$h5(tags$b('Disolución calibrante monoelemental')), ShowSolutionUI(id = ns('Muestra'))))
     ))))
   )
 }
@@ -41,7 +42,8 @@ TitularMonoelemtServer <- function(id, devMode, demo, balanzas, solutions, fecha
       if (is.error(c(balanzaUsed(), Analyst(), StanDisol(), SampDisol()))) disable('NewTit') else enable('NewTit')
     })
     
-    isolate(ShowSolutionServer(id = 'Estandar', devMode = devMode, demo = demo, solution = StanDisol))
+    isolate(ShowSolutionServer(id = 'Estandar', devMode = devMode, demo = demo, solution = StanDisol, type = 'SolidMRC'))
+    isolate(ShowSolutionServer(id = 'Muestra', devMode = devMode, demo = demo, solution = SampDisol, type = 'CalibSample'))
     
     IndivTitrResult <- reactiveValues()
     observeEvent(input$NewTit, {
