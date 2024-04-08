@@ -306,7 +306,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
       tab <- data.frame(Valor = as.character(signif(c(ResParcUncSource()$prop[[1]], ResParcUncSource()$data[1, ]), 9)),
                         u_std = as.character(signif(c(ResParcUncSource()$prop[[3]], ResParcUncSource()$data[2, ]), 4)),
                         Unidades = units, Aporte = c(NA, paste((round(diag(ResParcUncSource()$rel.contr)*100, 3)), '%', sep = ' ')))
-      rownames(tab) <- c("\\(nu_{metal}\\)", "\\(m_{eq}\\)", "\\(m_{bln}\\)", "\\(c_{std}\\)", "\\(m_{ali}\\)", "\\(M_{metal}\\)", "\\r_{mass}\\)")
+      rownames(tab) <- c("\\(\\nu_{metal}\\)", "\\(m_{eq}\\)", "\\(m_{bln}\\)", "\\(c_{std}\\)", "\\(m_{ali}\\)", "\\(M_{metal}\\)", "\\(r_{mass}\\)")
       tab
     },
     include.rownames = TRUE, include.colnames = TRUE)
