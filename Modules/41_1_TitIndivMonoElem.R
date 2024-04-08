@@ -183,6 +183,7 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
       }
       
       xml_child(xmlObject, search = 'mr:additionalInfo') %>% {
+        xml_add_child(., .value = CopySiRealFromXML(SampDisol(), 'MolarMass'))
         
         xml_add_child(., .value = 'mr:referenceSolution') %>% {
           xml_add_child(., .value = xml_child(StanDisol(), search = 'mr:coreData//mr:solutionID'))
@@ -211,6 +212,9 @@ TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza,
           xml_add_child(., .value = 'mr:titrationFinalMass') %>% {
             xml_add_child(., .value = SiRealXML(
               quantityTypeQUDT = 'Mass', value = MasaEquiv()[1], units = '\\gram', uncert = MasaEquiv()[2], covFac = 1))}
+          xml_add_child(., .value = 'mr:titrationBlankMass') %>% {
+            xml_add_child(., .value = SiRealXML(
+              quantityTypeQUDT = 'Mass', value = 0, units = '\\gram', uncert = 0.0028/(2*sqrt(3)), covFac = 1))}
           xml_add_child(., .value = 'mr:titrationcurve') %>% {
             xml_add_child(., .value = 'mr:titrant') %>% {
               xml_add_child(., .value = SiRealListXML(
