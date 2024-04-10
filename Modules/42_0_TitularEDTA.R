@@ -43,7 +43,7 @@ TitularEDTAServer <- function(id, devMode, demo, balanzas, solutions, fecha, Est
     })
     
     isolate(ShowSolutionServer(id = 'Estandar', devMode = devMode, demo = demo, solution = StanDisol, type = 'SolidMRC'))
-    isolate(ShowSolutionServer(id = 'Muestra', devMode = devMode, demo = demo, solution = SampDisol, type = 'CalibSample'))
+    isolate(ShowSolutionServer(id = 'Muestra', devMode = devMode, demo = demo, solution = SampDisol, type = 'EDTASample'))
     
     IndivTitrResult <- reactiveValues()
     observeEvent(input$NewTit, {
@@ -53,15 +53,15 @@ TitularEDTAServer <- function(id, devMode, demo, balanzas, solutions, fecha, Est
         element <- xml_text(xml_find_all(SampDisol(), xpath = '//mr:substance//mr:name'))
         PartialTitrationResults$results <- append(
           PartialTitrationResults$results, 
-          list(isolate(TitIndivMonoElemServer(
+          list(isolate(TitIndivEDTAServer(
             id = tabName, devMode = devMode, demo = demo, analyst = Analyst, balanza = balanzaUsed, fecha = fecha,
             StanDisol = StanDisol, SampDisol = SampDisol))))
         
         appendTab(
           inputId = 'Titrations', select = TRUE, 
-          tab = TitIndivMonoElemUI(
+          tab = TitIndivEDTAUI(
             id = session$ns(tabName), demo = isolate(demo()), title = tabName, fecha = isolate(fecha()),
-            explan = tagList('disolución monoelemental: ', elemEspa[[element]])))
+            explan = tagList('sal de EDTA: ', elemEspa[[element]])))
       }
     })
     

@@ -49,12 +49,35 @@ ShowSolutionServer <- function(id, devMode, demo, solution, type = 'SolidMRC') {
                       round(f_dil$ValUnc[1], d1), '\u00B1', signif(f_dil$ValUnc[2], 3), ' g/g (k=1)')
             ),
             tags$tr(
-              tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Masa molar:'),
+              tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Masa molar del elemento:'),
               tags$th(style = 'vertical-align:top;padding-top:0.5em;',
                       round(m_mas$ValUnc[1], d2), '\u00B1', signif(m_mas$ValUnc[2], 3), ' g/mol (k=1)')
             )
           )
-        }
+        } else {
+          if (type == 'EDTASample') {
+            f_dil <- GetValueEstandUncert(solution(),  property = 'MassRatio', node = 'mr:property')
+            d1 <- decimals(signif(f_dil$ValUnc[2], 3))
+            m_mas <- GetValueEstandUncert(solution(),  property = 'MolarMass', node = 'mr:property')
+            d2 <- decimals(signif(m_mas$ValUnc[2], 3))
+            Solutioninfo <- tagList(
+              tags$tr(
+                tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Material de partida:'),
+                tags$th(style = 'vertical-align:top;padding-top:0.5em;',
+                        xml_text(xml_child(solution(), search = 'mr:coreData//mr:solutionSource')))
+              ),
+              tags$tr(
+                tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Factor de dilución:'),
+                tags$th(style = 'vertical-align:top;padding-top:0.5em;', 
+                        round(f_dil$ValUnc[1], d1), '\u00B1', signif(f_dil$ValUnc[2], 3), ' g/g (k=1)')
+              ),
+              tags$tr(
+                tags$th(style = 'vertical-align:top;padding-top:0.5em;', 'Masa molar del elemento:'),
+                tags$th(style = 'vertical-align:top;padding-top:0.5em;',
+                        round(m_mas$ValUnc[1], d2), '\u00B1', signif(m_mas$ValUnc[2], 3), ' g/mol (k=1)')
+              )
+            )
+          }
       }
       
       return(infoBox(

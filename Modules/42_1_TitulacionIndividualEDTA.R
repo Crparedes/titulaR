@@ -1,4 +1,4 @@
-TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
+TitIndivEDTAUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
   ns <- NS(id)
   tabPanel(
     title = tags$b(title), uiOutput(ns('brwz')),
@@ -43,7 +43,7 @@ TitIndivMonoElemUI <- function(id, demo, title, fecha, explan, nu = FALSE) {
   )
 }
 
-TitIndivMonoElemServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha, StanDisol, SampDisol, type = 'calibrante') {
+TitIndivEDTAServer <- function(id, devMode, demo, reagKey, analyst, balanza, fecha, StanDisol, SampDisol, type = 'calibrante') {
   moduleServer(id, function(input, output, session) {
     output$brwz <- renderUI(
     if(devMode()) return(actionButton(session$ns('brwz'), label = tags$b('Pausar submódulo'))))

@@ -33,8 +33,9 @@ customSidebar <- dashboardSidebar(
                      actionButton('brwz', label = tags$b('Pausar aplicativo'), width = '70%')),
     conditionalPanel('input.Demo', tags$span(style = 'font-size:12px;',
                                        h6(spcs(5), 'Para salir del modo demo debe recargar la página'))),
-    splitLayout(
-      materialSwitch('Demo', 'Demo', value = FALSE, status = 'primary'),
+    splitLayout(# Either of the first two, or the latter two lines shall be commented...
+      # materialSwitch('Demo', 'Demo', value = FALSE, status = 'primary'),
       # disabled(materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary')))
+      materialSwitch('Demo', 'Demo', value = TRUE, status = 'primary'),
       materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary'))
   ))
