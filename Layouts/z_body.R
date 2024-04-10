@@ -86,7 +86,7 @@ customBody <- dashboardBody(
     tabItem(tabName = "tabsCertMRCs", MaterialesRefereUI('MateRefe')),
     tabItem(tabName = "tabsSolution", PreparaDisolucioUI('Solution')),
     tabItem(tabName = "tabsMonoElem", TitularMonoelemtUI('MonoElem')),
-    tabItem(tabName = "tabsEDTAsalt", Nlns(5), h3(tags$b(spcs(8), 'Módulo en desarrollo'))),
+    tabItem(tabName = "tabsEDTAsalt", TitularEDTAUI('EDTAtitr')),
     tabItem(tabName = "tabsSummResu", CombinaResultadosUI('Combina')),
     tabItem(tabName = "tabsGenerica")
   )

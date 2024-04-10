@@ -107,10 +107,16 @@ server <- function(input, output, session) {
     list(EstandarEDTA = which(solTypes == 'EstandarEDTA'), MuestraCalib = which(solTypes == 'MuestraCalib'),
          EstandarPlomo = which(solTypes == 'EstandarPlomo'), MuestraEDTA = which(solTypes == 'MuestraEDTA'))})
   
-  TitMonoelem <- TitularMonoelemtServer(
+  TitularMonoelemtServer(
     'MonoElem', devMode = devMode,  demo = demo,  fecha = fecha, balanzas = BalanzasReVa,
     EstandarEDTA = reactive(StandardSampleSolutions$solutions[SolOrder()$EstandarEDTA]),
     MuestraCalib = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraCalib]),
+    PartialTitrationResults = PartialTitrationResults)
+  
+  TitularEDTAServer(
+    'EDTAtitr', devMode = devMode,  demo = demo,  fecha = fecha, balanzas = BalanzasReVa,
+    EstandarLead = reactive(StandardSampleSolutions$solutions[SolOrder()$EstandarPlomo]),
+    MuestraEDTA = reactive(StandardSampleSolutions$solutions[SolOrder()$MuestraEDTA]),
     PartialTitrationResults = PartialTitrationResults)
   
   CombinaResultadosServer('Combina', devMode = devMode, demo = demo, fecha = fecha, PartialTitrationResults = PartialTitrationResults)

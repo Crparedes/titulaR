@@ -35,5 +35,6 @@ customSidebar <- dashboardSidebar(
                                        h6(spcs(5), 'Para salir del modo demo debe recargar la página'))),
     splitLayout(
       materialSwitch('Demo', 'Demo', value = FALSE, status = 'primary'),
-      disabled(materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary')))
+      # disabled(materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary')))
+      materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary'))
   ))
