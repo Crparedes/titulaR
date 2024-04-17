@@ -78,6 +78,7 @@ ShowSolutionServer <- function(id, devMode, demo, solution, type = 'SolidMRC') {
               )
             )
           }
+        }
       }
       
       return(infoBox(
