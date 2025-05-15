@@ -36,6 +36,6 @@ customSidebar <- dashboardSidebar(
     splitLayout(# Either of the first two, or the latter two lines shall be commented...
       # materialSwitch('Demo', 'Demo', value = FALSE, status = 'primary'),
       # disabled(materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary')))
-      materialSwitch('Demo', 'Demo', value = TRUE, status = 'primary'),
+      materialSwitch('Demo', 'Demo', value = FALSE, status = 'primary'),
       materialSwitch('Desarrollador', 'Devel', value = FALSE, status = 'primary'))
   ))

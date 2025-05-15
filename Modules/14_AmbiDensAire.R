@@ -6,9 +6,12 @@ AmbiDensAireUI <- function(id) {
       # column(3, offset = 1, SI_unit_nice('kelvin')),
       # column(3, SI_unit_nice('pascal', derived = TRUE)),
       # column(3, SI_unit_nice('mole'))),
-    SiRealInputUI(ns('Temperatura'), name = ReqField('Temperatura'), 20, 2, TemperatureUnits), tags$hr(),
-    SiRealInputUI(ns('PressionBar'), name = ReqField('Presión barométrica'), 750, 3, AtmosPressuUnits), tags$hr(),
-    SiRealInputUI(ns('HumedadRela'), name = ReqField('Humedad relativa'), 45, 3, RelatiHumidUnits), tags$hr(), uiOutput(ns('NiceDensitAir')),
+    SiRealInputUI(ns('Temperatura'), name = ReqField('Temperatura'), 20, 2, TemperatureUnits, colWid = c(2, 2, 2, 4)),
+    tags$hr(),
+    SiRealInputUI(ns('PressionBar'), name = ReqField('Presión barométrica'), 750, 3, AtmosPressuUnits, colWid = c(2, 2, 2, 4)),
+    tags$hr(),
+    SiRealInputUI(ns('HumedadRela'), name = ReqField('Humedad relativa'), 45, 3, RelatiHumidUnits, colWid = c(2, 2, 2, 4)),
+    tags$hr(), uiOutput(ns('NiceDensitAir')),
   )
 }
 
@@ -20,11 +23,11 @@ AmbiDensAireServer <- function(id, devMode, fecha) {
     observeEvent(input$brwzInsideModule, browser())
     
     Temperatura <- SiRealInputServer('Temperatura', devMode = devMode, quantityTypeQUDT = 'Temperature',
-                                     SIdigRef = TRUE, unit = 'kelvin', SIalign = 'left', width = '220%', SIcol = 1)
+                                     SIdigRef = TRUE, unit = 'kelvin', SIalign = 'left', width = '110%', SIcol = 2)
     PressionBar <- SiRealInputServer('PressionBar', devMode = devMode, quantityTypeQUDT = 'AmbientPressure',
-                                     SIdigRef = TRUE, unit = 'pascal', derived = TRUE, SIalign = 'left', width = '220%', SIcol = 1)
+                                     SIdigRef = TRUE, unit = 'pascal', derived = TRUE, SIalign = 'left', width = '110%', SIcol = 2)
     HumedadRela <- SiRealInputServer('HumedadRela', devMode = devMode, quantityTypeQUDT = 'RelativeHumidity',
-                                     SIdigRef = TRUE, unit = 'mole', SIalign = 'left', width = '220%', SIcol = 1)
+                                     SIdigRef = TRUE, unit = 'mole', SIalign = 'left', width = '110%', SIcol = 2)
     
     DensitAir <- reactive({
       Temp <- GetValueEstandUncert(Temperatura())
